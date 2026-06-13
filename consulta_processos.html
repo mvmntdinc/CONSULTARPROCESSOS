@@ -254,11 +254,6 @@
   <div class="card">
     <h2>🔍 Nova Consulta</h2>
 
-    <div class="cors-warning">
-      ⚠️ <strong>Atenção:</strong> Para funcionar no GitHub Pages, é necessário habilitar CORS ou usar um proxy.
-      Localmente (abrindo o arquivo direto), pode haver bloqueio do navegador.
-      Recomendamos hospedar com um pequeno backend ou usar a extensão "CORS Unblock" no Chrome para testes.
-    </div>
 
     <div class="tabs">
       <button class="tab active" onclick="switchTab('nome')">Por Nome</button>
@@ -391,14 +386,16 @@
     document.getElementById('empty-msg').style.display = 'none';
 
     const endpoint = endpointMap[tribunalAtual];
-    const url = `https://api-publica.datajud.cnj.jus.br/${endpoint}/_search`;
+    const targetUrl = `https://api-publica.datajud.cnj.jus.br/${endpoint}/_search`;
+    const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
 
     try {
-      const resp = await fetch(url, {
+      const resp = await fetch(proxyUrl, {
         method: 'POST',
         headers: {
           'Authorization': `ApiKey ${API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-requested-with': 'XMLHttpRequest'
         },
         body: JSON.stringify(query)
       });
