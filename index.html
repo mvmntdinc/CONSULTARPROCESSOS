@@ -614,16 +614,14 @@
     const orgao = document.getElementById('prosp-orgao').value.trim();
 
     const must = [
-      { wildcard: { "classe.nome": "*umprimento*" } },
-      {
-        nested: {
-          path: "partes",
-          query: {
-            match: { "partes.nome": { query: reu, fuzziness: "AUTO" } }
-          }
-        }
-      }
+      { match: { "classe.nome": "Cumprimento de Sentença" } }
     ];
+    if (reu) must.push({
+      nested: {
+        path: "partes",
+        query: { match: { "partes.nome": { query: reu, fuzziness: "AUTO" } } }
+      }
+    });
     if (orgao) must.push({ match: { "orgaoJulgador.nome": { query: orgao, fuzziness: "AUTO" } } });
 
     const query = { query: { bool: { must } }, size: 20, sort: [{ dataAjuizamento: { order: "desc" } }] };
