@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precatórios & RPVs — Consulta e Investimento</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f6fa; color: #1a1a2e; }
+
+  header { background: #1a3a5c; color: #fff; padding: 16px 20px; }
+  header h1 { font-size: 1.15rem; font-weight: 700; }
+  header p { font-size: 0.78rem; color: #a8c4e0; margin-top: 2px; }
+
+  .tabs { display: flex; gap: 6px; padding: 14px 16px 0; flex-wrap: wrap; background: #1a3a5c; }
+  .tab { padding: 8px 16px; border-radius: 8px 8px 0 0; border: none; background: rgba(255,255,255,0.15); cursor: pointer; font-size: 0.83rem; font-weight: 600; color: #d0e4f7; transition: all .15s; }
+  .tab.active { background: #f5f6fa; color: #1a3a5c; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .card h2 { font-size: 0.95rem; font-weight: 700; color: #1a3a5c; margin-bottom: 12px; }
+  .card p { font-size: 0.85rem; color: #4a5568; line-height: 1.6; margin-bottom: 8px; }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 0; position: relative; }
+  .step:not(:last-child)::before { content: ''; position: absolute; left: 18px; top: 36px; bottom: 0; width: 2px; background: #dde5f0; }
+  .step-num { background: #1a3a5c; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; z-index: 1; }
+  .step-body { padding: 0 0 20px 14px; flex: 1; }
+  .step-body strong { font-size: 0.9rem; color: #1a3a5c; display: block; margin-bottom: 4px; margin-top: 6px; }
+  .step-body p { font-size: 0.83rem; color: #4a5568; margin-bottom: 6px; }
+
+  /* Big link button */
+  .btn-link { display: flex; align-items: center; gap: 10px; background: #1a3a5c; color: #fff; text-decoration: none; border-radius: 8px; padding: 12px 16px; font-size: 0.875rem; font-weight: 600; margin: 8px 0; transition: background .15s; }
+  .btn-link:hover { background: #254e82; }
+  .btn-link span { font-size: 1.2rem; }
+  .btn-link small { display: block; font-weight: 400; font-size: 0.75rem; opacity: .8; margin-top: 1px; }
+
+  .btn-link-secondary { display: flex; align-items: center; gap: 10px; border: 1.5px solid #1a3a5c; color: #1a3a5c; text-decoration: none; border-radius: 8px; padding: 10px 14px; font-size: 0.83rem; font-weight: 600; margin: 6px 0; transition: all .15s; }
+  .btn-link-secondary:hover { background: #eaf0f8; }
+  .btn-link-secondary span { font-size: 1rem; }
+
+  /* Alert */
+  .alert { background: #fef9ec; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.82rem; color: #78350f; margin: 10px 0; line-height: 1.5; }
+  .alert-blue { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
+  .alert-green { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
+
+  /* Link grid */
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .link-card { border: 1.5px solid #dde5f0; border-radius: 10px; padding: 12px; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 3px; transition: border-color .15s, box-shadow .15s; }
+  .link-card:hover { border-color: #1a3a5c; box-shadow: 0 2px 8px rgba(26,58,92,.1); }
+  .badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 10px; width: fit-content; }
+  .badge-fed { background: #dbeafe; color: #1e40af; }
+  .badge-trf6 { background: #e0e7ff; color: #3730a3; }
+  .badge-mun { background: #ffedd5; color: #9a3412; }
+  .badge-sec { background: #ede9fe; color: #5b21b6; }
+  .badge-rpv { background: #c6f6d5; color: #22543d; }
+  .badge-precatorio { background: #bee3f8; color: #2a4365; }
+  .link-card strong { font-size: 0.88rem; color: #1a3a5c; }
+  .link-card small { font-size: 0.78rem; color: #718096; }
+
+  /* Tip box */
+  .tip { background: #f0f4ff; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #3730a3; margin: 8px 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th { background: #f0f4fa; color: #1a3a5c; text-align: left; padding: 8px 12px; }
+  td { padding: 8px 12px; border-top: 1px solid #e8edf5; color: #4a5568; vertical-align: top; }
+  tr:hover td { background: #fafbff; }
+
+  /* ===== BUSCA DATAJUD ===== */
+  .search-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+  .search-tab { padding: 8px 18px; border: none; background: none; cursor: pointer; font-size: 0.85rem; color: #718096; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 600; transition: all .2s; }
+  .search-tab.active { color: #1a3a5c; border-bottom-color: #1a3a5c; }
+
+  .tribunal-select { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tribunal-btn { padding: 5px 13px; border: 2px solid #e2e8f0; border-radius: 20px; background: white; cursor: pointer; font-size: 0.8rem; color: #718096; transition: all .2s; }
+  .tribunal-btn.active { border-color: #1a3a5c; background: #1a3a5c; color: white; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+  .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color .2s; }
+  .form-group input:focus, .form-group select:focus { border-color: #1a3a5c; }
+
+  .btn-buscar { background: #1a3a5c; color: white; border: none; padding: 11px 28px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 6px; transition: background .2s; }
+  .btn-buscar:hover { background: #254e82; }
+  .btn-buscar:disabled { background: #a0aec0; cursor: not-allowed; }
+
+  .spinner { display: none; text-align: center; padding: 32px; color: #718096; }
+  .spinner-icon { font-size: 28px; animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .result-count { font-size: 0.83rem; color: #718096; margin-bottom: 12px; padding: 10px 14px; background: #f7fafc; border-radius: 8px; }
+
+  .processo-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 10px; cursor: pointer; transition: box-shadow .2s; }
+  .processo-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .processo-numero { font-size: 0.95rem; font-weight: 700; color: #1a3a5c; margin-bottom: 8px; }
+  .processo-info { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; margin-top: 8px; }
+  .info-item { font-size: 0.8rem; }
+  .info-label { color: #718096; font-weight: 600; display: block; }
+  .info-value { color: #2d3748; }
+  .partes-list { margin-top: 10px; font-size: 0.8rem; }
+  .parte { padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+  .parte:last-child { border: none; }
+  .polo { font-weight: 600; color: #718096; font-size: 0.72rem; text-transform: uppercase; }
+
+  .empty-msg { display: none; text-align: center; padding: 32px; color: #718096; font-size: 0.9rem; }
+  .error-msg { display: none; background: #fff5f5; border: 1px solid #fc8181; color: #c53030; padding: 14px; border-radius: 8px; font-size: 0.83rem; margin-top: 12px; }
+  .results-container { display: none; }
+
+  /* Filtros avançados RPV */
+  .filtros-avancados { background: #f0f4ff; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+  .filtros-avancados h3 { font-size: 0.83rem; font-weight: 700; color: #1a3a5c; margin-bottom: 10px; }
+  .filtros-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 500px) { .filtros-grid { grid-template-columns: 1fr; } }
+
+  footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #a0aec0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Precatórios & RPVs</h1>
+  <p>Consulta, prospecção e investimento — DataJud CNJ + portais dos tribunais</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('buscar', this)">🔍 Buscar Processos</div>
+  <div class="tab" onclick="show('consultar', this)">📋 Como Consultar</div>
+  <div class="tab" onclick="show('trf6', this)">⚖️ TRF6 (Ofício Requisitório)</div>
+  <div class="tab" onclick="show('investir', this)">💼 Investir / Comprar</div>
+  <div class="tab" onclick="show('vender', this)">💰 Vender meu Precatório</div>
+  <div class="tab" onclick="show('portais', this)">🔗 Todos os Links</div>
+</div>
+
+<div class="container">
+
+  <!-- ABA: BUSCAR PROCESSOS (DataJud) -->
+  <div id="buscar" class="panel active">
+
+    <div class="card">
+      <h2>🔍 Busca via API DataJud — CNJ</h2>
+      <p>Pesquise processos em qualquer tribunal do Brasil. Use para prospectar RPVs e precatórios com cálculo homologado.</p>
+
+      <div class="search-tabs">
+        <button class="search-tab active" onclick="switchSearchTab('nome')">Por Nome</button>
+        <button class="search-tab" onclick="switchSearchTab('numero')">Por Número</button>
+        <button class="search-tab" onclick="switchSearchTab('cpf')">Por CPF</button>
+        <button class="search-tab" onclick="switchSearchTab('prospeccao')">🎯 Prospecção RPV/INSS</button>
+      </div>
+
+      <!-- Seletor de Tribunal (para nome/numero/cpf) -->
+      <div id="secao-tribunal">
+        <div class="form-group">
+          <label>Tribunal</label>
+          <div class="tribunal-select">
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'trf1')">TRF1</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'trf2')">TRF2</button>
+            <button class="tribunal-btn active" onclick="selectTribunal(this, 'trf3')">TRF3</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'trf4')">TRF4</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'trf5')">TRF5</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'trf6')">TRF6</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'stj')">STJ</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'tjrj')">TJRJ</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'tjsp')">TJSP</button>
+            <button class="tribunal-btn" onclick="selectTribunal(this, 'tjmg')">TJMG</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Busca por Nome -->
+      <div id="stab-nome">
+        <div class="form-group">
+          <label>Nome da Parte</label>
+          <input type="text" id="input-nome" placeholder="Ex: Leonardo Felipe Marangon" />
+        </div>
+        <button class="btn-buscar" onclick="buscar('nome')">🔍 Buscar</button>
+      </div>
+
+      <!-- Busca por Número -->
+      <div id="stab-numero" style="display:none">
+        <div class="form-group">
+          <label>Número do Processo (CNJ)</label>
+          <input type="text" id="input-numero" placeholder="Ex: 5017981-35.2023.4.03.6303" />
+        </div>
+        <button class="btn-buscar" onclick="buscar('numero')">🔍 Buscar</button>
+      </div>
+
+      <!-- Busca por CPF -->
+      <div id="stab-cpf" style="display:none">
+        <div class="form-group">
+          <label>CPF do Credor</label>
+          <input type="text" id="input-cpf" placeholder="Ex: 435.123.456-78" />
+        </div>
+        <button class="btn-buscar" onclick="buscar('cpf')">🔍 Buscar</button>
+      </div>
+
+      <!-- Prospecção RPV/INSS -->
+      <div id="stab-prospeccao" style="display:none">
+        <div class="alert alert-blue" style="margin-bottom:14px">
+          🎯 <strong>Modo Prospecção:</strong> Busca processos contra o INSS em fase de cumprimento de sentença nos JEFs — ideal para encontrar RPVs com cálculo homologado para oferta de cessão.
+        </div>
+        <div class="filtros-avancados">
+          <h3>⚙️ Filtros de prospecção</h3>
+          <div class="filtros-grid">
+            <div class="form-group">
+              <label>Tribunal</label>
+              <select id="prosp-tribunal">
+                <option value="trf1">TRF1 (DF, MG antigo, Norte/Nordeste)</option>
+                <option value="trf2" selected>TRF2 (RJ e ES)</option>
+                <option value="trf3">TRF3 (SP e MS)</option>
+                <option value="trf4">TRF4 (Sul)</option>
+                <option value="trf5">TRF5 (Nordeste)</option>
+                <option value="trf6">TRF6 (MG novo)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Réu / Executado</label>
+              <select id="prosp-reu">
+                <option value="INSS">INSS</option>
+                <option value="UNIAO">União Federal</option>
+                <option value="FAZENDA">Fazenda Nacional</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nome do órgão julgador (opcional — ex: "JEF Campinas")</label>
+            <input type="text" id="prosp-orgao" placeholder="Deixe em branco para buscar em todos" />
+          </div>
+        </div>
+        <button class="btn-buscar" onclick="buscarProspeccao()">🎯 Prospectar RPVs</button>
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div class="spinner" id="spinner">
+      <div class="spinner-icon">⏳</div>
+      <p style="margin-top:10px;font-size:0.85rem">Consultando DataJud...</p>
+    </div>
+
+    <!-- Erro -->
+    <div class="error-msg" id="error-msg"></div>
+
+    <!-- Vazio -->
+    <div class="empty-msg" id="empty-msg">😕 Nenhum processo encontrado.</div>
+
+    <!-- Resultados -->
+    <div class="results-container" id="results">
+      <div class="result-count" id="result-count"></div>
+      <div id="results-list"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>💡 Como usar a prospecção</h2>
+      <p>A API DataJud retorna dados processuais mas <strong>não o valor da RPV</strong> — esse fica no portal de cada tribunal. O fluxo ideal é:</p>
+      <div class="steps" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Busque pelo nome do executado (INSS) ou órgão julgador</strong><p>Filtre por cumprimentos de sentença com movimentações recentes de homologação de cálculo.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Identifique o advogado do processo</strong><p>Aparece nos resultados. É o contato mais direto — ele tem carteira de clientes com RPVs pendentes.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Contate e peça o valor + CPF do credor</strong><p>Com o CPF, consulte o portal do tribunal para confirmar o valor e o status da RPV.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body"><strong>Faça a proposta de cessão</strong><p>RPV INSS já homologada: desconto típico de 20–30%. Valor certo + pagamento em 60 dias após expedição.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA: COMO CONSULTAR -->
+  <div id="consultar" class="panel">
+    <div class="card">
+      <h2>Qual é o seu processo? (federal ou municipal?)</h2>
+      <div class="alert alert-blue">Se a ação foi contra o <strong>INSS, Receita Federal ou União</strong> → é processo <strong>federal</strong> (TRF2). Se foi contra a <strong>Prefeitura</strong> de algum município → é <strong>municipal</strong> (TJRJ ou Prefeitura).</div>
+    </div>
+
+    <div class="card">
+      <h2>🏛️ Processo Federal (TRF2) — passo a passo</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Acesse o portal de consulta do TRF2</strong>
+            <a class="btn-link" href="https://www.trf2.jus.br/trf2/artigo/dipre/consulta-precatorios-rpvs" target="_blank">
+              <span>🔍</span>
+              <div>Consultar Precatórios e RPVs — TRF2<small>trf2.jus.br — clique aqui para abrir</small></div>
+            </a>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Digite seu CPF ou o número do processo</strong>
+            <p>No campo de busca, você pode pesquisar pelo <strong>CPF do credor</strong> ou pelo <strong>número do processo</strong> judicial de origem.</p>
+            <div class="tip">💡 Use o CPF sem pontos ou traços: só os números</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Interprete o resultado</strong>
+            <table style="margin-top:6px">
+              <tr><th>Status</th><th>O que significa</th></tr>
+              <tr><td>Expedido</td><td>Precatório emitido, aguardando inclusão no orçamento</td></tr>
+              <tr><td>Incluído no OGU</td><td>Incluído no Orçamento da União — pagamento previsto</td></tr>
+              <tr><td>Disponível para saque</td><td>Valores liberados — procure seu advogado</td></tr>
+              <tr><td>Pago</td><td>Já depositado</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Não achou? Tente também pelo e-Proc</strong>
+            <a class="btn-link-secondary" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span>📂</span> Sistema e-Proc TRF2</a>
+            <a class="btn-link-secondary" href="https://www.cnj.jus.br/precatorios/" target="_blank"><span>🏛️</span> Painel CNJ — visão nacional</a>
+            <p style="margin-top:6px">Ligue para a DIPRE: <strong>(21) 2282-8000</strong> ou e-mail: <strong>dipre@trf2.jus.br</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏙️ Processo Municipal — passo a passo</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Acesse o portal de precatórios do TJRJ</strong>
+            <a class="btn-link" href="https://www.tjrj.jus.br/web/precatorios/consultas1" target="_blank">
+              <span>🔍</span>
+              <div>Consultar Precatórios — TJRJ<small>tjrj.jus.br — clique aqui para abrir</small></div>
+            </a>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Selecione o município devedor</strong>
+            <p>Escolha entre: Rio de Janeiro, Duque de Caxias, Niterói, Angra dos Reis, São João de Meriti etc.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Pesquise por CPF ou número de processo</strong>
+            <div class="alert">⚠️ Precatórios municipais costumam ter filas mais longas e menos previsibilidade de pagamento que os federais.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📍 Subseções federais na sua região</h2>
+      <table>
+        <tr><th>Município</th><th>Onde consultar / contato</th></tr>
+        <tr><td><strong>Rio de Janeiro</strong></td><td>JFRJ — Av. Rio Branco 243 · (21) 3812-8604</td></tr>
+        <tr><td><strong>Duque de Caxias</strong></td><td>Subseção de Duque de Caxias — JFRJ</td></tr>
+        <tr><td><strong>Niterói</strong></td><td>Subseção de Niterói — JFRJ</td></tr>
+        <tr><td><strong>Angra dos Reis</strong></td><td>1ª Vara Federal de Angra dos Reis</td></tr>
+        <tr><td><strong>São João de Meriti</strong></td><td>Subseção da Baixada Fluminense / Duque de Caxias</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA: TRF6 -->
+  <div id="trf6" class="panel">
+    <div class="card">
+      <h2>⚖️ TRF6 — Tribunal Regional Federal da 6ª Região (Minas Gerais)</h2>
+      <p>O TRF6 foi criado em 2022 e atende exclusivamente <strong>Minas Gerais</strong>. Se você tem um processo originado em MG contra a União, INSS ou autarquia federal, o precatório/RPV fica no TRF6.</p>
+      <div class="alert alert-blue">⚠️ Processos de MG expedidos <strong>antes de 2023</strong> podem ainda estar no TRF1. Se não achar no TRF6, tente também o portal do TRF1.</div>
+    </div>
+
+    <div class="card">
+      <h2>📋 O que é o Ofício Requisitório?</h2>
+      <p>O <strong>Ofício Requisitório (OF)</strong> é o documento emitido pelo juiz de 1ª instância ao final do cumprimento de sentença, enviando a requisição de pagamento ao tribunal.</p>
+      <table style="margin-top:10px">
+        <tr><th>Etapa</th><th>O que acontece</th></tr>
+        <tr><td>Trânsito em julgado</td><td>Sentença definitiva — não cabe mais recurso</td></tr>
+        <tr><td>Cumprimento de sentença</td><td>Cálculo e liquidação do valor devido</td></tr>
+        <tr><td>Expedição do OF</td><td>Juiz emite o Ofício Requisitório ao TRF6</td></tr>
+        <tr><td>Autuação no TRF6</td><td>Precatório/RPV recebe número e entra na fila</td></tr>
+        <tr><td>Inclusão no orçamento</td><td>Valor incluído na proposta orçamentária da União</td></tr>
+        <tr><td>Pagamento / Saque</td><td>Disponível para retirada pelo credor</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>🔍 Como consultar no TRF6 — passo a passo</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Se o processo veio pelo sistema eproc</strong>
+            <a class="btn-link" href="https://eproc2g.trf6.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica" target="_blank">
+              <span>🔍</span>
+              <div>Consulta Pública eproc — TRF6<small>eproc2g.trf6.jus.br</small></div>
+            </a>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Se o processo veio pelo sistema PJe</strong>
+            <a class="btn-link" href="https://processual.trf1.jus.br/consultaProcessual/numeroProcesso.php?secao=TRF1&enviar=ok" target="_blank">
+              <span>🔍</span>
+              <div>Consulta Processual PJe — TRF1/TRF6<small>processual.trf1.jus.br</small></div>
+            </a>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Portal central de RPV e Precatórios do TRF6</strong>
+            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/rpv-e-precatorios/consulta-precatorio-e-rpv/" target="_blank"><span>🏛️</span> Portal TRF6 — RPV e Precatórios</a>
+            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/estatisticas/paineis-precatorios-e-rpvs/" target="_blank"><span>📊</span> Painel de estatísticas TRF6</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📅 Calendário TRF6 — 2026</h2>
+      <table>
+        <tr><th>Evento</th><th>Data / Info</th></tr>
+        <tr><td>Disponível para saque (proposta 2026)</td><td>A partir de <strong>8 de abril de 2026</strong></td></tr>
+        <tr><td>Abrangência</td><td>Precatórios autuados entre 3 abr/2024 e 2 abr/2025</td></tr>
+        <tr><td>Devedores</td><td>União Federal, autarquias e fundações federais</td></tr>
+        <tr><td>Beneficiários</td><td>Mais de 15 mil credores em MG</td></tr>
+      </table>
+      <div class="alert alert-green" style="margin-top:10px">✅ Precatórios federais (TRF6) têm o mesmo nível de segurança que TRF2 — devedora é a União Federal.</div>
+    </div>
+  </div>
+
+  <!-- ABA: INVESTIR -->
+  <div id="investir" class="panel">
+    <div class="card">
+      <h2>Como encontrar precatórios para comprar</h2>
+      <p>Os tribunais não listam precatórios "à venda" — o mercado funciona por plataformas, escritórios e prospecção ativa via DataJud (use a aba 🔍 Buscar Processos).</p>
+    </div>
+
+    <div class="card">
+      <h2>🛒 Plataformas de marketplace</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://pjus.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>PJus</strong><small>Maior marketplace de créditos judiciais</small></a>
+        <a class="link-card" href="https://lexcredativos.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>LexCred Ativos</strong><small>Gestão e negociação de ativos judiciais</small></a>
+        <a class="link-card" href="https://www.ativos.com" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>Ativos Precatórios</strong><small>Compra, venda e cessão de crédito</small></a>
+        <a class="link-card" href="https://ridolfinvest.com.br" target="_blank"><span class="badge badge-sec">Investimento</span><strong>Ridolfi Invest</strong><small>Especialista em precatórios RJ</small></a>
+        <a class="link-card" href="https://ccminvest.com.br" target="_blank"><span class="badge badge-sec">Investimento</span><strong>CCM Invest</strong><small>Compra e venda com consultoria</small></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 O que avaliar antes de comprar</h2>
+      <table>
+        <tr><th>Critério</th><th>O que verificar</th></tr>
+        <tr><td><strong>Tipo</strong></td><td>RPV (até 60 dias) vs. Precatório (fila anual)</td></tr>
+        <tr><td><strong>Fase</strong></td><td>Cálculo só homologado vs. RPV já expedida</td></tr>
+        <tr><td><strong>Devedor</strong></td><td>INSS/Federal = mais seguro · Municipal = risco maior</td></tr>
+        <tr><td><strong>Desconto típico RPV INSS</strong></td><td>20–30% sobre valor homologado</td></tr>
+        <tr><td><strong>Desconto típico precatório federal</strong></td><td>10–30%</td></tr>
+        <tr><td><strong>Desconto típico precatório municipal</strong></td><td>30–60%</td></tr>
+        <tr><td><strong>Cessão anterior</strong></td><td>Verificar se não há cessão ou penhora no processo</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA: VENDER -->
+  <div id="vender" class="panel">
+    <div class="card">
+      <h2>Como vender seu precatório ou RPV</h2>
+      <p>Você transfere o direito de receber ao comprador agora, em troca de um valor à vista com desconto. Isso se chama <strong>cessão de crédito</strong>.</p>
+    </div>
+    <div class="card">
+      <h2>📋 Passo a passo</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Reúna os documentos</strong><p>Certidão do precatório/RPV (emitida pelo tribunal), número do processo, valor atualizado, RG, CPF e comprovante de residência.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Encontre compradores</strong><p>Use as plataformas da aba "Investir / Comprar" ou consulte escritórios especializados. Peça propostas de mais de um comprador.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Negocie o valor</strong><p>O comprador paga menos que o valor de face — o desconto é a remuneração pelo tempo de espera.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Assine o contrato de cessão</strong><p>Instrumento particular com firma reconhecida em cartório (ou escritura pública para valores altos).</p></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Peticione no processo</strong><p>O novo credor (ou seu advogado) protocola a cessão nos autos para o tribunal registrar a mudança de titular.</p></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Receba à vista</strong><p>Após a formalização, o comprador efetua o pagamento combinado.</p></div></div>
+      </div>
+      <div class="alert">⚠️ Nunca pague nada adiantado — empresas sérias não cobram taxa para comprar seu precatório.</div>
+    </div>
+  </div>
+
+  <!-- ABA: TODOS OS LINKS -->
+  <div id="portais" class="panel">
+    <div class="card">
+      <h2>🔗 Federais (TRF2 — RJ e ES)</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://www.trf2.jus.br/trf2/artigo/dipre/consulta-precatorios-rpvs" target="_blank"><span class="badge badge-fed">Federal</span><strong>Consulta Precatórios e RPVs</strong><small>Busca por CPF ou processo</small></a>
+        <a class="link-card" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span class="badge badge-fed">Federal</span><strong>e-Proc TRF2</strong><small>Processos desde out/2018</small></a>
+        <a class="link-card" href="https://www.trf2.jus.br/trf2/artigo/dipre/divida-consolidada-de-precatorios" target="_blank"><span class="badge badge-fed">Federal</span><strong>Dívida Consolidada</strong><small>Lista cronológica da fila</small></a>
+        <a class="link-card" href="https://www.cnj.jus.br/precatorios/" target="_blank"><span class="badge badge-fed">CNJ</span><strong>Painel Nacional CNJ</strong><small>Todos os tribunais</small></a>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🔗 Federais (TRF3 — SP e MS)</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://www.trf3.jus.br/trf3/index.php?id=1826" target="_blank"><span class="badge badge-fed">TRF3</span><strong>Consulta RPV/Precatório TRF3</strong><small>Busca por CPF ou processo</small></a>
+        <a class="link-card" href="https://pje1g.trf3.jus.br/pje/ConsultaPublica/listView.seam" target="_blank"><span class="badge badge-fed">TRF3</span><strong>PJe TRF3 — Consulta Pública</strong><small>Acesso aos processos</small></a>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🏙️ Municipais (TJRJ)</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios/consultas1" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Consultas TJRJ</strong><small>Precatórios municipais RJ</small></a>
+        <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Portal Precatórios TJRJ</strong><small>Portal completo</small></a>
+        <a class="link-card" href="https://www.duquedecaxias.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura Duque de Caxias</strong><small>Secretaria de Fazenda</small></a>
+        <a class="link-card" href="https://fazenda.niteroi.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Fazenda Niterói</strong><small>Precatórios municipais</small></a>
+        <a class="link-card" href="https://www.angra.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura Angra dos Reis</strong><small>Procuradoria Municipal</small></a>
+        <a class="link-card" href="https://www.sjmeriti.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura SJ de Meriti</strong><small>Secretaria de Fazenda</small></a>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💼 Mercado Secundário</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://pjus.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>PJus</strong><small>Marketplace de créditos judiciais</small></a>
+        <a class="link-card" href="https://lexcredativos.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>LexCred Ativos</strong><small>Ativos judiciais</small></a>
+        <a class="link-card" href="https://www.ativos.com" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>Ativos Precatórios</strong><small>Cessão de crédito</small></a>
+        <a class="link-card" href="https://ridolfinvest.com.br" target="_blank"><span class="badge badge-sec">Investidor</span><strong>Ridolfi Invest</strong><small>Compra de precatórios</small></a>
+        <a class="link-card" href="https://ccminvest.com.br" target="_blank"><span class="badge badge-sec">Investidor</span><strong>CCM Invest</strong><small>Compra e venda</small></a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Dados processuais via API Pública DataJud · CNJ · Uso exclusivo para fins informativos</footer>
+
+<script>
+  const API_KEY = 'cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==';
+  let tribunalAtual = 'trf3';
+
+  const endpointMap = {
+    trf1: 'api_publica_trf1', trf2: 'api_publica_trf2', trf3: 'api_publica_trf3',
+    trf4: 'api_publica_trf4', trf5: 'api_publica_trf5', trf6: 'api_publica_trf6',
+    stj: 'api_publica_stj', tjrj: 'api_publica_tjrj', tjsp: 'api_publica_tjsp', tjmg: 'api_publica_tjmg'
+  };
+
+  // Navegação entre abas principais
+  function show(id, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  // Abas de busca
+  function switchSearchTab(tab) {
+    ['nome','numero','cpf','prospeccao'].forEach(t => {
+      document.getElementById('stab-' + t).style.display = t === tab ? 'block' : 'none';
+    });
+    document.querySelectorAll('.search-tab').forEach((el, i) => {
+      el.classList.toggle('active', ['nome','numero','cpf','prospeccao'][i] === tab);
+    });
+    // Ocultar seletor de tribunal no modo prospecção (tem o próprio)
+    document.getElementById('secao-tribunal').style.display = tab === 'prospeccao' ? 'none' : 'block';
+    limparResultados();
+  }
+
+  function selectTribunal(el, tribunal) {
+    document.querySelectorAll('.tribunal-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    tribunalAtual = tribunal;
+  }
+
+  function limparResultados() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'none';
+    document.getElementById('spinner').style.display = 'none';
+  }
+
+  function buildQuery(tipo) {
+    if (tipo === 'nome') {
+      const nome = document.getElementById('input-nome').value.trim();
+      if (!nome) return null;
+      return { query: { nested: { path: "partes", query: { match: { "partes.nome": { query: nome, fuzziness: "AUTO" } } } } }, size: 20 };
+    }
+    if (tipo === 'numero') {
+      const num = document.getElementById('input-numero').value.trim().replace(/\D/g,'');
+      if (!num) return null;
+      return { query: { match: { numeroProcesso: num } }, size: 10 };
+    }
+    if (tipo === 'cpf') {
+      const cpf = document.getElementById('input-cpf').value.trim().replace(/\D/g,'');
+      if (!cpf) return null;
+      return { query: { nested: { path: "partes", query: { match: { "partes.documento": cpf } } } }, size: 20 };
+    }
+  }
+
+  async function buscar(tipo) {
+    const query = buildQuery(tipo);
+    if (!query) { alert('Preencha o campo de busca.'); return; }
+    await executarBusca(query, tribunalAtual);
+  }
+
+  async function buscarProspeccao() {
+    const tribunal = document.getElementById('prosp-tribunal').value;
+    const reu = document.getElementById('prosp-reu').value;
+    const orgao = document.getElementById('prosp-orgao').value.trim();
+
+    const must = [
+      { wildcard: { "classe.nome": "*umprimento*" } },
+      {
+        nested: {
+          path: "partes",
+          query: {
+            match: { "partes.nome": { query: reu, fuzziness: "AUTO" } }
+          }
+        }
+      }
+    ];
+    if (orgao) must.push({ match: { "orgaoJulgador.nome": { query: orgao, fuzziness: "AUTO" } } });
+
+    const query = { query: { bool: { must } }, size: 20, sort: [{ dataAjuizamento: { order: "desc" } }] };
+    await executarBusca(query, tribunal);
+  }
+
+  async function executarBusca(query, tribunal) {
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'none';
+
+    const endpoint = endpointMap[tribunal];
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+
+    try {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query)
+      });
+
+      document.getElementById('spinner').style.display = 'none';
+
+      if (!resp.ok) throw new Error(`Erro ${resp.status}: ${await resp.text()}`);
+
+      const data = await resp.json();
+      const hits = data?.hits?.hits || [];
+
+      if (hits.length === 0) { document.getElementById('empty-msg').style.display = 'block'; return; }
+
+      renderResults(hits, data?.hits?.total?.value || hits.length);
+
+    } catch(e) {
+      document.getElementById('spinner').style.display = 'none';
+      const errEl = document.getElementById('error-msg');
+      errEl.style.display = 'block';
+      errEl.innerHTML = `<strong>Erro ao consultar:</strong> ${e.message}<br><br>Se estiver rodando localmente, o navegador pode estar bloqueando por CORS. Hospede no GitHub Pages.`;
+    }
+  }
+
+  function renderResults(hits, total) {
+    const container = document.getElementById('results-list');
+    container.innerHTML = '';
+    document.getElementById('result-count').textContent = `✅ ${total} processo(s) encontrado(s) — exibindo ${hits.length}`;
+
+    hits.forEach(hit => {
+      const p = hit._source;
+      const numero = p.numeroProcesso || '—';
+      const classe = p.classe?.nome || '—';
+      const assunto = p.assuntos?.[0]?.nome || '—';
+      const tribunal = p.tribunal?.nome || p.tribunal?.sigla || '—';
+      const orgao = p.orgaoJulgador?.nome || '—';
+      const dataAjuiz = p.dataAjuizamento ? p.dataAjuizamento.substring(0,10) : '—';
+      const grau = p.grau || '—';
+      const valor = p.valorCausa ? `R$ ${Number(p.valorCausa).toLocaleString('pt-BR', {minimumFractionDigits:2})}` : '—';
+      const partes = p.partes || [];
+
+      let tipoBadge = '';
+      const classeNome = (p.classe?.nome || '').toLowerCase();
+      if (classeNome.includes('rpv') || classeNome.includes('pequeno valor')) {
+        tipoBadge = '<span class="badge badge-rpv" style="margin-left:8px">RPV</span>';
+      } else if (classeNome.includes('precatório') || classeNome.includes('precatorio')) {
+        tipoBadge = '<span class="badge badge-precatorio" style="margin-left:8px">Precatório</span>';
+      }
+
+      const partesHtml = partes.slice(0, 6).map(pt => `
+        <div class="parte">
+          <span class="polo">${pt.polo || ''}</span> ${pt.nome || '—'}
+          ${pt.advogados?.length ? `<br><small style="color:#718096">Adv: ${pt.advogados.map(a=>a.nome).join(', ')}</small>` : ''}
+        </div>
+      `).join('');
+
+      const card = document.createElement('div');
+      card.className = 'processo-card';
+      card.innerHTML = `
+        <div class="processo-numero">${formatNumero(numero)} ${tipoBadge}</div>
+        <div class="processo-info">
+          <div class="info-item"><span class="info-label">Classe</span><span class="info-value">${classe}</span></div>
+          <div class="info-item"><span class="info-label">Assunto</span><span class="info-value">${assunto}</span></div>
+          <div class="info-item"><span class="info-label">Tribunal</span><span class="info-value">${tribunal}</span></div>
+          <div class="info-item"><span class="info-label">Órgão</span><span class="info-value">${orgao}</span></div>
+          <div class="info-item"><span class="info-label">Ajuizamento</span><span class="info-value">${dataAjuiz}</span></div>
+          <div class="info-item"><span class="info-label">Grau</span><span class="info-value">${grau}</span></div>
+          <div class="info-item"><span class="info-label">Valor da causa</span><span class="info-value">${valor}</span></div>
+        </div>
+        ${partesHtml ? `<div class="partes-list" style="margin-top:10px"><strong style="font-size:0.75rem;color:#4a5568">PARTES:</strong>${partesHtml}</div>` : ''}
+      `;
+      container.appendChild(card);
+    });
+
+    document.getElementById('results').style.display = 'block';
+  }
+
+  function formatNumero(n) {
+    if (!n || n.length < 20) return n;
+    return `${n.slice(0,7)}-${n.slice(7,9)}.${n.slice(9,13)}.${n.slice(13,14)}.${n.slice(14,16)}.${n.slice(16)}`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const tabs = ['nome','numero','cpf'];
+      const ativo = tabs.find(t => document.getElementById('stab-'+t)?.style.display !== 'none') || 'nome';
+      if (ativo) buscar(ativo);
+    }
+  });
+</script>
+</body>
+</html>
