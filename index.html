@@ -199,38 +199,17 @@
         </div>
         <div class="filtros-avancados">
           <h3>⚙️ Filtros de prospecção</h3>
-          <div class="filtros-grid">
-            <div class="form-group">
-              <label>Tribunal</label>
-              <select id="prosp-tribunal">
-                <option value="trf1">TRF1 (DF, MG antigo, Norte/Nordeste)</option>
-                <option value="trf2" selected>TRF2 (RJ e ES)</option>
-                <option value="trf3">TRF3 (SP e MS)</option>
-                <option value="trf4">TRF4 (Sul)</option>
-                <option value="trf5">TRF5 (Nordeste)</option>
-                <option value="trf6">TRF6 (MG novo)</option>
-                <option value="tjrj">TJRJ (Municípios RJ)</option>
-              </select>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Natureza do precatório</label>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button type="button" class="btn-mun active" id="btn-prosp-nat-todos" onclick="selecionarNaturezaProsp('todos')" style="flex:1">🔍 Todos</button>
+              <button type="button" class="btn-mun" id="btn-prosp-nat-alimentar" onclick="selecionarNaturezaProsp('alimentar')" style="flex:1">🍎 Alimentar</button>
+              <button type="button" class="btn-mun" id="btn-prosp-nat-comum" onclick="selecionarNaturezaProsp('comum')" style="flex:1">📄 Comum</button>
             </div>
-            <div class="form-group">
-              <label>Réu / Executado</label>
-              <select id="prosp-reu" onchange="syncReuTexto(this.value)">
-                <option value="INSS">INSS (Federal)</option>
-                <option value="UNIAO">União Federal</option>
-                <option value="FAZENDA">Fazenda Nacional</option>
-                <option value="">— Qualquer réu —</option>
-              </select>
-              <input type="text" id="prosp-reu-texto" placeholder="Ou digite o nome exato do réu no DataJud..." style="margin-top:6px;width:100%;padding:8px 12px;border:2px dashed #cbd5e0;border-radius:8px;font-size:0.85rem;color:#4a5568" />
-              <p style="font-size:0.72rem;color:#718096;margin-top:3px">💡 Se o dropdown não funcionar, digite o nome exato aqui (ex: "PREFEITURA MUNICIPAL DE ANGRA DOS REIS")</p>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Nome do órgão julgador (opcional — ex: "JEF Campinas")</label>
-            <input type="text" id="prosp-orgao" placeholder="Deixe em branco para buscar em todos" />
           </div>
           <div class="filtros-grid">
             <div class="form-group">
-              <label>Assunto (opcional)</label>
+              <label id="prosp-assunto-label">Assunto específico (opcional)</label>
               <select id="prosp-assunto">
                 <option value="">Todos os assuntos</option>
                 <optgroup label="── 🍎 Alimentar (prioridade de pagamento) ──">
@@ -258,24 +237,18 @@
           </div>
           <div class="filtros-grid">
             <div class="form-group">
-              <label>Ano de ajuizamento</label>
+              <label>Período de ajuizamento</label>
               <select id="prosp-data-inicio">
-                <option value="">Qualquer ano</option>
-                <option value="2010">2010</option>
-                <option value="2011">2011</option>
-                <option value="2012">2012</option>
-                <option value="2013">2013</option>
-                <option value="2014">2014</option>
-                <option value="2015">2015</option>
-                <option value="2016">2016</option>
-                <option value="2017">2017</option>
-                <option value="2018">2018</option>
-                <option value="2019">2019</option>
-                <option value="2020">2020</option>
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
+                <option value="">Qualquer período</option>
+                <option value="2015-2020">2015 a 2020</option>
+                <option value="2018-2022" selected>2018 a 2022</option>
+                <option value="2020-2023">2020 a 2023</option>
+                <option value="2010-2018">2010 a 2018</option>
+                <option value="2020">Exato: 2020</option>
+                <option value="2021">Exato: 2021</option>
+                <option value="2022">Exato: 2022</option>
+                <option value="2023">Exato: 2023</option>
+                <option value="2024">Exato: 2024</option>
               </select>
             </div>
             <div class="form-group">
@@ -283,14 +256,15 @@
               <select id="prosp-size">
                 <option value="20">20 processos</option>
                 <option value="50">50 processos</option>
+                <option value="500" selected>500 processos</option>
                 <option value="100">100 processos</option>
               </select>
             </div>
           </div>
           <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:12px 16px;margin-top:4px">
             <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#166534">
-              <input type="checkbox" id="prosp-homolog" style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
-              🔥 Só processos com Homologação / Expedição de RPV
+              <input type="checkbox" id="prosp-homolog" checked style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
+              🔥 Só processos com score ≥ 60 pts
             </label>
             <p style="font-size:0.78rem;color:#4a7c59;margin-top:4px;margin-left:28px">Filtra só processos onde alguma das 3 últimas movimentações é homologação ou expedição (exclui pagamento — crédito já quitado)</p>
           </div>
@@ -301,75 +275,79 @@
       <!-- Prospecção Municipal RJ -->
       <div id="stab-municipal" style="display:none">
         <div class="alert alert-blue" style="margin-bottom:14px">
-          🏛️ <strong>Precatórios Municipais RJ:</strong> Busca processos contra municípios do RJ no TJRJ.
+          🏛️ <strong>Fila Real de Precatórios — Portal TJRJ:</strong> Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.
         </div>
         <div class="filtros-avancados">
-          <h3>⚙️ Filtros — Municípios RJ</h3>
-
-          <div class="form-group" style="margin-bottom:10px">
-            <label>Município (selecione ou digite o órgão)</label>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;margin-top:4px">
-              <button type="button" onclick="selecionarMunicipio('CAPITAL FAZ PUBLICA')" class="btn-mun" id="btn-mun-capital">🏙️ Rio de Janeiro</button>
-              <button type="button" onclick="selecionarMunicipio('NITEROI FAZ PUBLICA')" class="btn-mun" id="btn-mun-niteroi">🌉 Niterói</button>
-              <button type="button" onclick="selecionarMunicipio('CAXIAS FAZ PUBLICA')" class="btn-mun" id="btn-mun-caxias">🏭 Duque de Caxias</button>
-              <button type="button" onclick="selecionarMunicipio('ANGRA DOS REIS FAZ PUBLICA')" class="btn-mun" id="btn-mun-angra">⚓ Angra dos Reis</button>
-              <button type="button" onclick="selecionarMunicipio('MERITI')" class="btn-mun" id="btn-mun-sjoao">🏘️ São João de Meriti</button>
-            </div>
-            <input type="text" id="mun-orgao" placeholder="Ou digite o órgão julgador manualmente (ex: CAXIAS FAZ PUBLICA)" />
+          <h3>⚙️ Selecionar Entidade Devedora</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;margin-top:8px">
+            <button type="button" onclick="selecionarEntidadeTJRJ(2,'MUNICÍPIO DO RIO DE JANEIRO')" class="btn-mun" id="btn-tjrj-capital">🏙️ Rio de Janeiro</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(9,'MUNICÍPIO DE NITERÓI')" class="btn-mun" id="btn-tjrj-niteroi">🌉 Niterói</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(7,'MUNICÍPIO DE DUQUE DE CAXIAS')" class="btn-mun" id="btn-tjrj-caxias">🏭 Duque de Caxias</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(27,'MUNICÍPIO DE ANGRA DOS REIS')" class="btn-mun" id="btn-tjrj-angra">⚓ Angra dos Reis</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(34,'MUNICÍPIO DE SÃO JOÃO DE MERITI')" class="btn-mun" id="btn-tjrj-meriti">🏘️ São João de Meriti</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(290,'INSTITUTO  DE  PREVIDÊNCIA  DOS  SERVIDORES  PÚBLICOS  DE  SÃO  JOÃO  DE  MERITI - MERITI PREV')" class="btn-mun" id="btn-tjrj-meriti-prev">🏦 Meriti Prev</button>
           </div>
-
-          <div class="filtros-grid" style="display:none"><div><input id="mun-reu-texto" /></div></div>
-
-          <div class="filtros-grid">
-            <div class="form-group">
-              <label>Ano de ajuizamento</label>
-              <select id="mun-data-inicio">
-                <option value="">Qualquer ano</option>
-                <option value="2008">2008</option>
-                <option value="2009">2009</option>
-                <option value="2010">2010</option>
-                <option value="2011">2011</option>
-                <option value="2012">2012</option>
-                <option value="2013">2013</option>
-                <option value="2014">2014</option>
-                <option value="2015">2015</option>
-                <option value="2016">2016</option>
-                <option value="2017">2017</option>
-                <option value="2018">2018</option>
-                <option value="2019">2019</option>
-                <option value="2020">2020</option>
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
+              <label>Natureza</label>
+              <select id="tjrj-natureza" style="width:100%;padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.88rem">
+                <option value="">Todas</option>
+                <option value="A">🍎 Alimentícia</option>
+                <option value="C">📄 Comum</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Quantidade de resultados</label>
-              <select id="mun-size">
-                <option value="50">50 processos</option>
-                <option value="100" selected>100 processos</option>
-                <option value="200">200 processos</option>
-                <option value="500">500 processos</option>
+            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
+              <label>Ano orçamento</label>
+              <select id="tjrj-ano" style="width:100%;padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.88rem">
+                <option value="">Todos os anos</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
+              <label>Tipo de pagamento</label>
+              <select id="tjrj-regime" style="width:100%;padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.88rem">
+                <option value="O">Cronológico</option>
+                <option value="P">Prioritário</option>
               </select>
             </div>
           </div>
-
-          <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:12px 16px;margin-top:4px">
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#166534">
-              <input type="checkbox" id="mun-homolog" style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
-              🔥 Só processos com Homologação / Expedição de RPV
-            </label>
-          </div>
+          <input type="hidden" id="tjrj-id-entidade" value="" />
+          <input type="hidden" id="tjrj-nome-entidade" value="" />
         </div>
-        <button class="btn-buscar" onclick="buscarMunicipal()">🏛️ Prospectar Precatórios Municipais</button>
+        <button class="btn-buscar" onclick="buscarFilaTJRJ()" id="btn-buscar-tjrj" disabled>🏛️ Carregar Fila de Precatórios</button>
+
+        <!-- Resultados municipais TJRJ -->
+        <div id="tjrj-resultados" style="display:none;margin-top:20px">
+          <div id="tjrj-summary" style="background:#eff6ff;border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:0.85rem;color:#1e40af"></div>
+          <div style="overflow-x:auto">
+            <table id="tjrj-tabela" style="width:100%;border-collapse:collapse;font-size:0.82rem">
+              <thead>
+                <tr style="background:#f0f4fa">
+                  <th style="padding:9px 12px;text-align:center;color:#1a3a5c;font-weight:700">Ordem</th>
+                  <th style="padding:9px 12px;text-align:left;color:#1a3a5c;font-weight:700">Entidade Devedora</th>
+                  <th style="padding:9px 12px;text-align:left;color:#1a3a5c;font-weight:700">Precatório</th>
+                  <th style="padding:9px 12px;text-align:center;color:#1a3a5c;font-weight:700">Natureza</th>
+                  <th style="padding:9px 12px;text-align:center;color:#1a3a5c;font-weight:700">Orçamento</th>
+                  <th style="padding:9px 12px;text-align:right;color:#1a3a5c;font-weight:700">Valor Histórico</th>
+                  <th style="padding:9px 12px;text-align:right;color:#1a3a5c;font-weight:700">Saldo Devedor</th>
+                  <th style="padding:9px 12px;text-align:center;color:#1a3a5c;font-weight:700">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tjrj-tbody"></tbody>
+            </table>
+          </div>
+          <div id="tjrj-paginacao" style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"></div>
+        </div>
       </div>
     </div>
 
     <!-- Spinner -->
     <div class="spinner" id="spinner">
       <div class="spinner-icon">⏳</div>
-      <p style="margin-top:10px;font-size:0.85rem">Consultando DataJud...</p>
+      <p style="margin-top:10px;font-size:0.85rem" id="spinner-text">Consultando DataJud...</p>
     </div>
 
     <!-- Erro -->
@@ -681,6 +659,116 @@
     stj: 'api_publica_stj', tjrj: 'api_publica_tjrj', tjsp: 'api_publica_tjsp', tjmg: 'api_publica_tjmg'
   };
 
+  // ══════════════════════════════════════════════
+  // SCORE DE OPORTUNIDADE DE INVESTIMENTO
+  // Baseado nos movimentos e características do processo
+  // ══════════════════════════════════════════════
+  function calcScore(hit) {
+    const src = hit._source || {};
+    const movimentos = src.movimentos || [];
+    const assuntos = (src.assuntos || []).map(a => (a.nome||'').toLowerCase());
+    const dataAjuiz = src.dataAjuizamento || '';
+    let score = 0;
+    const motivos = [];
+
+    // Verifica cada movimentação (varre todas, acumula pontos únicos por categoria)
+    let temExpRPV = false, temExpPrec = false, temTJ = false, temCumprimento = false,
+        temCalculos = false, temRequisicao = false, temRemessaTRF = false,
+        temRecursoPendente = false;
+
+    const agoraMs = Date.now();
+    const DOIS_ANOS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
+
+    for (const m of movimentos) {
+      const n = (m.nome || '').toLowerCase();
+      const excluir = ['transaç','transac','acordo','desistencia','desistência'].some(x => n.includes(x));
+      if (excluir) continue;
+
+      // Data do movimento para checar recência
+      const dataMov = m.dataHora ? new Date(m.dataHora.substring(0,10)) : null;
+      const recente = dataMov ? (agoraMs - dataMov.getTime()) < DOIS_ANOS_MS : false;
+
+      // Expedição: vale independente de data (evento permanente)
+      if (!temExpRPV && (n.includes('expedição de rpv') || n.includes('expedição de ofício requisitório') || n.includes('expedida/certificada'))) temExpRPV = true;
+      if (!temExpPrec && n.includes('expedição de precatório')) temExpPrec = true;
+      if (!temRequisicao && (n.includes('requisição de pagamento') || n.includes('requisicao de pagamento') || n.includes('requisição cadastrada') || n.includes('requisicao cadastrada'))) temRequisicao = true;
+
+      // TJ, Cumprimento, Cálculos: só pontuam se recentes (últimos 2 anos) OU se há expedição confirmada
+      if (!temTJ && recente && (n.includes('trânsito em julgado') || n.includes('transito em julgado'))) temTJ = true;
+      if (!temCumprimento && recente && (n.includes('cumprimento de sentença') || n.includes('execução contra a fazenda') || n.includes('execucao contra a fazenda'))) temCumprimento = true;
+      if (!temCalculos && recente && (n.includes('cálculos homologados') || n.includes('calculos homologados') || n.includes('conta elaborada') || n.includes('homologação de cálculos') || n.includes('homologacao de calculos'))) temCalculos = true;
+      if (!temRemessaTRF && recente && (n.includes('remessa ao trf') || n.includes('remetido ao trf') || n.includes('remessa para o trf'))) temRemessaTRF = true;
+
+      if (!temRecursoPendente && (n.includes('recurso') && !n.includes('negar') && !n.includes('desprovid') && !n.includes('improvid') && !n.includes('nao provid'))) temRecursoPendente = true;
+    }
+
+    // Pontua por tipo de expedição (mutuamente exclusivos, pega o mais alto)
+    if (temExpPrec)       { score += 80; motivos.push('+80 Precatório expedido'); }
+    else if (temExpRPV)   { score += 60; motivos.push('+60 RPV expedida'); }
+    else if (temRequisicao){ score += 45; motivos.push('+45 Requisição de pagamento'); }
+    else if (temCalculos) { score += 25; motivos.push('+25 Cálculos homologados (recente)'); }
+
+    // Acumulativos — só valem se recentes
+    if (temTJ)          { score += 40; motivos.push('+40 Trânsito em julgado (recente)'); }
+    if (temCumprimento) { score += 30; motivos.push('+30 Cumprimento de sentença (recente)'); }
+    if (temRemessaTRF)  { score += 15; motivos.push('+15 Remessa ao TRF (recente)'); }
+
+    // Natureza alimentar
+    const alimentarK = ['aposentadoria','auxílio','auxilio','pensão','pensao','benefício','beneficio','incapacidade','salário maternidade','salario maternidade','bpc'];
+    if (assuntos.some(a => alimentarK.some(k => a.includes(k)))) { score += 50; motivos.push('+50 Alimentar'); }
+
+    // Processo antigo (> 5 anos desde ajuizamento) — mais maduro
+    if (dataAjuiz) {
+      const ano = parseInt(dataAjuiz.substring(0, 4));
+      const anosDecorridos = new Date().getFullYear() - ano;
+      if (anosDecorridos >= 5) { score += 20; motivos.push(`+20 ${anosDecorridos} anos (maduro)`); }
+    }
+
+    // Penalidade: recurso pendente sem resolução
+    if (temRecursoPendente && !temTJ && !temExpRPV && !temExpPrec) { score -= 50; motivos.push('-50 Recurso pendente'); }
+
+    // Penalidade: inatividade — última movimentação antiga sem sinal positivo recente
+    const ultimaMov = movimentos[movimentos.length - 1];
+    if (ultimaMov?.dataHora) {
+      const dataUltima = new Date(ultimaMov.dataHora.substring(0, 10));
+      const anosParado = (new Date() - dataUltima) / (1000 * 60 * 60 * 24 * 365);
+      const nUltima = (ultimaMov.nome || '').toLowerCase();
+      const ultimaEPositiva = ['expedição','homologaç','homologac','trânsito','transito','cumprimento','execução','execucao','requisição','requisicao'].some(k => nUltima.includes(k));
+      if (!ultimaEPositiva) {
+        if (anosParado >= 4)      { score -= 80; motivos.push(`-80 Parado há ${Math.floor(anosParado)} anos`); }
+        else if (anosParado >= 2) { score -= 40; motivos.push(`-40 Parado há ${Math.floor(anosParado)} anos`); }
+        else if (anosParado >= 1) { score -= 15; motivos.push(`-15 Parado há ${Math.floor(anosParado)} ano`); }
+      }
+    }
+
+    // ENCERRAMENTO: se passou pelo isLixo mas chegou aqui, zera o score
+    const ult5score = movimentos.slice(-5).map(m => (m.nome||'').toLowerCase());
+    const temExpRecente = ult5score.some(n => ['expedição de rpv','expedição de precatório','expedição de ofício','expedida/certificada','requisição cadastrada'].some(k => n.includes(k)));
+    const encKscore = ['baixa definitiva','arquivamento definitivo','pago','paga','pagamento efetuado','pagamento realizado','levantamento','cancelado','cancelada','definitivo','definitiva','desistência','desistencia','extinto'];
+    const estaEncerrado = ult5score.some(n => encKscore.some(k => {
+      if ((k === 'definitivo' || k === 'definitiva') && temExpRecente) return false;
+      return n.includes(k);
+    }));
+    if (estaEncerrado) {
+      score = -999;
+      motivos.length = 0;
+      motivos.push('❌ Encerrado');
+    }
+
+    hit._score = score;
+    hit._motivos = motivos;
+    return score;
+  }
+
+  // Cor do score
+  function scoreCor(s) {
+    if (s >= 150) return { bg: '#dcfce7', cor: '#166534', label: '🔥' };
+    if (s >= 100) return { bg: '#fef9c3', cor: '#854d0e', label: '⚡' };
+    if (s >= 60)  return { bg: '#dbeafe', cor: '#1e40af', label: '✅' };
+    if (s >= 20)  return { bg: '#f3f4f6', cor: '#374151', label: '📋' };
+    return           { bg: '#fee2e2', cor: '#9a3412', label: '❌' };
+  }
+
   // Navegação entre abas principais
   function show(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -738,32 +826,46 @@
     await executarBusca(query, tribunalAtual);
   }
 
-  function syncReuTexto(val) {
-    // Quando muda o dropdown, limpa o campo de texto livre
-    document.getElementById('prosp-reu-texto').value = '';
+  function selecionarNaturezaProsp(nat) {
+    document.querySelectorAll('#btn-prosp-nat-todos,#btn-prosp-nat-alimentar,#btn-prosp-nat-comum').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-prosp-nat-' + nat).classList.add('active');
+    document.getElementById('prosp-assunto').value = '';
+    document.getElementById('prosp-assunto').dataset.natureza = nat;
+    const show = nat === 'todos';
+    document.getElementById('prosp-assunto').style.display = show ? '' : 'none';
+    document.getElementById('prosp-assunto-label').style.display = show ? '' : 'none';
   }
 
+  // Inicializa botão "Todos" como ativo
+  document.addEventListener('DOMContentLoaded', () => {
+    selecionarNatureza('todos');
+    selecionarNaturezaProsp('todos');
+  });
+
+  // INSS: assuntos alimentar e comum
+  const PROSP_ALIMENTAR = ['Aposentadoria','Auxílio','Benefício de Prestação Continuada','Pensão','Salário Maternidade','Incapacidade'];
+  const PROSP_COMUM = ['Revisão','Correção Monetária','Reajuste','Repetição do Indébito'];
+
   async function buscarProspeccao() {
-    const tribunal = document.getElementById('prosp-tribunal').value;
-    const reuTexto = document.getElementById('prosp-reu-texto').value.trim();
-    const reu = reuTexto || document.getElementById('prosp-reu').value;
-    const orgao = document.getElementById('prosp-orgao').value.trim();
-    const assunto = document.getElementById('prosp-assunto').value.trim();
+    const reu = 'INSS';
+    const naturezaProsp = document.getElementById('prosp-assunto').dataset.natureza || 'todos';
+    const assunto = naturezaProsp === 'todos' ? document.getElementById('prosp-assunto').value.trim() : '';
     const grau = document.getElementById('prosp-grau').value;
     const dataInicio = document.getElementById('prosp-data-inicio').value;
-    const size = parseInt(document.getElementById('prosp-size').value);
 
     const homolog = document.getElementById('prosp-homolog').checked;
     const must = [];
     const filter = [];
 
-    // Réu: filtra por nome da parte no polo passivo
-    const municipios = ['MUNICÍPIO DO RIO DE JANEIRO','MUNICÍPIO DE NITERÓI','MUNICÍPIO DE DUQUE DE CAXIAS','MUNICÍPIO DE ANGRA DOS REIS','MUNICÍPIO DE SÃO JOÃO DE MERITI'];
-    if (municipios.includes(reu)) {
-      // Municípios: busca por nome da parte (match simples)
-      must.push({ match: { "partes.nome": reu } });
-    } else if (reu === 'INSS' && !assunto) {
-      // INSS: filtra por assuntos previdenciários automaticamente
+    // INSS: filtra por assuntos previdenciários
+    if (naturezaProsp === 'alimentar') {
+      must.push({ bool: { should: PROSP_ALIMENTAR.map(a => ({ match: { "assuntos.nome": a } })), minimum_should_match: 1 } });
+    } else if (naturezaProsp === 'comum') {
+      must.push({ bool: { should: PROSP_COMUM.map(a => ({ match: { "assuntos.nome": a } })), minimum_should_match: 1 } });
+    } else if (assunto) {
+      must.push({ match: { "assuntos.nome": { query: assunto, fuzziness: "AUTO" } } });
+    } else {
+      // Todos: limita a assuntos previdenciários para não trazer lixo
       must.push({ bool: { should: [
         { match: { "assuntos.nome": "Aposentadoria" } },
         { match: { "assuntos.nome": "Auxílio" } },
@@ -774,33 +876,176 @@
         { match: { "assuntos.nome": "Salário Maternidade" } },
         { match: { "assuntos.nome": "Revisão" } },
       ], minimum_should_match: 1 } });
-    } else if (reu && !municipios.includes(reu)) {
-      must.push({ match: { "partes.nome": reu } });
     }
 
-    if (orgao) must.push({ match_phrase: { "orgaoJulgador.nome": orgao } });
-    if (assunto) must.push({ match: { "assuntos.nome": { query: assunto, fuzziness: "AUTO" } } });
     if (grau) filter.push({ term: { "grau.keyword": grau } });
     if (dataInicio) {
-      filter.push({ range: { "dataAjuizamento": { gte: `${dataInicio}-01-01`, lte: `${dataInicio}-12-31` } } });
+      if (dataInicio.includes('-')) {
+        const [de, ate] = dataInicio.split('-');
+        filter.push({ range: { "dataAjuizamento": { gte: `${de}-01-01`, lte: `${ate}-12-31` } } });
+      } else {
+        filter.push({ range: { "dataAjuizamento": { gte: `${dataInicio}-01-01`, lte: `${dataInicio}-12-31` } } });
+      }
+    } else {
+      // Sem filtro de ano: limita a 2010 em diante para evitar processos antigos sem movimentação
+      filter.push({ range: { "dataAjuizamento": { gte: "2010-01-01" } } });
     }
 
-    // Sempre busca 500 pra ter mais chance de achar 🔥 no sort
-    const pageSize = 500;
+    // Nota: filtro 🔥 é aplicado visualmente após renderizar (movimentos.nome não é confiável no DataJud)
+
     const query = {
       query: must.length || filter.length ? { bool: { must, filter } } : { match_all: {} },
-      size: pageSize,
+      size: 100,
       sort: [{ dataAjuizamento: { order: dataInicio ? "asc" : "desc" } }]
     };
-    window._filtroAtivo = 0;
-    window._queryAtual = query;
-    window._tribunalAtual = tribunal;
-    window._pageSize = 500; // mostra todos os 500
-    await executarBusca(query, tribunal, 0);
+
+    // Busca em todos os TRFs em paralelo
+    const tribunais = ['trf1','trf2','trf3','trf4','trf5','trf6'];
+    await executarBuscaMulti(query, tribunais);
   }
 
-  function selecionarMunicipio(orgao) {
-    document.getElementById('mun-orgao').value = orgao;
+  async function executarBuscaMulti(query, tribunais) {
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'none';
+
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+
+    try {
+      const respostas = await Promise.all(tribunais.map(t =>
+        fetch(`${RAILWAY_URL}/datajud/${endpointMap[t]}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(query)
+        }).then(r => r.json()).catch(() => null)
+      ));
+
+      const todosHitsRaw = [];
+      let totalGeral = 0;
+      respostas.forEach(data => {
+        if (!data) return;
+        const hits = data?.hits?.hits || [];
+        todosHitsRaw.push(...hits);
+        totalGeral += data?.hits?.total?.value || 0;
+      });
+
+      // Deduplica: mesmo número de processo → mantém o que tem mais movimentos (geralmente G1 tem expedição)
+      const seenNums = new Map();
+      todosHitsRaw.forEach(h => {
+        const num = h._source?.numeroProcesso || h._id;
+        const movCount = (h._source?.movimentos||[]).length;
+        if (!seenNums.has(num) || movCount > seenNums.get(num).movCount) {
+          seenNums.set(num, { h, movCount });
+        }
+      });
+      const todosHits = Array.from(seenNums.values()).map(v => v.h);
+
+      // ── FILTRO DURO: remove tudo que não serve ──────────────────────────────
+      const ENCERRADO_K = [
+        'baixa definitiva','arquivamento definitivo','arquivado definitivamente',
+        'pago','paga','pagamento efetuado','pagamento realizado','pagamento integral',
+        'homologação de transação','homologacao de transacao','extinção por acordo',
+        'acordo homologado','desistência','desistencia','renúncia','renuncia',
+        'extinção do processo','extinto','perempção','abandono','cancelado','cancelada',
+        'anulado','anulada','improcedência','improcedencia',
+      ];
+      const EXP_K = ['expedição de rpv','expedição de precatório','expedição de ofício','expedida/certif','requisição cadastrada','expedida/cert'];
+      const ASSUNTOS_UTEIS_K = [
+        'aposentadoria','auxílio','auxilio','pensão','pensao','benefício','beneficio',
+        'incapacidade','salário maternidade','salario maternidade','bpc','loas','amparo',
+        'precatório','precatorio','rpv','requisição de pequeno','fazenda pública','fazenda publica',
+        'inss','previdenci','servidor','remuneração','remuneracao','vencimento','gratificação',
+        'gratificacao','adicional','piso salarial','concurso','honorários advocatícios em execução',
+        'honorarios advocaticios em execucao','correção monetária','correcao monetaria',
+        'repetição do indébito','repeticao do indebito','revisão','revisao','reajuste',
+        'limitação do salário','limitacao do salario','alteração do coeficiente','alteracao do coeficiente',
+      ];
+
+      function isLixo(h) {
+        const src = h._source || {};
+        const movs = src.movimentos || [];
+
+        // Nomes de TODOS os movimentos (para checar histórico)
+        const todosNomes = movs.map(m => (m.nome||'').toLowerCase());
+        // Últimos 5 e último absoluto
+        const ult5 = todosNomes.slice(-5);
+        const ultimo = todosNomes[todosNomes.length - 1] || '';
+
+        // 1. Encerrado/pago em qualquer dos últimos 5
+        if (ult5.some(n => ENCERRADO_K.some(k => n.includes(k)))) return true;
+
+        // 2. "Definitivo" ou "Definitiva" como ÚLTIMO movimento absoluto,
+        //    exceto se algum dos últimos 5 tiver expedição
+        const temExp = ult5.some(n => EXP_K.some(k => n.includes(k)));
+        if (!temExp && (ultimo === 'definitivo' || ultimo === 'definitiva' ||
+            ultimo.startsWith('definitivo') || ultimo.startsWith('definitiva'))) return true;
+
+        // 3. Assunto fora do universo útil
+        const assuntos = (src.assuntos || []).map(a => (a.nome||'').toLowerCase()).join(' ');
+        if (!ASSUNTOS_UTEIS_K.some(k => assuntos.includes(k))) return true;
+
+        // 4. Score < 20 após calcular
+        const sc = calcScore(h);
+        if (sc < 20) return true;
+
+        return false;
+      }
+      const todosHitsFiltrados = todosHits.filter(h => !isLixo(h));
+
+      // Ordena por score de oportunidade
+      todosHitsFiltrados.sort((a, b) => calcScore(b) - calcScore(a));
+
+      document.getElementById('spinner').style.display = 'none';
+
+      if (!todosHitsFiltrados.length) {
+        document.getElementById('empty-msg').style.display = 'block';
+        return;
+      }
+
+      window._todosHits = todosHitsFiltrados;
+      window._totalGeral = totalGeral;
+      window._queryAtual = query;
+      window._tribunalAtual = 'trf2'; // fallback para paginação
+      window._pageSize = todosHitsFiltrados.length;
+
+      renderResults(todosHitsFiltrados, totalGeral);
+      renderPaginacao(0, totalGeral, todosHitsFiltrados.length);
+    } catch(e) {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('error-msg').textContent = 'Erro ao buscar: ' + e.message;
+    }
+  }
+
+  const MUN_ALIMENTAR = ['Gratificação','Vencimentos','Piso Salarial','Ajuda de Custo','Diárias','Adicional','Concurso Público','Descontos Indevidos','Assistência à Saúde'];
+  const MUN_COMUM = ['Indenização','Correção Monetária','Juros','Repetição do Indébito','Obrigação de Fazer','Fornecimento de medicamentos','Requisição de Pequeno Valor','Sequestro de Verbas'];
+
+  // Nome exato do réu no DataJud (polo passivo / partes.nome)
+  const MUN_CNPJ = {
+    'CAPITAL FAZ PUBLICA':        'MUNICÍPIO DO RIO DE JANEIRO',
+    'NITEROI FAZ PUBLICA':        'MUNICÍPIO DE NITERÓI',
+    'CAXIAS FAZ PUBLICA':         'MUNICÍPIO DE DUQUE DE CAXIAS',
+    'ANGRA DOS REIS FAZ PUBLICA': 'MUNICÍPIO DE ANGRA DOS REIS',
+    'MERITI':                     'MUNICÍPIO DE SÃO JOÃO DE MERITI',
+  };
+
+  function selecionarNatureza(nat) {
+    document.querySelectorAll('#btn-nat-todos,#btn-nat-alimentar,#btn-nat-comum').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-nat-' + nat).classList.add('active');
+    // Reseta dropdown — natureza sobrepõe assunto específico
+    document.getElementById('mun-assunto').value = '';
+    document.getElementById('mun-assunto').dataset.natureza = nat;
+    // Mostra/esconde dropdown de assunto específico
+    document.getElementById('mun-assunto').style.display = nat === 'todos' ? 'block' : 'none';
+    document.getElementById('mun-assunto-label').style.display = nat === 'todos' ? 'block' : 'none';
+  }
+
+  function selecionarMunicipio(chave) {
+    // Mostra o nome do réu no campo de texto (visual)
+    document.getElementById('mun-orgao').value = MUN_CNPJ[chave] || chave;
+    // Guarda a chave para lookup interno
+    document.getElementById('mun-chave').value = chave;
     document.querySelectorAll('.btn-mun').forEach(b => b.classList.remove('active'));
     const map = {
       'CAPITAL FAZ PUBLICA': 'btn-mun-capital',
@@ -809,50 +1054,150 @@
       'ANGRA DOS REIS FAZ PUBLICA': 'btn-mun-angra',
       'MERITI': 'btn-mun-sjoao'
     };
-    if (map[orgao]) document.getElementById(map[orgao]).classList.add('active');
+    if (map[chave]) document.getElementById(map[chave]).classList.add('active');
   }
 
+  // ======= FILA TJRJ — API OFICIAL (via proxy Railway) =======
+  // Troca pela URL do seu proxy depois de subir no Railway:
+  const TJRJ_PROXY = 'https://consultarprocessos-production.up.railway.app';
+  window._tjrjEstado = { idEntidade: null, nomeEntidade: '', pagina: 1, totalPaginas: 1 };
+
+  function selecionarEntidadeTJRJ(id, nome) {
+    document.getElementById('tjrj-id-entidade').value = id;
+    document.getElementById('tjrj-nome-entidade').value = nome;
+    document.querySelectorAll('[id^="btn-tjrj-"]').forEach(b => b.classList.remove('active'));
+    // Acha o botão pelo id numérico
+    const map = { 1:'capital',3:'niteroi',2:'caxias',5:'angra',34:'meriti',35:'meriti-prev' };
+    const btnId = 'btn-tjrj-' + (map[id] || id);
+    const btn = document.getElementById(btnId);
+    if (btn) btn.classList.add('active');
+    document.getElementById('btn-buscar-tjrj').disabled = false;
+  }
+
+  async function buscarFilaTJRJ(pagina = 1) {
+    const idEntidade = document.getElementById('tjrj-id-entidade').value;
+    const nomeEntidade = document.getElementById('tjrj-nome-entidade').value;
+    if (!idEntidade) { alert('Selecione uma entidade devedora.'); return; }
+
+    const natureza = document.getElementById('tjrj-natureza').value;
+    const ano = document.getElementById('tjrj-ano').value;
+    const regime = document.getElementById('tjrj-regime').value || 'O';
+
+    // Descobrir ordemPagamento — para cada entidade há um ID de lista
+    // Buscamos primeiro a lista de entidades para pegar o ordemPagamento correto
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('spinner-text').textContent = 'Consultando portal TJRJ...';
+    document.getElementById('tjrj-resultados').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+
+    try {
+      // Chama o proxy Railway que faz o relay para o TJRJ sem CORS
+      const params = new URLSearchParams({ id: idEntidade, pagina, regime, tamanho: 100 });
+      if (natureza) params.set('natureza', natureza);
+      if (ano) params.set('ano', ano);
+
+      const resp = await fetch(`${TJRJ_PROXY}/fila?${params}`);
+
+      document.getElementById('spinner').style.display = 'none';
+
+      if (!resp.ok) throw new Error(`Erro ${resp.status} ao buscar fila TJRJ`);
+
+      const data = await resp.json();
+      // O JSON pode ser array direto ou { lista, total, ... }
+      const lista = Array.isArray(data) ? data : (data.Lista || data.lista || data.precatorios || data.items || []);
+      const total = data.Total || data.total || lista.length;
+      const totalPags = Math.ceil(total / 100) || 1;
+
+      window._tjrjEstado = { idEntidade, nomeEntidade, pagina, totalPaginas: totalPags };
+
+      if (lista.length === 0) {
+        document.getElementById('empty-msg').style.display = 'block';
+        return;
+      }
+
+      renderFilaTJRJ(lista, total, pagina, totalPags, nomeEntidade);
+
+    } catch(e) {
+      document.getElementById('spinner').style.display = 'none';
+      const errEl = document.getElementById('error-msg');
+      errEl.style.display = 'block';
+      errEl.innerHTML = `<strong>Erro ao consultar proxy TJRJ:</strong> ${e.message}<br><small>Verifique se o proxy Railway está rodando. URL configurada: <code>${TJRJ_PROXY}</code></small>`;
+    }
+  }
+
+  function fmtBRL(v) {
+    if (v == null) return '—';
+    return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderFilaTJRJ(lista, total, pagina, totalPags, nomeEntidade) {
+    document.getElementById('tjrj-resultados').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'none';
+
+    // Summary
+    const totalValor = lista.reduce((s, p) => s + (p.ValorHistorico || p.Valor || 0), 0);
+    const totalSaldo = lista.reduce((s, p) => s + (p.Saldo || p.SaldoRateio || 0), 0);
+    document.getElementById('tjrj-summary').innerHTML =
+      `📋 <strong>${total} precatórios</strong> na fila — ${nomeEntidade}<br>
+       Valor histórico total (página): <strong>${fmtBRL(totalValor)}</strong> &nbsp;|&nbsp; Saldo devedor total: <strong>${fmtBRL(totalSaldo)}</strong>`;
+
+    // Tabela
+    const tbody = document.getElementById('tjrj-tbody');
+    tbody.innerHTML = '';
+    for (const p of lista) {
+      const nat = p.SiglaNatureza === 'A' ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700">🍎 Alim.</span>'
+                : '<span style="background:#f3f4f6;color:#374151;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700">📄 Comum</span>';
+      const pago = p.Pago ? '<span style="color:#9a3412;font-weight:700">✅ Pago</span>' : '<span style="color:#166534;font-weight:700">⏳ Pendente</span>';
+      const numPrec = p.NumeroPrecatorioCompleto || p.NumeroPrecatorio || '—';
+      const ordem = p.OrdemCronologica || p.OrdemPagamento || p.NumSeqOrcAtual || '—';
+      const orcamento = p.AnoOrcamento || p.Orcamento || '—';
+      const entidade = p.EntidadeDevedora || nomeEntidade;
+      const saldo = p.SaldoRateio != null ? p.SaldoRateio : (p.Saldo != null ? p.Saldo : null);
+
+      const tr = document.createElement('tr');
+      tr.style.borderTop = '1px solid #e8edf5';
+      tr.innerHTML = `
+        <td style="padding:8px 12px;text-align:center;font-weight:700;color:#1a3a5c">${ordem}</td>
+        <td style="padding:8px 12px;font-size:0.8rem;color:#4a5568;max-width:180px">${entidade}</td>
+        <td style="padding:8px 12px;font-family:monospace;font-size:0.8rem">
+          <a href="https://www3.tjrj.jus.br/PortalConhecimento/precatorio#!/consultar-precatorio?numeroPrecatorio=${encodeURIComponent(numPrec)}"
+             target="_blank" style="color:#1a3a5c;text-decoration:none;font-weight:600">${numPrec}</a>
+        </td>
+        <td style="padding:8px 12px;text-align:center">${nat}</td>
+        <td style="padding:8px 12px;text-align:center;color:#718096">${orcamento}</td>
+        <td style="padding:8px 12px;text-align:right;font-weight:600">${fmtBRL(p.ValorHistorico || p.Valor)}</td>
+        <td style="padding:8px 12px;text-align:right;font-weight:700;color:#1a3a5c">${fmtBRL(saldo)}</td>
+        <td style="padding:8px 12px;text-align:center">${pago}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // Paginação
+    const pagDiv = document.getElementById('tjrj-paginacao');
+    pagDiv.innerHTML = '';
+    if (totalPags > 1) {
+      const makeBtn = (label, pg, disabled = false) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.disabled = disabled;
+        b.style.cssText = `padding:6px 14px;border-radius:6px;border:2px solid ${pg === pagina ? '#1a3a5c' : '#e2e8f0'};
+          background:${pg === pagina ? '#1a3a5c' : 'white'};color:${pg === pagina ? 'white' : '#4a5568'};
+          cursor:${disabled ? 'not-allowed' : 'pointer'};font-size:0.82rem;font-weight:600`;
+        if (!disabled) b.onclick = () => buscarFilaTJRJ(pg);
+        return b;
+      };
+      if (pagina > 1) pagDiv.appendChild(makeBtn('← Anterior', pagina - 1));
+      const start = Math.max(1, pagina - 2);
+      const end = Math.min(totalPags, pagina + 2);
+      for (let i = start; i <= end; i++) pagDiv.appendChild(makeBtn(i, i, i === pagina));
+      if (pagina < totalPags) pagDiv.appendChild(makeBtn('Próxima →', pagina + 1));
+    }
+  }
+
+  // Manter função antiga como stub (não usada mais)
   async function buscarMunicipal() {
-    const orgao = document.getElementById('mun-orgao').value.trim();
-    const dataInicio = document.getElementById('mun-data-inicio').value;
-    const size = parseInt(document.getElementById('mun-size').value) || 100;
-
-    if (!orgao) {
-      alert('Selecione um município ou digite o órgão julgador.');
-      return;
-    }
-
-    const must = [];
-    const filter = [];
-    const must_not = [];
-
-    // match com AND: todos os tokens devem estar presentes mas não necessariamente em sequência
-    // ex: "CAPITAL FAZ PUBLICA" bate em "CAPITAL 8 VARA FAZ PUBLICA" e "CAPITAL 17 VARA DE FAZENDA PUBLICA"
-    must.push({ match: { "orgaoJulgador.nome": { query: orgao, operator: "and" } } });
-
-    // Exclui assuntos onde o município é credor (cobrança), não devedor
-    const assuntosExcluir = [
-      'Execução Fiscal', 'Tráfico', 'Flagrante',
-      'Dívida Ativa', 'IPVA', 'IPTU', 'ISS/', 'ITBI', 'Multas e demais',
-      'Inspeção Fitossanitária', 'Sanções Administrativas', 'Ausência de Cobrança'
-    ];
-    for (const a of assuntosExcluir) {
-      must_not.push({ match_phrase: { "assuntos.nome": a } });
-    }
-
-    if (dataInicio) filter.push({ range: { "dataAjuizamento": { gte: `${dataInicio}-01-01`, lte: `${dataInicio}-12-31` } } });
-
-    const query = {
-      query: { bool: { must, filter, must_not } },
-      size,
-      sort: [{ dataAjuizamento: { order: "desc" } }]
-    };
-
-    window._filtroAtivo = 0;
-    window._queryAtual = query;
-    window._tribunalAtual = 'tjrj';
-    window._pageSize = size;
-    await executarBusca(query, 'tjrj', 0);
+    buscarFilaTJRJ(1);
   }
 
   async function irParaPagina(pagina) {
@@ -891,21 +1236,8 @@
 
       const total = data?.hits?.total?.value || hits.length;
 
-      // Ordena: 🔥 primeiro, depois ✅, depois o resto
-      const ouroK = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
-      const ouroExclude = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
-      const bomK = ['intima'];
-      function isOuro(n) { return ouroK.some(k => n.includes(k)) && !ouroExclude.some(x => n.includes(x)); }
-      function scoreMov(h) {
-        const movs = h._source?.movimentos || [];
-        for (const m of movs) {
-          const n = (m.nome || '').toLowerCase();
-          if (isOuro(n)) return 2;
-          if (bomK.some(k => n.includes(k))) return 1;
-        }
-        return 0;
-      }
-      hits.sort((a, b) => scoreMov(b) - scoreMov(a));
+      // Score de oportunidade de investimento
+      hits.sort((a, b) => calcScore(b) - calcScore(a));
 
       renderResults(hits, total);
       renderPaginacao(pagina, total, window._pageSize || query.size || 20);
@@ -922,11 +1254,18 @@
   window._todosHits = [];
 
   function filtrarCardsFogo(ativo) {
+    // Filtra cards (modo visual)
     const cards = document.querySelectorAll('.processo-card');
     let visiveis = 0;
     cards.forEach(c => {
       const show = !ativo || c.dataset.fogo === '1';
       c.style.display = show ? '' : 'none';
+      if (show) visiveis++;
+    });
+    // Filtra linhas da tabela principal e da lista compacta
+    document.querySelectorAll('#tbody tr[data-fogo], #lista-compacta-table tr[data-fogo]').forEach(tr => {
+      const show = !ativo || tr.dataset.fogo === '1';
+      tr.style.display = show ? '' : 'none';
       if (show) visiveis++;
     });
     const countEl = document.getElementById('result-count');
@@ -943,7 +1282,7 @@
   function abrirListaCompacta() {
     const hits = window._todosHits;
     if (!hits.length) return;
-    const ouro = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
+    const ouro = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad'];
     const ouroExcL = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
     const bom = ['intima'];
     const ruim = ['distribuiç', 'redistribuiç', 'baixa', 'remessa', 'extinç', 'alvará', 'pagamento'];
@@ -981,22 +1320,25 @@
       const orgao = p.orgaoJulgador?.nome || '—';
       const grau = p.grau || '—';
       const grauBadge = grau === 'JE' ? '<span style="background:#c6f6d5;color:#22543d;font-size:0.7rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px">JE·RPV</span>' : `<span style="background:#e2e8f0;color:#4a5568;font-size:0.7rem;padding:1px 6px;border-radius:8px;margin-left:4px">${grau}</span>`;
-      const movs = (p.movimentos||[]).slice(0,3);
+      const movs = (p.movimentos||[]).slice(-3);
       const movsStr = movs.map(m => `${icone(m.nome)} ${m.nome||'?'}`).join(' | ');
       const link = linkParaTribunal(num);
-      const temFogo = movs.some(m => ouro.some(k => (m.nome||'').toLowerCase().includes(k)));
-      const rowStyle = temFogo ? 'background:#f0fdf4;' : '';
+      const scoreRow = h._score !== undefined ? h._score : calcScore(h);
+      const temFogo = scoreRow >= 60;
+      const rowStyle = scoreRow >= 150 ? 'background:#dcfce7;' : scoreRow >= 60 ? 'background:#f0fdf4;' : '';
       const nbadge = naturezaLabel(assunto);
       const partes = p.partes || [];
       const passivo = partes.find(pt => (pt.polo||'').toLowerCase().includes('passivo'))
                    || partes.find(pt => !(pt.polo||'').toLowerCase().includes('ativo'));
       const reuNome = passivo?.nome || (partes.length > 1 ? partes[1].nome : '—');
-      return `<tr data-fogo="${temFogo?'1':'0'}" style="border-bottom:1px solid #e2e8f0;${rowStyle}cursor:${link?'pointer':'default'}" onclick="${link?`window.open('${link}','_blank')`:''}">
+      const scRow = scoreCor(scoreRow);
+      return `<tr data-fogo="${temFogo?'1':'0'}" data-score="${scoreRow}" style="border-bottom:1px solid #e2e8f0;${rowStyle}cursor:${link?'pointer':'default'}" onclick="${link?`window.open('${link}','_blank')`:''}">
         <td style="padding:5px 8px;font-size:0.78rem;white-space:nowrap;color:#1a3a5c;font-weight:600">${num}${grauBadge}${nbadge}</td>
         <td style="padding:5px 8px;font-size:0.78rem;color:#4a5568">${assunto}</td>
         <td style="padding:5px 8px;font-size:0.78rem;color:#4a5568">${orgao}</td>
         <td style="padding:5px 8px;font-size:0.78rem;color:#7c3aed;font-weight:600">${reuNome}</td>
         <td style="padding:5px 8px;font-size:0.78rem">${movsStr}</td>
+        <td style="padding:5px 8px;font-size:0.78rem;text-align:center"><span style="background:${scRow.bg};color:${scRow.cor};font-weight:700;padding:2px 8px;border-radius:8px">${scRow.label} ${scoreRow}</span></td>
       </tr>`;
     }).join('');
 
@@ -1013,7 +1355,7 @@
       <button onclick="mostrarTodos()" style="background:#1a3a5c;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer">📋 Todos</button>
       <span id="contador" style="font-size:0.82rem;color:#4a5568"></span>
     </div>
-    <table id="tabela"><thead><tr><th>Número</th><th>Assunto</th><th>Órgão</th><th>Réu (Polo Passivo)</th><th>Movimentações</th></tr></thead><tbody id="tbody">${linhas}</tbody></table>
+    <table id="tabela"><thead><tr><th>Número</th><th>Assunto</th><th>Órgão</th><th>Réu (Polo Passivo)</th><th>Movimentações</th><th>Score</th></tr></thead><tbody id="tbody">${linhas}</tbody></table>
     <script>
       function filtrarFogo() {
         const rows = document.querySelectorAll('#tbody tr');
@@ -1078,27 +1420,30 @@
       const exequente = partes.find(pt => (pt.polo||'').toLowerCase().includes('ativo'));
       const executado = partes.find(pt => (pt.polo||'').toLowerCase().includes('passivo'));
 
-      // Classificar movimentações por interesse
-      const movs = (p.movimentos || []).slice(0,3);
-      const ouro = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
-      const ouroExcC = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
-      const bom = ['intima'];
-      const ruim = ['distribuiç', 'redistribuiç', 'desistencia', 'desistência', 'baixa', 'ausência', 'remessa', 'recurso', 'extinç', 'alvará', 'pagamento'];
+      // Score (já calculado antes da ordenação, mas recalcula se necessário)
+      const s = hit._score !== undefined ? hit._score : calcScore(hit);
+      const motivos = hit._motivos || [];
+      const sc = scoreCor(s);
+
+      // Movimentações — últimas 3
+      const todasMovs = (p.movimentos || []);
+      const movs = todasMovs.slice(-3);
+      const ruim = ['distribuiç', 'redistribuiç', 'desistencia', 'desistência', 'baixa', 'ausência', 'extinç', 'alvará', 'pagamento'];
+      const bomMovK = ['intima', 'trânsito', 'transito', 'cumprimento', 'execução', 'execucao', 'cálculo', 'calculo', 'requisição', 'requisicao', 'remessa ao trf'];
+      const ouroMovK = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício', 'expedição de documento', 'expedida/certificada', 'homologaç', 'homologac'];
+      const excMovK = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência'];
 
       function classifMov(nome) {
         const n = (nome||'').toLowerCase();
-        if (ouro.some(p => n.includes(p)) && !ouroExcC.some(x => n.includes(x))) return { cor: '#166534', bg: '#dcfce7', icone: '🔥' };
-        if (bom.some(p => n.includes(p))) return { cor: '#1e40af', bg: '#dbeafe', icone: '✅' };
-        if (ruim.some(p => n.includes(p))) return { cor: '#9a3412', bg: '#fee2e2', icone: '❌' };
+        const exc = excMovK.some(x => n.includes(x));
+        if (!exc && ouroMovK.some(k => n.includes(k))) return { cor: '#166534', bg: '#dcfce7', icone: '🔥' };
+        if (!exc && bomMovK.some(k => n.includes(k)))  return { cor: '#1e40af', bg: '#dbeafe', icone: '✅' };
+        if (ruim.some(k => n.includes(k)))              return { cor: '#9a3412', bg: '#fee2e2', icone: '❌' };
         return { cor: '#4a5568', bg: 'transparent', icone: '' };
       }
 
-      // Badge de alerta se última movimentação for ouro
-      const ultimaMov = movs[movs.length - 1];
-      const ultimaClassif = ultimaMov ? classifMov(ultimaMov.nome) : null;
-      const alertaBadge = ultimaClassif?.icone === '🔥'
-        ? '<span style="background:#dcfce7;color:#166534;font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">🔥 QUASE RPV</span>'
-        : '';
+      // Badge de score
+      const scoreBadge = `<span title="${motivos.join(' | ') || 'sem sinais'}" style="background:${sc.bg};color:${sc.cor};font-size:0.75rem;font-weight:700;padding:2px 9px;border-radius:10px;margin-left:8px;cursor:help">${sc.label} ${s} pts</span>`;
 
       const movsHtml = movs.length ? `
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e8edf5">
@@ -1129,13 +1474,13 @@
       else if (tribunalCodigo === '06') linkTribunal = `https://pje.trf6.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${numFormatado}`;
       const btnTribunal = linkTribunal ? `<a href="${linkTribunal}" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;margin-top:10px;padding:7px 14px;background:#1a3a5c;color:#fff;border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none">🔗 Abrir no Tribunal</a>` : '';
 
-      const temFogoCard = movs.some(m => ouro.some(k => (m.nome||'').toLowerCase().includes(k)));
       const card = document.createElement('div');
       card.className = 'processo-card';
-      card.dataset.fogo = temFogoCard ? '1' : '0';
+      card.dataset.fogo = s >= 60 ? '1' : '0';
+      card.dataset.score = s;
       card.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-          <div class="processo-numero" style="margin:0">${numFormatado} ${tipoBadge}${grauBadge}${naturezaBadge}${alertaBadge}</div>
+          <div class="processo-numero" style="margin:0">${numFormatado} ${tipoBadge}${grauBadge}${naturezaBadge}${scoreBadge}</div>
           <span style="font-size:0.78rem;color:#718096">${dataAjuiz}</span>
         </div>
         <div class="processo-info" style="margin-top:10px">
@@ -1156,6 +1501,11 @@
     });
 
     document.getElementById('results').style.display = 'block';
+
+    // Aplica filtro 🔥 automaticamente se checkbox marcado
+    const chkProsp = document.getElementById('prosp-homolog');
+    const chkMun = document.getElementById('mun-homolog');
+    if (chkProsp?.checked || chkMun?.checked) setTimeout(() => filtrarCardsFogo(true), 50);
   }
 
   function renderPaginacao(paginaAtual, total, pageSize) {
