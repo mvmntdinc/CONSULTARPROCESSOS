@@ -88,6 +88,9 @@
   .btn-buscar { background: #1a3a5c; color: white; border: none; padding: 11px 28px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 6px; transition: background .2s; }
   .btn-buscar:hover { background: #254e82; }
   .btn-buscar:disabled { background: #a0aec0; cursor: not-allowed; }
+  .btn-mun { background: #f0f4ff; color: #1a3a5c; border: 2px solid #c7d7f5; border-radius: 8px; padding: 8px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn-mun:hover { background: #dbe8ff; border-color: #1a3a5c; }
+  .btn-mun.active { background: #1a3a5c; color: white; border-color: #1a3a5c; }
 
   .spinner { display: none; text-align: center; padding: 32px; color: #718096; }
   .spinner-icon { font-size: 28px; animation: spin 1s linear infinite; display: inline-block; }
@@ -146,10 +149,10 @@
       <p>Pesquise processos em qualquer tribunal do Brasil. Use para prospectar RPVs e precatórios com cálculo homologado.</p>
 
       <div class="search-tabs">
-        <button class="search-tab active" onclick="switchSearchTab('nome')">Por Nome</button>
-        <button class="search-tab" onclick="switchSearchTab('numero')">Por Número</button>
+        <button class="search-tab active" onclick="switchSearchTab('numero')">Por Número</button>
         <button class="search-tab" onclick="switchSearchTab('cpf')">Por CPF</button>
         <button class="search-tab" onclick="switchSearchTab('prospeccao')">🎯 Prospecção RPV/INSS</button>
+        <button class="search-tab" onclick="switchSearchTab('municipal')">🏛️ Municipal RJ</button>
       </div>
 
       <!-- Seletor de Tribunal (para nome/numero/cpf) -->
@@ -171,17 +174,8 @@
         </div>
       </div>
 
-      <!-- Busca por Nome -->
-      <div id="stab-nome">
-        <div class="form-group">
-          <label>Nome da Parte</label>
-          <input type="text" id="input-nome" placeholder="Ex: Leonardo Felipe Marangon" />
-        </div>
-        <button class="btn-buscar" onclick="buscar('nome')">🔍 Buscar</button>
-      </div>
-
       <!-- Busca por Número -->
-      <div id="stab-numero" style="display:none">
+      <div id="stab-numero">
         <div class="form-group">
           <label>Número do Processo (CNJ)</label>
           <input type="text" id="input-numero" placeholder="Ex: 5017981-35.2023.4.03.6303" />
@@ -215,23 +209,160 @@
                 <option value="trf4">TRF4 (Sul)</option>
                 <option value="trf5">TRF5 (Nordeste)</option>
                 <option value="trf6">TRF6 (MG novo)</option>
+                <option value="tjrj">TJRJ (Municípios RJ)</option>
               </select>
             </div>
             <div class="form-group">
               <label>Réu / Executado</label>
-              <select id="prosp-reu">
-                <option value="INSS">INSS</option>
+              <select id="prosp-reu" onchange="syncReuTexto(this.value)">
+                <option value="INSS">INSS (Federal)</option>
                 <option value="UNIAO">União Federal</option>
                 <option value="FAZENDA">Fazenda Nacional</option>
+                <option value="">— Qualquer réu —</option>
               </select>
+              <input type="text" id="prosp-reu-texto" placeholder="Ou digite o nome exato do réu no DataJud..." style="margin-top:6px;width:100%;padding:8px 12px;border:2px dashed #cbd5e0;border-radius:8px;font-size:0.85rem;color:#4a5568" />
+              <p style="font-size:0.72rem;color:#718096;margin-top:3px">💡 Se o dropdown não funcionar, digite o nome exato aqui (ex: "PREFEITURA MUNICIPAL DE ANGRA DOS REIS")</p>
             </div>
           </div>
           <div class="form-group">
             <label>Nome do órgão julgador (opcional — ex: "JEF Campinas")</label>
             <input type="text" id="prosp-orgao" placeholder="Deixe em branco para buscar em todos" />
           </div>
+          <div class="filtros-grid">
+            <div class="form-group">
+              <label>Assunto (opcional)</label>
+              <select id="prosp-assunto">
+                <option value="">Todos os assuntos</option>
+                <optgroup label="── 🍎 Alimentar (prioridade de pagamento) ──">
+                  <option value="Aposentadoria">🍎 Aposentadoria</option>
+                  <option value="Auxílio">🍎 Auxílio (doença/acidente)</option>
+                  <option value="Benefício de Prestação Continuada">🍎 BPC/LOAS</option>
+                  <option value="Pensão">🍎 Pensão por Morte</option>
+                  <option value="Salário">🍎 Salário Maternidade</option>
+                </optgroup>
+                <optgroup label="── 📄 Comum ──">
+                  <option value="Revisão">📄 Revisão de Benefício</option>
+                  <option value="correção monetária">📄 Correção Monetária</option>
+                  <option value="reajuste">📄 Reajuste</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Grau</label>
+              <select id="prosp-grau">
+                <option value="" selected>Todos os graus</option>
+                <option value="JE">JE — Juizado Especial (RPV)</option>
+                <option value="G1">G1 — 1º grau</option>
+              </select>
+            </div>
+          </div>
+          <div class="filtros-grid">
+            <div class="form-group">
+              <label>Ano de ajuizamento</label>
+              <select id="prosp-data-inicio">
+                <option value="">Qualquer ano</option>
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantidade de resultados</label>
+              <select id="prosp-size">
+                <option value="20">20 processos</option>
+                <option value="50">50 processos</option>
+                <option value="100">100 processos</option>
+              </select>
+            </div>
+          </div>
+          <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:12px 16px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#166534">
+              <input type="checkbox" id="prosp-homolog" style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
+              🔥 Só processos com Homologação / Expedição de RPV
+            </label>
+            <p style="font-size:0.78rem;color:#4a7c59;margin-top:4px;margin-left:28px">Filtra só processos onde alguma das 3 últimas movimentações é homologação ou expedição (exclui pagamento — crédito já quitado)</p>
+          </div>
         </div>
         <button class="btn-buscar" onclick="buscarProspeccao()">🎯 Prospectar RPVs</button>
+      </div>
+
+      <!-- Prospecção Municipal RJ -->
+      <div id="stab-municipal" style="display:none">
+        <div class="alert alert-blue" style="margin-bottom:14px">
+          🏛️ <strong>Precatórios Municipais RJ:</strong> Busca processos contra municípios do RJ no TJRJ.
+        </div>
+        <div class="filtros-avancados">
+          <h3>⚙️ Filtros — Municípios RJ</h3>
+
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Município (selecione ou digite o órgão)</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;margin-top:4px">
+              <button type="button" onclick="selecionarMunicipio('CAPITAL FAZ PUBLICA')" class="btn-mun" id="btn-mun-capital">🏙️ Rio de Janeiro</button>
+              <button type="button" onclick="selecionarMunicipio('NITEROI FAZ PUBLICA')" class="btn-mun" id="btn-mun-niteroi">🌉 Niterói</button>
+              <button type="button" onclick="selecionarMunicipio('CAXIAS FAZ PUBLICA')" class="btn-mun" id="btn-mun-caxias">🏭 Duque de Caxias</button>
+              <button type="button" onclick="selecionarMunicipio('ANGRA DOS REIS FAZ PUBLICA')" class="btn-mun" id="btn-mun-angra">⚓ Angra dos Reis</button>
+              <button type="button" onclick="selecionarMunicipio('MERITI')" class="btn-mun" id="btn-mun-sjoao">🏘️ São João de Meriti</button>
+            </div>
+            <input type="text" id="mun-orgao" placeholder="Ou digite o órgão julgador manualmente (ex: CAXIAS FAZ PUBLICA)" />
+          </div>
+
+          <div class="filtros-grid" style="display:none"><div><input id="mun-reu-texto" /></div></div>
+
+          <div class="filtros-grid">
+            <div class="form-group">
+              <label>Ano de ajuizamento</label>
+              <select id="mun-data-inicio">
+                <option value="">Qualquer ano</option>
+                <option value="2008">2008</option>
+                <option value="2009">2009</option>
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantidade de resultados</label>
+              <select id="mun-size">
+                <option value="50">50 processos</option>
+                <option value="100" selected>100 processos</option>
+                <option value="200">200 processos</option>
+                <option value="500">500 processos</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:12px 16px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#166534">
+              <input type="checkbox" id="mun-homolog" style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
+              🔥 Só processos com Homologação / Expedição de RPV
+            </label>
+          </div>
+        </div>
+        <button class="btn-buscar" onclick="buscarMunicipal()">🏛️ Prospectar Precatórios Municipais</button>
       </div>
     </div>
 
@@ -560,14 +691,13 @@
 
   // Abas de busca
   function switchSearchTab(tab) {
-    ['nome','numero','cpf','prospeccao'].forEach(t => {
+    ['numero','cpf','prospeccao','municipal'].forEach(t => {
       document.getElementById('stab-' + t).style.display = t === tab ? 'block' : 'none';
     });
     document.querySelectorAll('.search-tab').forEach((el, i) => {
-      el.classList.toggle('active', ['nome','numero','cpf','prospeccao'][i] === tab);
+      el.classList.toggle('active', ['numero','cpf','prospeccao','municipal'][i] === tab);
     });
-    // Ocultar seletor de tribunal no modo prospecção (tem o próprio)
-    document.getElementById('secao-tribunal').style.display = tab === 'prospeccao' ? 'none' : 'block';
+    document.getElementById('secao-tribunal').style.display = (tab === 'prospeccao' || tab === 'municipal') ? 'none' : 'block';
     limparResultados();
   }
 
@@ -608,27 +738,130 @@
     await executarBusca(query, tribunalAtual);
   }
 
-  async function buscarProspeccao() {
-    const tribunal = document.getElementById('prosp-tribunal').value;
-    const reu = document.getElementById('prosp-reu').value;
-    const orgao = document.getElementById('prosp-orgao').value.trim();
-
-    const must = [
-      { match: { "classe.nome": "Cumprimento de Sentença" } }
-    ];
-    if (reu) must.push({
-      nested: {
-        path: "partes",
-        query: { match: { "partes.nome": { query: reu, fuzziness: "AUTO" } } }
-      }
-    });
-    if (orgao) must.push({ match: { "orgaoJulgador.nome": { query: orgao, fuzziness: "AUTO" } } });
-
-    const query = { query: { bool: { must } }, size: 20, sort: [{ dataAjuizamento: { order: "desc" } }] };
-    await executarBusca(query, tribunal);
+  function syncReuTexto(val) {
+    // Quando muda o dropdown, limpa o campo de texto livre
+    document.getElementById('prosp-reu-texto').value = '';
   }
 
-  async function executarBusca(query, tribunal) {
+  async function buscarProspeccao() {
+    const tribunal = document.getElementById('prosp-tribunal').value;
+    const reuTexto = document.getElementById('prosp-reu-texto').value.trim();
+    const reu = reuTexto || document.getElementById('prosp-reu').value;
+    const orgao = document.getElementById('prosp-orgao').value.trim();
+    const assunto = document.getElementById('prosp-assunto').value.trim();
+    const grau = document.getElementById('prosp-grau').value;
+    const dataInicio = document.getElementById('prosp-data-inicio').value;
+    const size = parseInt(document.getElementById('prosp-size').value);
+
+    const homolog = document.getElementById('prosp-homolog').checked;
+    const must = [];
+    const filter = [];
+
+    // Réu: filtra por nome da parte no polo passivo
+    const municipios = ['MUNICÍPIO DO RIO DE JANEIRO','MUNICÍPIO DE NITERÓI','MUNICÍPIO DE DUQUE DE CAXIAS','MUNICÍPIO DE ANGRA DOS REIS','MUNICÍPIO DE SÃO JOÃO DE MERITI'];
+    if (municipios.includes(reu)) {
+      // Municípios: busca por nome da parte (match simples)
+      must.push({ match: { "partes.nome": reu } });
+    } else if (reu === 'INSS' && !assunto) {
+      // INSS: filtra por assuntos previdenciários automaticamente
+      must.push({ bool: { should: [
+        { match: { "assuntos.nome": "Aposentadoria" } },
+        { match: { "assuntos.nome": "Auxílio" } },
+        { match: { "assuntos.nome": "Pensão" } },
+        { match: { "assuntos.nome": "BPC" } },
+        { match: { "assuntos.nome": "Benefício" } },
+        { match: { "assuntos.nome": "Incapacidade" } },
+        { match: { "assuntos.nome": "Salário Maternidade" } },
+        { match: { "assuntos.nome": "Revisão" } },
+      ], minimum_should_match: 1 } });
+    } else if (reu && !municipios.includes(reu)) {
+      must.push({ match: { "partes.nome": reu } });
+    }
+
+    if (orgao) must.push({ match_phrase: { "orgaoJulgador.nome": orgao } });
+    if (assunto) must.push({ match: { "assuntos.nome": { query: assunto, fuzziness: "AUTO" } } });
+    if (grau) filter.push({ term: { "grau.keyword": grau } });
+    if (dataInicio) {
+      filter.push({ range: { "dataAjuizamento": { gte: `${dataInicio}-01-01`, lte: `${dataInicio}-12-31` } } });
+    }
+
+    // Sempre busca 500 pra ter mais chance de achar 🔥 no sort
+    const pageSize = 500;
+    const query = {
+      query: must.length || filter.length ? { bool: { must, filter } } : { match_all: {} },
+      size: pageSize,
+      sort: [{ dataAjuizamento: { order: dataInicio ? "asc" : "desc" } }]
+    };
+    window._filtroAtivo = 0;
+    window._queryAtual = query;
+    window._tribunalAtual = tribunal;
+    window._pageSize = 500; // mostra todos os 500
+    await executarBusca(query, tribunal, 0);
+  }
+
+  function selecionarMunicipio(orgao) {
+    document.getElementById('mun-orgao').value = orgao;
+    document.querySelectorAll('.btn-mun').forEach(b => b.classList.remove('active'));
+    const map = {
+      'CAPITAL FAZ PUBLICA': 'btn-mun-capital',
+      'NITEROI FAZ PUBLICA': 'btn-mun-niteroi',
+      'CAXIAS FAZ PUBLICA': 'btn-mun-caxias',
+      'ANGRA DOS REIS FAZ PUBLICA': 'btn-mun-angra',
+      'MERITI': 'btn-mun-sjoao'
+    };
+    if (map[orgao]) document.getElementById(map[orgao]).classList.add('active');
+  }
+
+  async function buscarMunicipal() {
+    const orgao = document.getElementById('mun-orgao').value.trim();
+    const dataInicio = document.getElementById('mun-data-inicio').value;
+    const size = parseInt(document.getElementById('mun-size').value) || 100;
+
+    if (!orgao) {
+      alert('Selecione um município ou digite o órgão julgador.');
+      return;
+    }
+
+    const must = [];
+    const filter = [];
+    const must_not = [];
+
+    // match com AND: todos os tokens devem estar presentes mas não necessariamente em sequência
+    // ex: "CAPITAL FAZ PUBLICA" bate em "CAPITAL 8 VARA FAZ PUBLICA" e "CAPITAL 17 VARA DE FAZENDA PUBLICA"
+    must.push({ match: { "orgaoJulgador.nome": { query: orgao, operator: "and" } } });
+
+    // Exclui assuntos onde o município é credor (cobrança), não devedor
+    const assuntosExcluir = [
+      'Execução Fiscal', 'Tráfico', 'Flagrante',
+      'Dívida Ativa', 'IPVA', 'IPTU', 'ISS/', 'ITBI', 'Multas e demais',
+      'Inspeção Fitossanitária', 'Sanções Administrativas', 'Ausência de Cobrança'
+    ];
+    for (const a of assuntosExcluir) {
+      must_not.push({ match_phrase: { "assuntos.nome": a } });
+    }
+
+    if (dataInicio) filter.push({ range: { "dataAjuizamento": { gte: `${dataInicio}-01-01`, lte: `${dataInicio}-12-31` } } });
+
+    const query = {
+      query: { bool: { must, filter, must_not } },
+      size,
+      sort: [{ dataAjuizamento: { order: "desc" } }]
+    };
+
+    window._filtroAtivo = 0;
+    window._queryAtual = query;
+    window._tribunalAtual = 'tjrj';
+    window._pageSize = size;
+    await executarBusca(query, 'tjrj', 0);
+  }
+
+  async function irParaPagina(pagina) {
+    if (!window._queryAtual) return;
+    const query = Object.assign({}, window._queryAtual, { from: pagina * window._pageSize });
+    await executarBusca(query, window._tribunalAtual, pagina);
+  }
+
+  async function executarBusca(query, tribunal, pagina = 0) {
     document.getElementById('spinner').style.display = 'block';
     document.getElementById('results').style.display = 'none';
     document.getElementById('error-msg').style.display = 'none';
@@ -649,11 +882,33 @@
       if (!resp.ok) throw new Error(`Erro ${resp.status}: ${await resp.text()}`);
 
       const data = await resp.json();
-      const hits = data?.hits?.hits || [];
+      let hits = data?.hits?.hits || [];
+
+      // Sempre ordena 🔥 primeiro (independente do checkbox)
+      // O checkbox apenas aumenta o tamanho da busca para 500
 
       if (hits.length === 0) { document.getElementById('empty-msg').style.display = 'block'; return; }
 
-      renderResults(hits, data?.hits?.total?.value || hits.length);
+      const total = data?.hits?.total?.value || hits.length;
+
+      // Ordena: 🔥 primeiro, depois ✅, depois o resto
+      const ouroK = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
+      const ouroExclude = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
+      const bomK = ['intima'];
+      function isOuro(n) { return ouroK.some(k => n.includes(k)) && !ouroExclude.some(x => n.includes(x)); }
+      function scoreMov(h) {
+        const movs = h._source?.movimentos || [];
+        for (const m of movs) {
+          const n = (m.nome || '').toLowerCase();
+          if (isOuro(n)) return 2;
+          if (bomK.some(k => n.includes(k))) return 1;
+        }
+        return 0;
+      }
+      hits.sort((a, b) => scoreMov(b) - scoreMov(a));
+
+      renderResults(hits, total);
+      renderPaginacao(pagina, total, window._pageSize || query.size || 20);
 
     } catch(e) {
       document.getElementById('spinner').style.display = 'none';
@@ -663,10 +918,124 @@
     }
   }
 
+  // Guarda todos os hits para lista compacta
+  window._todosHits = [];
+
+  function filtrarCardsFogo(ativo) {
+    const cards = document.querySelectorAll('.processo-card');
+    let visiveis = 0;
+    cards.forEach(c => {
+      const show = !ativo || c.dataset.fogo === '1';
+      c.style.display = show ? '' : 'none';
+      if (show) visiveis++;
+    });
+    const countEl = document.getElementById('result-count');
+    if (!countEl) return;
+    const total = window._todosHits?.length || 0;
+    const totalGeral = window._totalGeral || total;
+    if (ativo) {
+      countEl.innerHTML = `✅ ${totalGeral} processo(s) encontrado(s) — exibindo <strong>${visiveis} 🔥</strong> de ${total} &nbsp;<button onclick="abrirListaCompacta()" style="background:#1a3a5c;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer">📋 Lista compacta (Ctrl+F)</button>`;
+    } else {
+      countEl.innerHTML = `✅ ${totalGeral} processo(s) encontrado(s) — exibindo ${total} &nbsp;<button onclick="abrirListaCompacta()" style="background:#1a3a5c;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer">📋 Lista compacta (Ctrl+F)</button>`;
+    }
+  }
+
+  function abrirListaCompacta() {
+    const hits = window._todosHits;
+    if (!hits.length) return;
+    const ouro = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
+    const ouroExcL = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
+    const bom = ['intima'];
+    const ruim = ['distribuiç', 'redistribuiç', 'baixa', 'remessa', 'extinç', 'alvará', 'pagamento'];
+    function icone(nome) {
+      const n = (nome||'').toLowerCase();
+      if (ouro.some(k => n.includes(k)) && !ouroExcL.some(x => n.includes(x))) return '🔥';
+      if (bom.some(k => n.includes(k))) return '✅';
+      if (ruim.some(k => n.includes(k))) return '❌';
+      return '•';
+    }
+    function linkParaTribunal(numero) {
+      const digits = numero.replace(/\D/g,'');
+      const cod = digits.substring(14, 16);
+      const fmt = digits.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+      if (cod==='02') return `https://eproc.jfrj.jus.br/eproc2trf2/controlador.php?acao=processo_consulta_publica&num_processo=${fmt}`;
+      if (cod==='03') return `https://pje1g.trf3.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${fmt}`;
+      if (cod==='04') return `https://eproc.trf4.jus.br/eproc2trf4/controlador.php?acao=processo_selecionar&num_processo=${fmt}`;
+      if (cod==='01') return `https://processual.trf1.jus.br/consultaProcessual/processo.do?numeroDosAutos=${digits}&secao=TRF1`;
+      if (cod==='05') return `https://pje.trf5.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${fmt}`;
+      if (cod==='06') return `https://pje.trf6.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${fmt}`;
+      return '';
+    }
+    const alimentarT = ['aposentadoria', 'auxílio', 'auxilio', 'pensão', 'pensao', 'bpc', 'benefício', 'beneficio', 'incapacidade', 'salário maternidade', 'salario maternidade', 'amparo', 'loas'];
+    const comumT = ['correção monetária', 'correcao monetaria', 'reajuste', 'revisão', 'revisao', 'atualização', 'atualizacao', 'rmi', 'dib', 'teto'];
+    function naturezaLabel(assuntoStr) {
+      const a = (assuntoStr||'').toLowerCase();
+      if (alimentarT.some(t => a.includes(t))) return '<span style="background:#fef9c3;color:#854d0e;font-size:0.68rem;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px">🍎</span>';
+      if (comumT.some(t => a.includes(t))) return '<span style="background:#f1f5f9;color:#475569;font-size:0.68rem;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px">📄</span>';
+      return '';
+    }
+    const linhas = hits.map(h => {
+      const p = h._source;
+      const num = p.numeroProcesso || '—';
+      const assunto = p.assuntos?.[0]?.nome || '—';
+      const orgao = p.orgaoJulgador?.nome || '—';
+      const grau = p.grau || '—';
+      const grauBadge = grau === 'JE' ? '<span style="background:#c6f6d5;color:#22543d;font-size:0.7rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px">JE·RPV</span>' : `<span style="background:#e2e8f0;color:#4a5568;font-size:0.7rem;padding:1px 6px;border-radius:8px;margin-left:4px">${grau}</span>`;
+      const movs = (p.movimentos||[]).slice(0,3);
+      const movsStr = movs.map(m => `${icone(m.nome)} ${m.nome||'?'}`).join(' | ');
+      const link = linkParaTribunal(num);
+      const temFogo = movs.some(m => ouro.some(k => (m.nome||'').toLowerCase().includes(k)));
+      const rowStyle = temFogo ? 'background:#f0fdf4;' : '';
+      const nbadge = naturezaLabel(assunto);
+      const partes = p.partes || [];
+      const passivo = partes.find(pt => (pt.polo||'').toLowerCase().includes('passivo'))
+                   || partes.find(pt => !(pt.polo||'').toLowerCase().includes('ativo'));
+      const reuNome = passivo?.nome || (partes.length > 1 ? partes[1].nome : '—');
+      return `<tr data-fogo="${temFogo?'1':'0'}" style="border-bottom:1px solid #e2e8f0;${rowStyle}cursor:${link?'pointer':'default'}" onclick="${link?`window.open('${link}','_blank')`:''}">
+        <td style="padding:5px 8px;font-size:0.78rem;white-space:nowrap;color:#1a3a5c;font-weight:600">${num}${grauBadge}${nbadge}</td>
+        <td style="padding:5px 8px;font-size:0.78rem;color:#4a5568">${assunto}</td>
+        <td style="padding:5px 8px;font-size:0.78rem;color:#4a5568">${orgao}</td>
+        <td style="padding:5px 8px;font-size:0.78rem;color:#7c3aed;font-weight:600">${reuNome}</td>
+        <td style="padding:5px 8px;font-size:0.78rem">${movsStr}</td>
+      </tr>`;
+    }).join('');
+
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lista Compacta — ${hits.length} processos</title>
+    <style>body{font-family:sans-serif;padding:16px;background:#f5f6fa}h2{color:#1a3a5c;margin-bottom:12px}
+    .dica{background:#eff6ff;border-left:4px solid #3b82f6;padding:8px 12px;font-size:0.82rem;color:#1e40af;margin-bottom:12px;border-radius:0 6px 6px 0}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    th{background:#1a3a5c;color:#fff;padding:8px;font-size:0.8rem;text-align:left}
+    tr:hover td{background:#f0f4ff}</style></head><body>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <h2 style="margin:0">📋 ${hits.length} processos</h2>
+      <button onclick="filtrarFogo()" style="background:#166534;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer">🔥 Só Fogos</button>
+      <button onclick="mostrarTodos()" style="background:#1a3a5c;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer">📋 Todos</button>
+      <span id="contador" style="font-size:0.82rem;color:#4a5568"></span>
+    </div>
+    <table id="tabela"><thead><tr><th>Número</th><th>Assunto</th><th>Órgão</th><th>Réu (Polo Passivo)</th><th>Movimentações</th></tr></thead><tbody id="tbody">${linhas}</tbody></table>
+    <script>
+      function filtrarFogo() {
+        const rows = document.querySelectorAll('#tbody tr');
+        let n = 0;
+        rows.forEach(r => { const show = r.dataset.fogo === '1'; r.style.display = show ? '' : 'none'; if(show) n++; });
+        document.getElementById('contador').textContent = n + ' processos com 🔥';
+      }
+      function mostrarTodos() {
+        document.querySelectorAll('#tbody tr').forEach(r => r.style.display = '');
+        document.getElementById('contador').textContent = '';
+      }
+    <\/script>
+    </body></html>`);
+    w.document.close();
+  }
+
   function renderResults(hits, total) {
+    window._todosHits = hits;
+    window._totalGeral = total;
     const container = document.getElementById('results-list');
     container.innerHTML = '';
-    document.getElementById('result-count').textContent = `✅ ${total} processo(s) encontrado(s) — exibindo ${hits.length}`;
+    document.getElementById('result-count').innerHTML = `✅ ${total} processo(s) encontrado(s) — exibindo ${hits.length} &nbsp;<button onclick="abrirListaCompacta()" style="background:#1a3a5c;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer">📋 Lista compacta (Ctrl+F)</button>`;
 
     hits.forEach(hit => {
       const p = hit._source;
@@ -688,32 +1057,128 @@
         tipoBadge = '<span class="badge badge-precatorio" style="margin-left:8px">Precatório</span>';
       }
 
-      const partesHtml = partes.slice(0, 6).map(pt => `
-        <div class="parte">
-          <span class="polo">${pt.polo || ''}</span> ${pt.nome || '—'}
-          ${pt.advogados?.length ? `<br><small style="color:#718096">Adv: ${pt.advogados.map(a=>a.nome).join(', ')}</small>` : ''}
-        </div>
-      `).join('');
+      // Badge alimentar vs comum (estimativa por assunto)
+      const assuntoNome = (p.assuntos?.[0]?.nome || '').toLowerCase();
+      const alimentarTermos = ['aposentadoria', 'auxílio', 'auxilio', 'pensão', 'pensao', 'bpc', 'benefício', 'beneficio', 'incapacidade', 'salário maternidade', 'salario maternidade', 'amparo', 'loas'];
+      const comumTermos = ['correção monetária', 'correcao monetaria', 'reajuste', 'revisão', 'revisao', 'atualização', 'atualizacao', 'rmi', 'dib', 'teto'];
+      let naturezaBadge = '';
+      if (alimentarTermos.some(t => assuntoNome.includes(t))) {
+        naturezaBadge = '<span style="background:#fef9c3;color:#854d0e;font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🍎 Alimentar</span>';
+      } else if (comumTermos.some(t => assuntoNome.includes(t))) {
+        naturezaBadge = '<span style="background:#f1f5f9;color:#475569;font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">📄 Comum</span>';
+      }
 
+      // Advogados do polo ativo (exequente)
+      const advogados = [];
+      partes.forEach(pt => {
+        if (pt.advogados?.length) pt.advogados.forEach(a => { if (!advogados.find(x=>x.nome===a.nome)) advogados.push(a); });
+      });
+
+      // Partes resumidas
+      const exequente = partes.find(pt => (pt.polo||'').toLowerCase().includes('ativo'));
+      const executado = partes.find(pt => (pt.polo||'').toLowerCase().includes('passivo'));
+
+      // Classificar movimentações por interesse
+      const movs = (p.movimentos || []).slice(0,3);
+      const ouro = ['expedição de precatório', 'expedição de rpv', 'expedição de ofício requisitório', 'homologaç', 'homologacao', 'homologad', 'determinaç', 'trânsito', 'transito', 'cumprimento de sentença', 'cumprimento da obrigação', 'precatório'];
+      const ouroExcC = ['transaç', 'transac', 'acordo', 'desistencia', 'desistência', 'extinç'];
+      const bom = ['intima'];
+      const ruim = ['distribuiç', 'redistribuiç', 'desistencia', 'desistência', 'baixa', 'ausência', 'remessa', 'recurso', 'extinç', 'alvará', 'pagamento'];
+
+      function classifMov(nome) {
+        const n = (nome||'').toLowerCase();
+        if (ouro.some(p => n.includes(p)) && !ouroExcC.some(x => n.includes(x))) return { cor: '#166534', bg: '#dcfce7', icone: '🔥' };
+        if (bom.some(p => n.includes(p))) return { cor: '#1e40af', bg: '#dbeafe', icone: '✅' };
+        if (ruim.some(p => n.includes(p))) return { cor: '#9a3412', bg: '#fee2e2', icone: '❌' };
+        return { cor: '#4a5568', bg: 'transparent', icone: '' };
+      }
+
+      // Badge de alerta se última movimentação for ouro
+      const ultimaMov = movs[movs.length - 1];
+      const ultimaClassif = ultimaMov ? classifMov(ultimaMov.nome) : null;
+      const alertaBadge = ultimaClassif?.icone === '🔥'
+        ? '<span style="background:#dcfce7;color:#166534;font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">🔥 QUASE RPV</span>'
+        : '';
+
+      const movsHtml = movs.length ? `
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e8edf5">
+          <strong style="font-size:0.75rem;color:#4a5568;text-transform:uppercase">Últimas movimentações:</strong>
+          ${movs.map(m => {
+            const c = classifMov(m.nome);
+            return `<div style="font-size:0.78rem;margin-top:4px;padding:3px 6px;background:${c.bg};border-radius:4px;color:${c.cor}">
+              <span style="opacity:0.7">${m.dataHora ? m.dataHora.substring(0,10) : ''}</span> ${c.icone} ${m.nome || ''}
+            </div>`;
+          }).join('')}
+        </div>` : '';
+
+      // Badge grau
+      const grauBadge = grau === 'JE' ? '<span class="badge badge-rpv" style="margin-left:6px">JE · RPV</span>' : '';
+
+      // Link para tribunal baseado no número do processo
+      // Número CNJ: NNNNNNN-DD.AAAA.J.TT.OOOO — TT é o código do tribunal
+      const numFormatado = formatNumero(numero);
+      const apenasDigitos = numero.replace(/\D/g, ''); // remove traços e pontos
+      // CNJ: NNNNNNN(7) DD(2) AAAA(4) J(1) TT(2) OOOO(4) — tribunal começa no índice 14
+      const tribunalCodigo = apenasDigitos.substring(14, 16);
+      let linkTribunal = '';
+      if (tribunalCodigo === '02') linkTribunal = `https://eproc.jfrj.jus.br/eproc2trf2/controlador.php?acao=processo_consulta_publica&num_processo=${numFormatado}`;
+      else if (tribunalCodigo === '03') linkTribunal = `https://pje1g.trf3.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${numFormatado}`;
+      else if (tribunalCodigo === '04') linkTribunal = `https://eproc.trf4.jus.br/eproc2trf4/controlador.php?acao=processo_selecionar&num_processo=${numFormatado}`;
+      else if (tribunalCodigo === '01') linkTribunal = `https://processual.trf1.jus.br/consultaProcessual/processo.do?numeroDosAutos=${apenasDigitos}&secao=TRF1`;
+      else if (tribunalCodigo === '05') linkTribunal = `https://pje.trf5.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${numFormatado}`;
+      else if (tribunalCodigo === '06') linkTribunal = `https://pje.trf6.jus.br/pje/ConsultaPublica/listView.seam#processoNumero=${numFormatado}`;
+      const btnTribunal = linkTribunal ? `<a href="${linkTribunal}" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;margin-top:10px;padding:7px 14px;background:#1a3a5c;color:#fff;border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none">🔗 Abrir no Tribunal</a>` : '';
+
+      const temFogoCard = movs.some(m => ouro.some(k => (m.nome||'').toLowerCase().includes(k)));
       const card = document.createElement('div');
       card.className = 'processo-card';
+      card.dataset.fogo = temFogoCard ? '1' : '0';
       card.innerHTML = `
-        <div class="processo-numero">${formatNumero(numero)} ${tipoBadge}</div>
-        <div class="processo-info">
-          <div class="info-item"><span class="info-label">Classe</span><span class="info-value">${classe}</span></div>
-          <div class="info-item"><span class="info-label">Assunto</span><span class="info-value">${assunto}</span></div>
-          <div class="info-item"><span class="info-label">Tribunal</span><span class="info-value">${tribunal}</span></div>
-          <div class="info-item"><span class="info-label">Órgão</span><span class="info-value">${orgao}</span></div>
-          <div class="info-item"><span class="info-label">Ajuizamento</span><span class="info-value">${dataAjuiz}</span></div>
-          <div class="info-item"><span class="info-label">Grau</span><span class="info-value">${grau}</span></div>
-          <div class="info-item"><span class="info-label">Valor da causa</span><span class="info-value">${valor}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+          <div class="processo-numero" style="margin:0">${numFormatado} ${tipoBadge}${grauBadge}${naturezaBadge}${alertaBadge}</div>
+          <span style="font-size:0.78rem;color:#718096">${dataAjuiz}</span>
         </div>
-        ${partesHtml ? `<div class="partes-list" style="margin-top:10px"><strong style="font-size:0.75rem;color:#4a5568">PARTES:</strong>${partesHtml}</div>` : ''}
+        <div class="processo-info" style="margin-top:10px">
+          <div class="info-item"><span class="info-label">Assunto</span><span class="info-value" style="font-weight:600;color:#1a3a5c">${assunto}</span></div>
+          <div class="info-item"><span class="info-label">Órgão</span><span class="info-value">${orgao}</span></div>
+          <div class="info-item"><span class="info-label">Valor da causa</span><span class="info-value">${valor}</span></div>
+          <div class="info-item"><span class="info-label">Grau</span><span class="info-value">${grau}</span></div>
+        </div>
+        ${exequente ? `<div style="margin-top:8px;font-size:0.82rem"><strong style="color:#22543d">Exequente:</strong> ${exequente.nome || '—'}</div>` : ''}
+        ${executado ? `<div style="font-size:0.82rem"><strong style="color:#9b2c2c">Executado:</strong> ${executado.nome || '—'}</div>` : ''}
+        ${advogados.length ? `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border-radius:6px;font-size:0.82rem">
+          📋 <strong>Advogado(s):</strong> ${advogados.map(a=>`<span style="color:#3730a3">${a.nome}</span>`).join(', ')}
+        </div>` : ''}
+        ${movsHtml}
+        ${btnTribunal}
       `;
       container.appendChild(card);
     });
 
     document.getElementById('results').style.display = 'block';
+  }
+
+  function renderPaginacao(paginaAtual, total, pageSize) {
+    let el = document.getElementById('paginacao');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'paginacao';
+      el.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;justify-content:center;';
+      document.getElementById('results').appendChild(el);
+    }
+    el.innerHTML = '';
+    // DataJud limita a 10000 resultados
+    const totalReal = Math.min(total, 10000);
+    const totalPaginas = Math.min(Math.ceil(totalReal / pageSize), 50);
+    if (totalPaginas <= 1) return;
+
+    for (let i = 0; i < totalPaginas; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i + 1;
+      btn.style.cssText = `padding:6px 12px;border-radius:6px;border:1.5px solid #1a3a5c;cursor:pointer;font-size:0.85rem;font-weight:600;${i === paginaAtual ? 'background:#1a3a5c;color:#fff;' : 'background:#fff;color:#1a3a5c;'}`;
+      btn.onclick = () => { window.scrollTo(0,0); irParaPagina(i); };
+      el.appendChild(btn);
+    }
   }
 
   function formatNumero(n) {
