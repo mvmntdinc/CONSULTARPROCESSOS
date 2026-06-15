@@ -582,12 +582,8 @@
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
             <div class="form-group" style="margin-bottom:0">
-              <label>Natureza</label>
-              <select id="fed-natureza">
-                <option value="">Todas</option>
-                <option value="A" selected>Alimentar</option>
-                <option value="C">Comum</option>
-              </select>
+              <label>Assunto</label>
+              <input type="text" id="fed-assunto" placeholder="Ex: aposentadoria, servidor..." style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
             </div>
             <div class="form-group" style="margin-bottom:0">
               <label>Exibir</label>
@@ -1215,7 +1211,7 @@
   }
 
   async function buscarPrecatoriosFederal(from = 0) {
-    const nat        = document.getElementById('fed-natureza').value;
+    const assunto    = document.getElementById('fed-assunto').value.trim();
     const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
     const trfSel     = document.getElementById('fed-trf').value;
     const dataDe     = document.getElementById('fed-data-de').value;
@@ -1238,23 +1234,8 @@
     };
 
     const must = [{ term: { 'movimentos.codigo': 12457 } }];
-    if (nat === 'A') {
-      must.push({ bool: { should: [
-        { match: { 'assuntos.nome': 'Benefício' } },
-        { match: { 'assuntos.nome': 'Previdenciário' } },
-        { match: { 'assuntos.nome': 'Aposentadoria' } },
-        { match: { 'assuntos.nome': 'Pensão' } },
-        { match: { 'assuntos.nome': 'Alimentar' } },
-        { match: { 'assuntos.nome': 'Servidor' } },
-        { match: { 'assuntos.nome': 'Salário' } },
-      ], minimum_should_match: 1 }});
-    } else if (nat === 'C') {
-      must.push({ bool: { should: [
-        { match: { 'assuntos.nome': 'Tributário' } },
-        { match: { 'assuntos.nome': 'Indenização' } },
-        { match: { 'assuntos.nome': 'Repetição' } },
-        { match: { 'assuntos.nome': 'Obrigação de Fazer' } },
-      ], minimum_should_match: 1 }});
+    if (assunto) {
+      must.push({ match: { 'assuntos.nome': assunto } });
     }
 
     if (dataDe || dataAte) {
