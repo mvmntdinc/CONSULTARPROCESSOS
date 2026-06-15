@@ -1349,6 +1349,19 @@
   }
 
   // ======= PROSPECÇÃO PRECATÓRIOS MUNICIPAIS RJ =======
+  function calcScorePM(s) {
+    const movs = s.movimentos || [];
+    let pts = 0;
+    if (movs.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')))     pts += 50;
+    if (movs.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')))    pts += 45;
+    if (movs.some(m => m.codigo === 848))                                                                            pts += 30;
+    if (s.classe?.codigo === 156)                                                                                    pts += 25;
+    if (movs.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')))                         pts += 20;
+    if (s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000)                   pts += 15;
+    if (s.nivelSigilo === 0)                                                                                        pts += 10;
+    return pts;
+  }
+
   function selecionarMunPM(ibgeKey, btnId) {
     document.getElementById('pm-mun-ibge').value = ibgeKey;
     document.querySelectorAll('[id^="btn-pm-"]').forEach(b => b.classList.remove('active'));
@@ -1382,54 +1395,35 @@
     const filter = [];
     const must_not = [];
 
-    // Município pelo órgão julgador (campo confiável no schema)
-    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
-
-    // Apenas 1º grau (G1) — exclui JEF (RPV) e instâncias recursais
-    filter.push({ term: { 'grau.keyword': 'G1' } });
-
-    // Códigos TPU confirmados no TJRJ:
-    // 156=Cumprimento de sentença, 12154/159=Execução de Título Extrajudicial
+    // Códigos TPU confirmados via extração real no TJRJ
     must.push({ bool: { should: [
-      { term: { 'classe.codigo': 156 } },
+      { term: { 'classe.codigo': 156   } },
       { term: { 'classe.codigo': 12154 } },
-      { term: { 'classe.codigo': 159 } },
+      { term: { 'classe.codigo': 159   } },
     ], minimum_should_match: 1 }});
 
-    // Processo antigo (sentença transitou + tempo de espera)
+    // Município pelo IBGE do órgão julgador (partes não é indexado no DataJud)
+    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
+    filter.push({ term: { 'grau.keyword': 'G1' } });
+    filter.push({ term: { 'nivelSigilo': 0 } });
     filter.push({ range: { dataAjuizamento: { lte: cutoffStr } } });
 
-    // Trânsito em julgado — código TPU 848 (confiável)
-    if (comTransito) {
-      must.push({ nested: { path: 'movimentos', query: {
-        term: { 'movimentos.codigo': 848 }
-      }}});
-    }
+    // movimentos NÃO é nested no DataJud — usar term/match_phrase flat
+    if (comTransito)   must.push({ term: { 'movimentos.codigo': 848 } });
+    if (comLiquidacao) must.push({ bool: { should: [
+      { match_phrase: { 'movimentos.nome': 'Homologação de Cálculo' } },
+      { match_phrase: { 'movimentos.nome': 'Liquidação de Sentença'  } },
+    ], minimum_should_match: 1 }});
 
-    // Liquidação / homologação de cálculo — códigos TPU 11009, 11010 ou nome
-    if (comLiquidacao) {
-      must.push({ nested: { path: 'movimentos', query: { bool: { should: [
-        { term: { 'movimentos.codigo': 11009 } },
-        { term: { 'movimentos.codigo': 11010 } },
-        { match: { 'movimentos.nome': 'Homologação de Cálculo' } },
-        { match: { 'movimentos.nome': 'Liquidação de Sentença' } },
-      ], minimum_should_match: 1 }}}});
-    }
+    must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' } });
+    must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido'     } });
+    must_not.push({ term: { 'classe.codigo': 283   } });
+    must_not.push({ term: { 'classe.codigo': 10943 } });
 
-    // Excluir processos que já viraram precatório
-    must_not.push({ nested: { path: 'movimentos', query: { bool: { should: [
-      { match: { 'movimentos.nome': 'Expedição de Precatório' } },
-      { match: { 'movimentos.nome': 'Precatório Expedido' } },
-    ], minimum_should_match: 1 }}}});
-
-    // Excluir recursos pendentes
     if (semRecurso) {
-      must_not.push({ nested: { path: 'movimentos', query: { bool: { should: [
-        { term: { 'movimentos.codigo': 11010 } }, // Recurso Especial
-        { match: { 'movimentos.nome': 'Recurso Especial' } },
-        { match: { 'movimentos.nome': 'Recurso Extraordinário' } },
-        { match: { 'movimentos.nome': 'Embargos de Declaração' } },
-      ], minimum_should_match: 1 }}}});
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Especial'       } });
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Extraordinário' } });
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Embargos de Declaração' } });
     }
 
     const query = {
@@ -1438,7 +1432,33 @@
       sort: [{ dataAjuizamento: { order: 'asc' } }]
     };
 
-    await executarBuscaMulti(query, ['tjrj']);
+    // Busca direta TJRJ + score PM antes de renderizar
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('spinner-text').textContent = 'Consultando DataJud TJRJ...';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'none';
+
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+    try {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/${endpointMap['tjrj']}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+      });
+      const data = await resp.json();
+      document.getElementById('spinner').style.display = 'none';
+      const hits  = data?.hits?.hits || [];
+      const total = data?.hits?.total?.value || 0;
+      if (!hits.length) { document.getElementById('empty-msg').style.display = 'block'; return; }
+      hits.forEach(h => { h._score = calcScorePM(h._source || {}); });
+      hits.sort((a, b) => b._score - a._score);
+      window._todosHits = hits; window._totalGeral = total;
+      renderResults(hits, total);
+      renderPaginacao(0, total, hits.length);
+    } catch(e) {
+      document.getElementById('spinner').style.display = 'none';
+      const errEl = document.getElementById('error-msg');
+      errEl.style.display = 'block'; errEl.textContent = 'Erro: ' + e.message;
+    }
   }
 
   // ======= FILA TJRJ — API OFICIAL (via proxy Railway) =======
