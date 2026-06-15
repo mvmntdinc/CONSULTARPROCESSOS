@@ -383,8 +383,8 @@
         <button class="search-tab active" onclick="switchSearchTab('numero')">Por Número</button>
         <button class="search-tab" onclick="switchSearchTab('cpf')">Por CPF</button>
         <button class="search-tab" onclick="switchSearchTab('prospeccao')">Prospecção RPV/INSS</button>
-        <button class="search-tab" onclick="switchSearchTab('prosp-mun')">Prospecção Municipal RJ</button>
-        <button class="search-tab" onclick="switchSearchTab('municipal')">Fila Oficial RJ</button>
+        <button class="search-tab" onclick="switchSearchTab('prec-num')">🔎 Consultar CNJ</button>
+        <button class="search-tab" onclick="switchSearchTab('credor')">🎯 Identificar Credor</button>
       </div>
 
       <!-- Seletor de Tribunal (para nome/numero/cpf) -->
@@ -503,130 +503,64 @@
       </div>
 
       <!-- Prospecção Precatórios Municipais RJ -->
-      <div id="stab-prosp-mun" style="display:none">
+      <!-- Consultar CNJ no DataJud -->
+      <div id="stab-prec-num" style="display:none">
         <div class="filtros-avancados">
-          <h3>Município réu</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;margin-top:8px">
-            <button type="button" class="btn-mun" id="btn-pm-rio" onclick="selecionarMunPM('rio','btn-pm-rio')">Rio de Janeiro</button>
-            <button type="button" class="btn-mun" id="btn-pm-niteroi" onclick="selecionarMunPM('niteroi','btn-pm-niteroi')">Niterói</button>
-            <button type="button" class="btn-mun" id="btn-pm-caxias" onclick="selecionarMunPM('caxias','btn-pm-caxias')">Duque de Caxias</button>
-            <button type="button" class="btn-mun" id="btn-pm-angra" onclick="selecionarMunPM('angra','btn-pm-angra')">Angra dos Reis</button>
-            <button type="button" class="btn-mun" id="btn-pm-meriti" onclick="selecionarMunPM('meriti','btn-pm-meriti')">São João de Meriti</button>
+          <h3>Digite o número CNJ do processo</h3>
+          <div class="form-group" style="margin-top:8px">
+            <label>Número CNJ (ex: 0844650-31.2023.8.19.0021)</label>
+            <input type="text" id="input-prec-num" placeholder="Ex: 0844650-31.2023.8.19.0021" style="font-size:0.95rem;letter-spacing:.02em" />
           </div>
-          <input type="hidden" id="pm-mun-ibge" value="">
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-            <div>
-              <label class="label">Fase processual</label>
-              <select id="pm-fase" class="input-field">
-                <option value="">Todas as fases</option>
-                <option value="cumprimento">Cumprimento de Sentença</option>
-                <option value="execucao">Execução contra a Fazenda Pública</option>
-              </select>
-            </div>
-            <div>
-              <label class="label">Processo iniciado antes de</label>
-              <select id="pm-anos" class="input-field">
-                <option value="4">4 anos atrás</option>
-                <option value="5" selected>5 anos atrás</option>
-                <option value="7">7 anos atrás</option>
-                <option value="10">10 anos atrás</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px">
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer">
-              <input type="checkbox" id="pm-transito" checked style="accent-color:var(--accent)">
-              Trânsito em julgado
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer">
-              <input type="checkbox" id="pm-liquidacao" checked style="accent-color:var(--accent)">
-              Liquidação encerrada
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer">
-              <input type="checkbox" id="pm-sem-recurso" checked style="accent-color:var(--accent)">
-              Sem recursos pendentes
-            </label>
-          </div>
-          <p style="font-size:11px;color:var(--text-dim);margin-bottom:14px">Os filtros de trânsito, liquidação e recursos são aplicados nas movimentações — resultados aproximados.</p>
         </div>
-        <button class="btn-buscar" onclick="buscarProspMunicipal()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Prospectar Precatórios
+        <button class="btn-buscar" onclick="consultarCNJDatajud()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar no DataJud
         </button>
+        <div id="prec-num-resultado" style="margin-top:16px"></div>
       </div>
 
-      <!-- Prospecção Fila Oficial RJ -->
-      <div id="stab-municipal" style="display:none">
-        <div style="margin-bottom:14px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius)">
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Fila Real de Precatórios — Portal TJRJ</div>
-          <div style="font-size:12px;color:var(--text-muted);line-height:1.5">Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.</div>
-        </div>
+      <!-- Identificar Credor por Precatório -->
+      <div id="stab-credor" style="display:none">
         <div class="filtros-avancados">
-          <h3>Selecionar Entidade Devedora</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;margin-top:8px">
-            <button type="button" onclick="selecionarEntidadeTJRJ(2,'MUNICÍPIO DO RIO DE JANEIRO')" class="btn-mun" id="btn-tjrj-capital">Rio de Janeiro</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(9,'MUNICÍPIO DE NITERÓI')" class="btn-mun" id="btn-tjrj-niteroi">Niterói</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(7,'MUNICÍPIO DE DUQUE DE CAXIAS')" class="btn-mun" id="btn-tjrj-caxias">Duque de Caxias</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(27,'MUNICÍPIO DE ANGRA DOS REIS')" class="btn-mun" id="btn-tjrj-angra">Angra dos Reis</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(34,'MUNICÍPIO DE SÃO JOÃO DE MERITI')" class="btn-mun" id="btn-tjrj-meriti">São João de Meriti</button>
+          <h3>Município do devedor</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px">
+            <button type="button" class="btn-mun" id="btn-cred-rio"    onclick="selecionarCredorMun(3304557,'btn-cred-rio')">Rio de Janeiro</button>
+            <button type="button" class="btn-mun" id="btn-cred-niteroi" onclick="selecionarCredorMun(3303302,'btn-cred-niteroi')">Niterói</button>
+            <button type="button" class="btn-mun" id="btn-cred-caxias"  onclick="selecionarCredorMun(3301702,'btn-cred-caxias')">Duque de Caxias</button>
+            <button type="button" class="btn-mun" id="btn-cred-angra"   onclick="selecionarCredorMun(3300100,'btn-cred-angra')">Angra dos Reis</button>
+            <button type="button" class="btn-mun" id="btn-cred-meriti"  onclick="selecionarCredorMun(3305109,'btn-cred-meriti')">São João de Meriti</button>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
+          <input type="hidden" id="cred-ibge" value="">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Ano do precatório</label>
+              <input type="number" id="cred-ano" value="2025" min="2018" max="2027" placeholder="Ex: 2025">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
               <label>Natureza</label>
-              <select id="tjrj-natureza" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface-2);color:var(--text);font-family:inherit">
+              <select id="cred-natureza">
                 <option value="">Todas</option>
-                <option value="A">Alimentícia</option>
+                <option value="A" selected>Alimentar</option>
                 <option value="C">Comum</option>
               </select>
             </div>
-            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
-              <label>Ano orçamento</label>
-              <select id="tjrj-ano" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface-2);color:var(--text);font-family:inherit">
-                <option value="">Todos os anos</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-                <option value="2028">2028</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
-              <label>Tipo de pagamento</label>
-              <select id="tjrj-regime" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface-2);color:var(--text);font-family:inherit">
-                <option value="O">Cronológico</option>
-                <option value="P">Prioritário</option>
-              </select>
-            </div>
           </div>
-          <input type="hidden" id="tjrj-id-entidade" value="" />
-          <input type="hidden" id="tjrj-nome-entidade" value="" />
-        </div>
-        <button class="btn-buscar" onclick="buscarFilaTJRJ()" id="btn-buscar-tjrj" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>Carregar Fila de Precatórios</button>
 
-        <!-- Resultados municipais TJRJ -->
-        <div id="tjrj-resultados" style="display:none;margin-top:20px">
-          <div id="tjrj-summary" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:0.78rem;color:var(--text-muted)"></div>
-          <div style="overflow-x:auto">
-            <table id="tjrj-tabela" style="width:100%;border-collapse:collapse;font-size:0.82rem">
-              <thead>
-                <tr style="background:rgba(255,255,255,0.04)">
-                  <th style="padding:9px 12px;text-align:center;color:#a5b4fc;font-weight:700">Ordem</th>
-                  <th style="padding:9px 12px;text-align:left;color:#a5b4fc;font-weight:700">Entidade Devedora</th>
-                  <th style="padding:9px 12px;text-align:left;color:#a5b4fc;font-weight:700">Precatório</th>
-                  <th style="padding:9px 12px;text-align:center;color:#a5b4fc;font-weight:700">Natureza</th>
-                  <th style="padding:9px 12px;text-align:center;color:#a5b4fc;font-weight:700">Orçamento</th>
-                  <th style="padding:9px 12px;text-align:right;color:#a5b4fc;font-weight:700">Valor Histórico</th>
-                  <th style="padding:9px 12px;text-align:right;color:#a5b4fc;font-weight:700">Saldo Devedor</th>
-                  <th style="padding:9px 12px;text-align:center;color:#a5b4fc;font-weight:700">Status</th>
-                </tr>
-              </thead>
-              <tbody id="tjrj-tbody"></tbody>
-            </table>
+          <div class="alert alert-blue" style="margin-top:8px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Busca no DataJud processos com <strong>expedição de precatório</strong> no município. O credor aparece destacado em <strong>polo ativo</strong>. Use o ano da fila TJRJ para filtrar.
           </div>
-          <div id="tjrj-paginacao" style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"></div>
         </div>
+
+        <button class="btn-buscar" onclick="buscarCredorPorPrecatorio()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Identificar Credores
+        </button>
+
+        <div id="cred-resultados" style="margin-top:16px"></div>
       </div>
+
     </div>
 
     <!-- Spinner -->
@@ -1070,14 +1004,230 @@
 
   // Abas de busca
   function switchSearchTab(tab) {
-    ['numero','cpf','prospeccao','prosp-mun','municipal'].forEach(t => {
+    ['numero','cpf','prospeccao','prec-num','credor'].forEach(t => {
       document.getElementById('stab-' + t).style.display = t === tab ? 'block' : 'none';
     });
     document.querySelectorAll('.search-tab').forEach((el, i) => {
-      el.classList.toggle('active', ['numero','cpf','prospeccao','prosp-mun','municipal'][i] === tab);
+      el.classList.toggle('active', ['numero','cpf','prospeccao','prec-num','credor'][i] === tab);
     });
-    document.getElementById('secao-tribunal').style.display = (tab === 'prospeccao' || tab === 'prosp-mun' || tab === 'municipal') ? 'none' : 'block';
+    const semTribunal = ['prospeccao','prec-num','credor'];
+    document.getElementById('secao-tribunal').style.display = semTribunal.includes(tab) ? 'none' : 'block';
     limparResultados();
+  }
+
+  function selecionarCredorMun(ibge, btnId) {
+    document.getElementById('cred-ibge').value = ibge;
+    document.querySelectorAll('[id^="btn-cred-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
+  }
+
+  async function buscarCredorPorPrecatorio() {
+    const ibge = parseInt(document.getElementById('cred-ibge').value);
+    if (!ibge) { alert('Selecione o município do devedor.'); return; }
+
+    const ano    = parseInt(document.getElementById('cred-ano').value) || 2025;
+    const nat    = document.getElementById('cred-natureza').value;
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+    const resultDiv   = document.getElementById('cred-resultados');
+
+    // Nomes aceitos para cada devedor municipal
+    const NOMES_MUN = {
+      3304557: ['MUNICÍPIO DO RIO DE JANEIRO', 'RIO DE JANEIRO'],
+      3303302: ['MUNICÍPIO DE NITERÓI', 'NITERÓI'],
+      3301702: ['MUNICÍPIO DE DUQUE DE CAXIAS', 'DUQUE DE CAXIAS'],
+      3300100: ['MUNICÍPIO DE ANGRA DOS REIS', 'ANGRA DOS REIS'],
+      3305109: ['MUNICÍPIO DE SÃO JOÃO DE MERITI', 'SÃO JOÃO DE MERITI',
+                'INSTITUTO DE PREVIDÊNCIA DE SÃO JOÃO DE MERITI', 'MERITI PREV']
+    };
+    const nomesDevedor = NOMES_MUN[ibge] || [];
+
+    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div class="spinner-icon" style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Buscando no DataJud TJRJ...</p></div>`;
+
+    const must = [
+      { term: { 'movimentos.codigo': 12457 } }
+    ];
+    const filter = [
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } }
+    ];
+
+    if (nat === 'A') {
+      must.push({ bool: { should: [
+        { match: { 'assuntos.nome': 'Servidor' } },
+        { match: { 'assuntos.nome': 'Previdência' } },
+        { match: { 'assuntos.nome': 'Benefício' } },
+        { match: { 'assuntos.nome': 'Pensão' } },
+        { match: { 'assuntos.nome': 'Aposentadoria' } },
+        { match: { 'assuntos.nome': 'Vencimentos' } },
+        { match: { 'assuntos.nome': 'Gratificação' } },
+        { match: { 'assuntos.nome': 'Salário' } },
+        { match: { 'assuntos.nome': 'Adicional' } },
+      ], minimum_should_match: 1 }});
+    } else if (nat === 'C') {
+      must.push({ bool: { should: [
+        { match: { 'assuntos.nome': 'Indenização' } },
+        { match: { 'assuntos.nome': 'Correção' } },
+        { match: { 'assuntos.nome': 'Repetição' } },
+        { match: { 'assuntos.nome': 'Obrigação de Fazer' } },
+      ], minimum_should_match: 1 }});
+    }
+
+    const query = {
+      query: { bool: { must, filter } },
+      size: 100,
+      sort: [{ dataAjuizamento: { order: 'desc' } }],
+      _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
+    };
+
+    try {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_tjrj`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+      });
+      const data = await resp.json();
+      const hits  = data?.hits?.hits || [];
+      const total = data?.hits?.total?.value || 0;
+
+      if (!hits.length) {
+        resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado. Tente outro ano ou natureza.</div>`;
+        return;
+      }
+
+      const todosCNJ = hits.map(h => {
+        const s   = h._source || {};
+        const num = s.numeroProcesso || '';
+        const fmt = num.replace(/\D/g,'').replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+        const exps = (s.movimentos||[]).filter(m => m.codigo===12457);
+        const exp  = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : null;
+        const vara = s.orgaoJulgador?.nome || '';
+        const assunto = (s.assuntos||[])[0]?.nome || '';
+        return { fmt, exp, vara, assunto };
+      });
+
+      const linhasCNJ = todosCNJ.map(r => r.fmt).join('\n');
+
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <span class="result-count" style="margin:0">${total} processo(s) com precatório expedido — exibindo ${hits.length}</span>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('lista-cnj').value)" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
+            Copiar todos
+          </button>
+        </div>
+        <textarea id="lista-cnj" readonly style="width:100%;height:180px;background:rgba(0,0,0,0.25);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-family:monospace;font-size:0.75rem;resize:vertical;box-sizing:border-box">${linhasCNJ}</textarea>
+        <div style="margin-top:14px;overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
+            <thead>
+              <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
+                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
+                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Expedido</th>
+                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
+                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
+                <th style="padding:6px 4px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${todosCNJ.map(r => `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                  <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
+                  <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
+                  <td style="padding:6px 8px;color:var(--text-muted)">${r.vara}</td>
+                  <td style="padding:6px 8px;color:var(--text-muted)">${r.assunto}</td>
+                  <td style="padding:6px 4px;text-align:right;white-space:nowrap">
+                    <button onclick="navigator.clipboard.writeText('${r.fmt}').then(()=>window.open('https://tjrj.pje.jus.br/pje/ConsultaPublica/listView.seam','_blank'))" style="background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;cursor:pointer" title="Copia o CNJ e abre o PJe">
+                      📋 PJe
+                    </button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+      resultDiv.innerHTML = html;
+    } catch(e) {
+      resultDiv.innerHTML = `<div class="error-msg" style="display:block">Erro: ${e.message}</div>`;
+    }
+  }
+
+  async function consultarCNJDatajud() {
+    const raw = document.getElementById('input-prec-num').value.trim();
+    if (!raw) { alert('Digite o número CNJ do processo.'); return; }
+
+    const resultDiv = document.getElementById('prec-num-resultado');
+    resultDiv.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted)"><div style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Buscando no DataJud...</p></div>`;
+
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+    const numLimpo = raw.replace(/\D/g, '');
+
+    const query = {
+      query: { match: { numeroProcesso: numLimpo } },
+      size: 1,
+      _source: ['numeroProcesso','partes','assuntos','classe','orgaoJulgador','dataAjuizamento','movimentos','grau']
+    };
+
+    try {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_tjrj`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+      });
+      const data = await resp.json();
+      const hits = data?.hits?.hits || [];
+
+      if (!hits.length) {
+        resultDiv.innerHTML = `<div class="alert">Processo não encontrado no DataJud TJRJ. Verifique o número e tente novamente.</div>`;
+        return;
+      }
+
+      const s = hits[0]._source || {};
+      const fmt = (s.numeroProcesso||'').replace(/\D/g,'').replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+      const todasPartes = s.partes || [];
+      const credores  = todasPartes.filter(p => p.polo?.toUpperCase()==='ATIVO').map(p => p.nome).filter(Boolean);
+      const devedores = todasPartes.filter(p => p.polo?.toUpperCase()==='PASSIVO').map(p => p.nome).filter(Boolean);
+      const vara      = s.orgaoJulgador?.nome || '—';
+      const assunto   = (s.assuntos||[])[0]?.nome || '—';
+      const classe    = s.classe?.nome || '—';
+      const ajuiz     = s.dataAjuizamento?.substring(0,10) || '—';
+      const exps      = (s.movimentos||[]).filter(m => m.codigo===12457);
+      const expDate   = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : null;
+      const movRecentes = (s.movimentos||[]).slice(-5).reverse();
+
+      resultDiv.innerHTML = `
+        <div class="processo-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <div class="processo-numero" style="margin-bottom:0">${fmt}</div>
+            ${expDate ? `<span style="font-size:0.7rem;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.25);padding:2px 9px;border-radius:20px;font-weight:600">✓ Precatório expedido ${expDate}</span>` : ''}
+          </div>
+
+          ${credores.length ? `
+            <div style="background:rgba(80,227,194,0.07);border:1px solid rgba(80,227,194,0.2);border-radius:6px;padding:10px 12px;margin-bottom:12px">
+              <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#50e3c2;margin-bottom:5px">Credor — polo ativo</div>
+              ${credores.map(c=>`<div style="font-size:0.88rem;font-weight:600;color:var(--text)">${c}</div>`).join('')}
+            </div>` : ''}
+
+          <div class="processo-info">
+            ${devedores.length ? `<div class="info-item"><span class="info-label">Devedor</span><span class="info-value">${devedores[0]}</span></div>` : ''}
+            <div class="info-item"><span class="info-label">Classe</span><span class="info-value">${classe}</span></div>
+            <div class="info-item"><span class="info-label">Vara</span><span class="info-value">${vara}</span></div>
+            <div class="info-item"><span class="info-label">Assunto</span><span class="info-value">${assunto}</span></div>
+            <div class="info-item"><span class="info-label">Ajuizamento</span><span class="info-value">${ajuiz}</span></div>
+          </div>
+
+          ${movRecentes.length ? `
+            <div style="margin-top:12px">
+              <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px">Últimas movimentações</div>
+              ${movRecentes.map(m=>`
+                <div style="font-size:0.75rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px">
+                  <span style="color:var(--text-muted);white-space:nowrap">${(m.dataHora||'').substring(0,10)}</span>
+                  <span style="color:var(--text)">${m.nome||m.codigo||'—'}</span>
+                </div>`).join('')}
+            </div>` : ''}
+
+          <div style="margin-top:12px">
+            <button onclick="navigator.clipboard.writeText('${fmt}').then(()=>window.open('https://tjrj.pje.jus.br/pje/ConsultaPublica/listView.seam','_blank'))" style="background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;padding:6px 14px;font-size:0.75rem;cursor:pointer">
+              📋 Copiar CNJ e abrir PJe
+            </button>
+          </div>
+        </div>`;
+
+    } catch(e) {
+      resultDiv.innerHTML = `<div class="error-msg" style="display:block">Erro: ${e.message}</div>`;
+    }
   }
 
   function selectTribunal(el, tribunal) {
@@ -1402,12 +1552,14 @@
     const filter = [];
     const must_not = [];
 
-    // Códigos TPU confirmados via extração real no TJRJ
+    // Classes confirmadas na lista oficial de precatórios TJRJ (Angra, Meriti, etc.)
     must.push({ bool: { should: [
-      { term: { 'classe.codigo': 156   } },
-      { term: { 'classe.codigo': 12154 } },
-      { term: { 'classe.codigo': 159   } },
+      { term: { 'classe.codigo': 156 } },
+      { term: { 'classe.codigo': 7   } },
+      { match_phrase: { 'classe.nome': 'Fazenda Pública' } },
     ], minimum_should_match: 1 }});
+    // Trânsito em julgado sempre obrigatório — evita explodir com classe 7
+    must.push({ term: { 'movimentos.codigo': 848 } });
 
     // Município pelo IBGE
     filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
@@ -1430,12 +1582,28 @@
     // Excluir varas de família (não julgam causas contra município)
     must_not.push({ match: { 'orgaoJulgador.nome': 'FAMILIA' } });
     // Excluir assuntos tipicamente privados
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Nota Promissória'       } });
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Cédula de Crédito'      } });
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos Bancários'    } });
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Despesas Condominiais'  } });
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Inventário'             } });
-    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos em Geral'     } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Nota Promissória'                      } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Cédula de Crédito'                     } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos Bancários'                   } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Despesas Condominiais'                 } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Inventário'                            } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos em Geral'                    } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Alienação Fiduciária'                  } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Plano de Saúde'                        } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Planos de Saúde'                       } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Inclusão Indevida em Cadastro'         } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Fornecimento de Energia Elétrica'      } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos de Consumo'                  } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Espécies de Contratos'                 } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Protesto Indevido de Título'           } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Erro Médico'                           } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Cheque'                                } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Promessa de Compra e Venda'            } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Seguro'                                } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Direito de Vizinhança'                 } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Reivindicação'                         } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Imputação do Pagamento'                } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Enriquecimento sem Causa'              } });
 
     if (semRecurso) {
       must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Especial'       } });
