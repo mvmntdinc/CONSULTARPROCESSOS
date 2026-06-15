@@ -532,11 +532,7 @@
           </div>
           <input type="hidden" id="cred-ibge" value="">
 
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px">
-            <div class="form-group" style="margin-bottom:0">
-              <label>Ano do precatório</label>
-              <input type="number" id="cred-ano" value="2025" min="2018" max="2027" placeholder="Ex: 2025">
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
             <div class="form-group" style="margin-bottom:0">
               <label>Natureza</label>
               <select id="cred-natureza">
@@ -1032,7 +1028,6 @@
     const ibge = parseInt(document.getElementById('cred-ibge').value);
     if (!ibge) { alert('Selecione o município do devedor.'); return; }
 
-    const ano    = parseInt(document.getElementById('cred-ano').value) || 2025;
     const nat    = document.getElementById('cred-natureza').value;
     const tam    = parseInt(document.getElementById('cred-tamanho').value) || 100;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
