@@ -1352,14 +1352,20 @@
   function calcScorePM(s) {
     const movs = s.movimentos || [];
     let pts = 0;
-    if (movs.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')))     pts += 50;
-    if (movs.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')))    pts += 45;
-    if (movs.some(m => m.codigo === 848))                                                                            pts += 30;
-    if (s.classe?.codigo === 156)                                                                                    pts += 25;
-    if (movs.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')))                         pts += 20;
-    if (s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000)                   pts += 15;
-    if (s.nivelSigilo === 0)                                                                                        pts += 10;
-    return pts;
+    // Positivos
+    if (movs.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')))    pts += 50;
+    if (movs.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')))   pts += 45;
+    if (movs.some(m => m.codigo === 848))                                                                           pts += 30;
+    if (s.classe?.codigo === 156)                                                                                   pts += 25;
+    if (movs.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')))                        pts += 20;
+    if (s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000)                  pts += 15;
+    if (s.nivelSigilo === 0)                                                                                       pts += 10;
+    // Penalidades
+    if (movs.some(m => m.nome?.includes('Suspensão') || m.nome?.includes('Sobrestamento')))                       pts -= 20;
+    const datas = movs.map(m => m.dataHora).filter(Boolean).sort();
+    const ultima = datas[datas.length - 1];
+    if (ultima && (Date.now() - new Date(ultima)) > 2 * 365.25 * 86400000)                                        pts -= 15;
+    return Math.max(pts, 0);
   }
 
   function selecionarMunPM(ibgeKey, btnId) {
@@ -1402,8 +1408,9 @@
       { term: { 'classe.codigo': 159   } },
     ], minimum_should_match: 1 }});
 
-    // Município pelo IBGE do órgão julgador (partes não é indexado no DataJud)
+    // Município pelo IBGE + Vara da Fazenda Pública (proxy do réu = município)
     filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
+    filter.push({ match: { 'orgaoJulgador.nome': 'FAZENDA' } });
     filter.push({ term: { 'grau.keyword': 'G1' } });
     filter.push({ term: { 'nivelSigilo': 0 } });
     filter.push({ range: { dataAjuizamento: { lte: cutoffStr } } });

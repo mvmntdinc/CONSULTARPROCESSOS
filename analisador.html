@@ -194,13 +194,15 @@ let tabAtual  = 'resultados';
 
 // ── Score ──────────────────────────────────────────────────────────────
 const SCORE_RULES = [
-  { pts: 50, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')), label: 'Expedição de Precatório' },
-  { pts: 45, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')), label: 'Expedição de RPV' },
-  { pts: 30, fn: s => s.movimentos?.some(m => m.codigo === 848), label: 'Trânsito em julgado' },
-  { pts: 25, fn: s => s.classe?.codigo === 156, label: 'Cumprimento de Sentença' },
-  { pts: 20, fn: s => s.movimentos?.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')), label: 'Homologação/Liquidação' },
-  { pts: 15, fn: s => s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000, label: 'Processo > 5 anos' },
-  { pts: 10, fn: s => s.nivelSigilo === 0, label: 'Sem segredo de justiça' },
+  { pts:  50, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')), label: 'Expedição de Precatório' },
+  { pts:  45, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')), label: 'Expedição de RPV' },
+  { pts:  30, fn: s => s.movimentos?.some(m => m.codigo === 848), label: 'Trânsito em julgado' },
+  { pts:  25, fn: s => s.classe?.codigo === 156, label: 'Cumprimento de Sentença' },
+  { pts:  20, fn: s => s.movimentos?.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')), label: 'Homologação/Liquidação' },
+  { pts:  15, fn: s => s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000, label: 'Processo > 5 anos' },
+  { pts:  10, fn: s => s.nivelSigilo === 0, label: 'Sem segredo de justiça' },
+  { pts: -20, fn: s => s.movimentos?.some(m => m.nome?.includes('Suspensão') || m.nome?.includes('Sobrestamento')), label: 'Processo suspenso' },
+  { pts: -15, fn: s => { const datas = (s.movimentos||[]).map(m=>m.dataHora).filter(Boolean).sort(); const u=datas[datas.length-1]; return u && (Date.now()-new Date(u)) > 2*365.25*86400000; }, label: 'Última movimentação > 2 anos' },
 ];
 
 function calcScore(s) {
@@ -209,7 +211,7 @@ function calcScore(s) {
   for (const r of SCORE_RULES) {
     if (r.fn(s)) { total += r.pts; earned.push({ pts: r.pts, label: r.label }); }
   }
-  return { total, earned };
+  return { total: Math.max(total, 0), earned };
 }
 
 function scoreTag(n) {
@@ -284,6 +286,9 @@ function buildQuery(size, from = 0) {
     { term: { 'classe.codigo': 12154 } },
     { term: { 'classe.codigo': 159 } },
   ], minimum_should_match: 1 }});
+
+  // Vara da Fazenda Pública — proxy do réu municipal (partes não indexado no DataJud)
+  filter.push({ match: { 'orgaoJulgador.nome': 'FAZENDA' } });
 
   // Município
   if (ibgeAtual === 'todos') {
