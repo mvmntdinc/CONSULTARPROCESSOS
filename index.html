@@ -385,6 +385,7 @@
         <button class="search-tab" onclick="switchSearchTab('prospeccao')">Prospecção RPV/INSS</button>
         <button class="search-tab" onclick="switchSearchTab('prec-num')">🔎 Consultar CNJ</button>
         <button class="search-tab" onclick="switchSearchTab('credor')">🎯 Identificar Credor</button>
+        <button class="search-tab" onclick="switchSearchTab('federal')">⚖️ Federais TRF1-6</button>
       </div>
 
       <!-- Seletor de Tribunal (para nome/numero/cpf) -->
@@ -562,6 +563,44 @@
         </button>
 
         <div id="cred-resultados" style="margin-top:16px"></div>
+      </div>
+
+      <!-- ===== FEDERAIS TRF1-6 ===== -->
+      <div id="stab-federal" style="display:none">
+        <div class="filtros-avancados">
+          <h3>Precatórios Federais — todos os TRF</h3>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Natureza</label>
+              <select id="fed-natureza">
+                <option value="">Todas</option>
+                <option value="A" selected>Alimentar</option>
+                <option value="C">Comum</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Exibir por TRF</label>
+              <select id="fed-tamanho">
+                <option value="30">30 por tribunal</option>
+                <option value="50" selected>50 por tribunal</option>
+                <option value="100">100 por tribunal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="alert alert-blue" style="margin-top:8px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Busca em paralelo nos 6 TRFs (DataJud). Retorna processos com <strong>expedição de precatório</strong> (movimento 12457). Clique em 📋 para copiar o CNJ e abrir a consulta pública do tribunal.
+          </div>
+        </div>
+
+        <button class="btn-buscar" onclick="buscarPrecatoriosFederal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar Federais
+        </button>
+
+        <div id="fed-resultados" style="margin-top:16px"></div>
       </div>
 
     </div>
@@ -1007,13 +1046,13 @@
 
   // Abas de busca
   function switchSearchTab(tab) {
-    ['numero','cpf','prospeccao','prec-num','credor'].forEach(t => {
+    ['numero','cpf','prospeccao','prec-num','credor','federal'].forEach(t => {
       document.getElementById('stab-' + t).style.display = t === tab ? 'block' : 'none';
     });
     document.querySelectorAll('.search-tab').forEach((el, i) => {
-      el.classList.toggle('active', ['numero','cpf','prospeccao','prec-num','credor'][i] === tab);
+      el.classList.toggle('active', ['numero','cpf','prospeccao','prec-num','credor','federal'][i] === tab);
     });
-    const semTribunal = ['prospeccao','prec-num','credor'];
+    const semTribunal = ['prospeccao','prec-num','credor','federal'];
     document.getElementById('secao-tribunal').style.display = semTribunal.includes(tab) ? 'none' : 'block';
     limparResultados();
   }
@@ -1146,6 +1185,134 @@
     } catch(e) {
       resultDiv.innerHTML = `<div class="error-msg" style="display:block">Erro: ${e.message}</div>`;
     }
+  }
+
+  async function buscarPrecatoriosFederal() {
+    const nat        = document.getElementById('fed-natureza').value;
+    const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+    const resultDiv  = document.getElementById('fed-resultados');
+
+    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div class="spinner-icon" style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Consultando TRF1 a TRF6 em paralelo...</p></div>`;
+
+    const EPROC = {
+      TRF1: num => `https://eproc1g.trf1.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica&num_processo=${num}`,
+      TRF2: num => `https://eproc2g.trf2.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica&num_processo=${num}`,
+      TRF3: num => `https://eproc3g.trf3.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica&num_processo=${num}`,
+      TRF4: num => `https://eproc4g.trf4.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica&num_processo=${num}`,
+      TRF5: _   => `https://pje.trf5.jus.br/pje/ConsultaPublica/listView.seam`,
+      TRF6: _   => `https://pje1g.trf6.jus.br/pje/ConsultaPublica/listView.seam`,
+    };
+
+    const must = [{ term: { 'movimentos.codigo': 12457 } }];
+    if (nat === 'A') {
+      must.push({ bool: { should: [
+        { match: { 'assuntos.nome': 'Benefício' } },
+        { match: { 'assuntos.nome': 'Previdenciário' } },
+        { match: { 'assuntos.nome': 'Aposentadoria' } },
+        { match: { 'assuntos.nome': 'Pensão' } },
+        { match: { 'assuntos.nome': 'Alimentar' } },
+        { match: { 'assuntos.nome': 'Servidor' } },
+        { match: { 'assuntos.nome': 'Salário' } },
+      ], minimum_should_match: 1 }});
+    } else if (nat === 'C') {
+      must.push({ bool: { should: [
+        { match: { 'assuntos.nome': 'Tributário' } },
+        { match: { 'assuntos.nome': 'Indenização' } },
+        { match: { 'assuntos.nome': 'Repetição' } },
+        { match: { 'assuntos.nome': 'Obrigação de Fazer' } },
+      ], minimum_should_match: 1 }});
+    }
+
+    const query = {
+      query: { bool: { must } },
+      size: tam,
+      sort: [{ dataAjuizamento: { order: 'desc' } }],
+      _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
+    };
+
+    const trfs = ['trf1','trf2','trf3','trf4','trf5','trf6'];
+    const resultados = await Promise.allSettled(trfs.map(async trf => {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_${trf}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+      });
+      const data = await resp.json();
+      return { trf: trf.toUpperCase(), hits: data?.hits?.hits || [], total: data?.hits?.total?.value || 0 };
+    }));
+
+    const todos = [];
+    let totalGlobal = 0;
+    const erros = [];
+    for (const r of resultados) {
+      if (r.status === 'fulfilled') {
+        totalGlobal += r.value.total;
+        for (const h of r.value.hits) {
+          const s   = h._source || {};
+          const num = s.numeroProcesso || '';
+          const limpo = num.replace(/\D/g,'');
+          const fmt = limpo.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+          const exps   = (s.movimentos||[]).filter(m => m.codigo===12457);
+          const exp    = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : null;
+          const vara   = s.orgaoJulgador?.nome || '';
+          const assunto = (s.assuntos||[])[0]?.nome || '';
+          todos.push({ fmt, limpo, exp, vara, assunto, trf: r.value.trf });
+        }
+      } else {
+        erros.push(r.reason?.message || 'erro');
+      }
+    }
+
+    todos.sort((a,b) => (b.exp||'').localeCompare(a.exp||''));
+
+    if (!todos.length) {
+      resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado nos TRFs.</div>`;
+      return;
+    }
+
+    const linhasCNJ = todos.map(r => r.fmt).join('\n');
+
+    let html = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${todos.length}</span>
+        <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
+          Copiar todos
+        </button>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
+          <thead>
+            <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Expedido</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">TRF</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
+              <th style="padding:6px 4px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${todos.map(r => `
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
+                <td style="padding:6px 8px;white-space:nowrap"><span style="background:rgba(99,102,241,0.18);color:#a5b4fc;border-radius:4px;padding:2px 6px;font-size:0.68rem;font-weight:600">${r.trf}</span></td>
+                <td style="padding:6px 8px;color:var(--text-muted)">${r.vara}</td>
+                <td style="padding:6px 8px;color:var(--text-muted)">${r.assunto}</td>
+                <td style="padding:6px 4px;text-align:right;white-space:nowrap">
+                  <button onclick="navigator.clipboard.writeText('${r.fmt}').then(()=>window.open('${EPROC[r.trf] ? EPROC[r.trf](r.limpo) : '#'}','_blank'))" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:5px;padding:3px 8px;font-size:0.68rem;cursor:pointer" title="Copia o CNJ e abre a consulta pública">
+                    📋 eProc
+                  </button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+    if (erros.length) {
+      html += `<p style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">⚠️ ${erros.length} tribunal(is) com erro na consulta.</p>`;
+    }
+
+    resultDiv.innerHTML = html;
   }
 
   async function consultarCNJDatajud() {
