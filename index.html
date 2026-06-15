@@ -1091,16 +1091,16 @@
 
     resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Buscando no DataJud TJRJ...</p></div>`;
 
-    // Rio de Janeiro: IBGE funciona bem (9k+ processos indexados com o campo preenchido)
-    // Demais municípios: IBGE incompleto no DataJud → filtrar pelo nome do órgão julgador
+    // Todos os municípios filtram pelo nome do órgão julgador (IBGE inconsistente no DataJud)
     const NOME_VARA = {
+      3304557: 'CAPITAL',        // Rio de Janeiro — varas do Capital (FAZ PUBLICA etc.)
       3303302: 'NITEROI',
       3301702: 'DUQUE DE CAXIAS',
       3300100: 'ANGRA',
       3305109: 'MERITI'
     };
     const must   = [{ term: { 'movimentos.codigo': 12457 } }];
-    const nomeVara = NOME_VARA[ibge];
+    const nomeVara = NOME_VARA[ibge] || '';
     const filter = nomeVara
       ? [{ match_phrase: { 'orgaoJulgador.nome': nomeVara } }]
       : [{ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } }];
@@ -1128,16 +1128,83 @@
       ], minimum_should_match: 1 }});
     }
 
+    const mustNotCred = [
+      // Estado/União — servidores federais/estaduais
+      { match_phrase: { 'assuntos.nome': 'Lei 8.270'                               } },
+      { match_phrase: { 'assuntos.nome': 'Reajuste da Lei 8.270'                   } },
+      { match_phrase: { 'assuntos.nome': 'Gratificação de Desempenho'              } },
+      { match_phrase: { 'assuntos.nome': 'GADF'                                    } },
+      { match_phrase: { 'assuntos.nome': 'Conversão em Pecúnia'                    } },
+      { match_phrase: { 'assuntos.nome': 'Defensores Dativos'                      } },
+      { match_phrase: { 'assuntos.nome': 'Aposentadoria por Incapacidade'          } },
+      { match_phrase: { 'assuntos.nome': 'Aposentadoria Especial'                  } },
+      { match_phrase: { 'assuntos.nome': 'Benefício Previdenciário'                } },
+      { match_phrase: { 'assuntos.nome': 'Alteração do coeficiente'                } },
+      { match_phrase: { 'assuntos.nome': 'Incapacidade Laborativa'                 } },
+      { match_phrase: { 'assuntos.nome': 'Auxílio-Doença'                         } },
+      { match_phrase: { 'assuntos.nome': 'Auxílio Acidente'                       } },
+      { match_phrase: { 'assuntos.nome': 'Contrato Temporário de Mão de Obra'      } },
+      // Saúde — tipicamente Estado (SUS estadual), não município
+      { match_phrase: { 'assuntos.nome': 'Fornecimento de Medicamentos'            } },
+      { match_phrase: { 'assuntos.nome': 'Fornecimento de medicamentos'            } },
+      { match_phrase: { 'assuntos.nome': 'Tratamento Médico-Hospitalar'            } },
+      { match_phrase: { 'assuntos.nome': 'Tratamento médico-hospitalar'            } },
+      { match_phrase: { 'assuntos.nome': 'Tratamento Domiciliar'                   } },
+      { match_phrase: { 'assuntos.nome': 'Home Care'                               } },
+      { match_phrase: { 'assuntos.nome': 'Cirurgia de Eficácia'                    } },
+      { match_phrase: { 'assuntos.nome': 'Medicamento'                             } },
+      // Empresas privadas — não governo
+      { match_phrase: { 'assuntos.nome': 'Fornecimento de Energia Elétrica'        } },
+      { match_phrase: { 'assuntos.nome': 'Cartão de Crédito'                       } },
+      { match_phrase: { 'assuntos.nome': 'Cláusulas Abusivas'                      } },
+      // Assuntos privados
+      { match_phrase: { 'assuntos.nome': 'Abatimento proporcional do preço'       } },
+      // Classes a excluir
+      { match_phrase: { 'classe.nome': 'Monitória'                                } },
+      { match_phrase: { 'classe.nome': 'Carta Precatória'                         } }, // rogató­ria judicial, não precatório financeiro
+      { match_phrase: { 'classe.nome': 'Cumprimento Provisório de Sentença'       } }, // execução antes do trânsito em julgado
+      // Gratificações estaduais (SEEDUC/Estado do RJ, não Prefeitura)
+      { match_phrase: { 'assuntos.nome': 'Gratificação Estadual'                  } },
+      { match_phrase: { 'assuntos.nome': 'Gratificação por Trabalho Educacional'  } },
+      { match_phrase: { 'assuntos.nome': 'Gratificação de Incentivo à Docência'   } },
+      { match_phrase: { 'assuntos.nome': 'Gratificação Complementar de Vencimento'} },
+      { match_phrase: { 'assuntos.nome': 'Extensão de Vantagem aos Inativos'      } },
+      // Saúde estadual / INSS
+      { match_phrase: { 'assuntos.nome': 'Ressarcimento do SUS'                   } },
+      { match_phrase: { 'assuntos.nome': 'Acidente de Trabalho'                   } },
+      { match_phrase: { 'assuntos.nome': 'Acidente em Serviço'                    } }, // INSS/trabalho, não municipal
+      { match_phrase: { 'assuntos.nome': 'Aposentadoria por Invalidez Acidentária'} }, // INSS
+      { match_phrase: { 'classe.nome':   'Execução Fiscal'                        } }, // governo cobrando, não pagando
+      // Privados
+      { match_phrase: { 'assuntos.nome': 'Despesas Condominiais'                  } },
+      { match_phrase: { 'assuntos.nome': 'Protesto Indevido de Título'            } },
+      { match_phrase: { 'assuntos.nome': 'Inscrição em Cadastro Restrito'         } },
+      { match_phrase: { 'assuntos.nome': 'Inclusão Indevida em Cadastro'          } },
+      { match_phrase: { 'assuntos.nome': 'Despejo por Inadimplemento'             } }, // locador privado, nunca município
+      { match_phrase: { 'assuntos.nome': 'Cobrança de Aluguéis'                  } }, // locador privado
+      { match_phrase: { 'assuntos.nome': 'Fornecimento de Água'                  } }, // CEDAE = empresa estadual
+      // Servidores federais (Lei 8.112 = RJU federal, não municipal)
+      { match_phrase: { 'assuntos.nome': 'Lei 8.112'                             } },
+      // Juizado Especial Cível = disputas entre particulares, nunca contra município
+      { match_phrase: { 'orgaoJulgador.nome': 'JUI ESP CIV'                       } },
+      { match_phrase: { 'orgaoJulgador.nome': 'JUIZ ESP CIV'                      } },
+      ...(tipo === 'prec' ? [
+        { match_phrase: { 'orgaoJulgador.nome': 'JUIZADO'   } },
+        { match_phrase: { 'orgaoJulgador.nome': 'JUI ESP'   } },
+        { match_phrase: { 'orgaoJulgador.nome': 'JUIZ ESP'  } },
+        { match_phrase: { 'orgaoJulgador.nome': 'JUIESP'    } }, // sem espaços (variante TJRJ)
+      ] : []),
+    ];
     const query = {
       query: { bool: {
         must, filter,
-        ...(tipo === 'prec' ? { must_not: [{ match_phrase: { 'orgaoJulgador.nome': 'JUIZADO' } }] } : {}),
-        ...(tipo === 'rpv'  ? { filter: [...filter, { match_phrase: { 'orgaoJulgador.nome': 'JUI ESP' } }] } : {})
+        must_not: mustNotCred,
+        ...(tipo === 'rpv' ? { filter: [...filter, { match_phrase: { 'orgaoJulgador.nome': 'JUI ESP' } }] } : {})
       } },
       from,
       size: tam,
       sort: [{ dataAjuizamento: { order: 'desc' } }],
-      _source: ['numeroProcesso','assuntos','orgaoJulgador','movimentos']
+      _source: ['numeroProcesso','classe','assuntos','orgaoJulgador','movimentos','formato','sistema','dataAjuizamento','dataHoraUltimaAtualizacao']
     };
 
     try {
@@ -1154,17 +1221,22 @@
       }
 
       const rows = hits.map(h => {
-        const s      = h._source || {};
-        const num    = s.numeroProcesso || '';
-        const limpo  = num.replace(/\D/g,'');
-        const fmt    = limpo.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
-        const exps   = (s.movimentos||[]).filter(m => m.codigo===12457);
-        const exp    = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : '';
-        const vara   = s.orgaoJulgador?.nome || '';
-        const ass    = (s.assuntos||[])[0]?.nome || '';
-        const partes = s.partes || [];
-        const credor = partes.filter(p=>(p.polo||'').toLowerCase()==='ativo').map(p=>p.nome).filter(Boolean).join(' / ') || '—';
-        return { fmt, limpo, exp, vara, assunto: ass, credor };
+        const s        = h._source || {};
+        const num      = s.numeroProcesso || '';
+        const limpo    = num.replace(/\D/g,'');
+        const fmt      = limpo.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+        const exps     = (s.movimentos||[]).filter(m => m.codigo===12457);
+        const exp      = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : '';
+        const vara     = s.orgaoJulgador?.nome || '';
+        const ass      = (s.assuntos||[])[0]?.nome || '';
+        const partes   = s.partes || [];
+        const credor   = partes.filter(p=>(p.polo||'').toLowerCase()==='ativo').map(p=>p.nome).filter(Boolean).join(' / ') || '—';
+        const classe   = s.classe?.nome || '';
+        const formato  = s.formato?.nome || '';
+        const sistema  = (s.sistema?.nome && s.sistema.nome !== 'Inválido') ? s.sistema.nome : '';
+        const ajuiz    = (() => { const d = s.dataAjuizamento; if (!d) return ''; if (d.includes('-')) return d.substring(0,10); if (d.length >= 8) return d.substring(0,4)+'-'+d.substring(4,6)+'-'+d.substring(6,8); return d; })();
+        const atualiz  = s.dataHoraUltimaAtualizacao ? s.dataHoraUltimaAtualizacao.substring(0,10) : '';
+        return { fmt, limpo, exp, vara, assunto: ass, credor, classe, formato, sistema, ajuiz, atualiz };
       });
 
       window._credRows    = rows;
@@ -1230,11 +1302,16 @@
         <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
           <thead>
             <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
-              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600;white-space:nowrap">Nº CNJ</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Credor (polo ativo)</th>
-              <th style="padding:6px 8px;color:#50e3c2;font-weight:600;cursor:pointer;user-select:none" onclick="window._credSortExp=window._credSortExp==='asc'?'desc':'asc';renderCredTable()">Expedido${arrow}</th>
+              <th style="padding:6px 8px;color:#50e3c2;font-weight:600;cursor:pointer;user-select:none;white-space:nowrap" onclick="window._credSortExp=window._credSortExp==='asc'?'desc':'asc';renderCredTable()">Expedido${arrow}</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600;white-space:nowrap">Ajuizamento</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600;white-space:nowrap">Atualizado</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Classe</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600;white-space:nowrap">Formato</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600;white-space:nowrap">Sistema</th>
               <th style="padding:6px 4px"></th>
             </tr>
           </thead>
@@ -1244,8 +1321,13 @@
                 <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
                 <td style="padding:6px 8px;color:var(--text);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.credor}">${r.credor}</td>
                 <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
-                <td style="padding:6px 8px;color:var(--text-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.vara}</td>
-                <td style="padding:6px 8px;color:var(--text-muted)">${r.assunto}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:var(--text-muted)">${r.ajuiz || '—'}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:var(--text-muted);font-size:0.7rem">${r.atualiz || '—'}</td>
+                <td style="padding:6px 8px;color:var(--text-muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.vara}">${r.vara}</td>
+                <td style="padding:6px 8px;color:var(--text-muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.classe}">${r.classe}</td>
+                <td style="padding:6px 8px;color:var(--text-muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.assunto}">${r.assunto}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:${r.formato==='Eletrônico'?'#a5b4fc':r.formato==='Físico'?'#fbbf24':'var(--text-muted)'};font-size:0.72rem">${r.formato || '—'}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:var(--text-muted);font-size:0.72rem">${r.sistema || '—'}</td>
                 <td style="padding:6px 4px;text-align:right;white-space:nowrap">
                   <button onclick="navigator.clipboard.writeText('${r.fmt}').then(()=>window.open('https://tjrj.pje.jus.br/pje/ConsultaPublica/listView.seam','_blank'))" style="background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;cursor:pointer" title="Copia o CNJ e abre o PJe">
                     📋 PJe
