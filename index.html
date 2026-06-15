@@ -594,17 +594,6 @@
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
-            <div class="form-group" style="margin-bottom:0">
-              <label>Expedido de</label>
-              <input type="date" id="fed-data-de" value="2025-01-01" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Expedido até</label>
-              <input type="date" id="fed-data-ate" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
-            </div>
-          </div>
-
           <div class="alert alert-blue" style="margin-top:8px">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             Busca no DataJud processos com <strong>expedição de precatório</strong> (movimento 12457). "Todos" consulta os 6 TRFs em paralelo. Clique em 📋 para copiar o CNJ e abrir a consulta pública.
@@ -1213,8 +1202,6 @@
     const assunto    = document.getElementById('fed-assunto').value.trim();
     const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
     const trfSel     = document.getElementById('fed-trf').value;
-    const dataDe     = document.getElementById('fed-data-de').value;
-    const dataAte    = document.getElementById('fed-data-ate').value;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
     const resultDiv  = document.getElementById('fed-resultados');
 
@@ -1275,32 +1262,50 @@
       }
     }
 
-    todos.sort((a,b) => (b.exp||'').localeCompare(a.exp||''));
-
-    const todosF = todos.filter(r => {
-      if ((dataDe || dataAte) && !r.exp) return false;
-      if (dataDe && r.exp < dataDe) return false;
-      if (dataAte && r.exp > dataAte) return false;
-      return true;
-    });
-
-    if (!todosF.length) {
-      resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado${dataDe || dataAte ? ' no período informado' : ' nos TRFs'}.</div>`;
+    if (!todos.length) {
+      resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado nos TRFs.</div>`;
       return;
     }
 
-    // Elasticsearch limita from+size a 10.000
-    const totalPaginavel = Math.min(totalGlobal, 10000);
-    const paginaAtual = Math.floor(from / tam) + 1;
-    const totalPaginas = Math.ceil(totalPaginavel / tam);
-    const temAnterior = from > 0;
-    const temProxima  = from + tam < totalPaginavel;
+    // Guarda estado global para re-sort sem nova busca
+    window._fedRows        = todos;
+    window._fedTotal       = totalGlobal;
+    window._fedFrom        = from;
+    window._fedTam         = tam;
+    window._fedErros       = erros;
+    window._fedSortExp     = window._fedSortExp || 'desc';
+    window._fedEPROC       = EPROC;
 
-    const linhasCNJ = todosF.map(r => r.fmt).join('\n');
+    renderFedTable();
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderFedTable() {
+    const rows      = window._fedRows || [];
+    const total     = window._fedTotal || 0;
+    const from      = window._fedFrom  || 0;
+    const tam       = window._fedTam   || 50;
+    const erros     = window._fedErros || [];
+    const sortDir   = window._fedSortExp || 'desc';
+    const EPROC     = window._fedEPROC || {};
+    const resultDiv = document.getElementById('fed-resultados');
+
+    const sorted = [...rows].sort((a, b) => {
+      const ea = a.exp || '', eb = b.exp || '';
+      return sortDir === 'asc' ? ea.localeCompare(eb) : eb.localeCompare(ea);
+    });
+
+    const totalPaginavel = Math.min(total, 10000);
+    const paginaAtual    = Math.floor(from / tam) + 1;
+    const totalPaginas   = Math.ceil(totalPaginavel / tam);
+    const temAnterior    = from > 0;
+    const temProxima     = from + tam < totalPaginavel;
+    const arrow          = sortDir === 'asc' ? ' ↑' : ' ↓';
+    const linhasCNJ      = sorted.map(r => r.fmt).join('\n');
 
     let html = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${todosF.length} nesta página</span>
+        <span class="result-count" style="margin:0">${total.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${sorted.length} nesta página</span>
         <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
           Copiar página
         </button>
@@ -1310,7 +1315,7 @@
           <thead>
             <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
-              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Expedido</th>
+              <th style="padding:6px 8px;color:#50e3c2;font-weight:600;cursor:pointer;user-select:none" onclick="window._fedSortExp=window._fedSortExp==='asc'?'desc':'asc';renderFedTable()">Expedido${arrow}</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">TRF</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
               <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
@@ -1318,7 +1323,7 @@
             </tr>
           </thead>
           <tbody>
-            ${todosF.map(r => `
+            ${sorted.map(r => `
               <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
                 <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
                 <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
@@ -1345,7 +1350,6 @@
     }
 
     resultDiv.innerHTML = html;
-    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function consultarCNJDatajud() {
