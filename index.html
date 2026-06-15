@@ -1427,6 +1427,15 @@
     must_not.push({ term: { 'movimentos.codigo': 12457 } });
     must_not.push({ term: { 'classe.codigo': 283   } });
     must_not.push({ term: { 'classe.codigo': 10943 } });
+    // Excluir varas de família (não julgam causas contra município)
+    must_not.push({ match: { 'orgaoJulgador.nome': 'FAMILIA' } });
+    // Excluir assuntos tipicamente privados
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Nota Promissória'       } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Cédula de Crédito'      } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos Bancários'    } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Despesas Condominiais'  } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Inventário'             } });
+    must_not.push({ match_phrase: { 'assuntos.nome': 'Contratos em Geral'     } });
 
     if (semRecurso) {
       must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Especial'       } });
