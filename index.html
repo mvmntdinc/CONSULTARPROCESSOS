@@ -365,7 +365,7 @@
     <div class="sidebar-section">Mercado</div>
     <button class="sidebar-item" onclick="showApp('investir', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span> Investir / Comprar</button>
     <button class="sidebar-item" onclick="showApp('vender', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Vender Precatório</button>
-    <button class="sidebar-item" onclick="showApp('portais', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Todos os Links</button>
+    <button class="sidebar-item" onclick="showApp('lista-offline', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span> Lista Offline</button>
   </aside>
 
   <!-- Main -->
@@ -533,12 +533,26 @@
           </div>
           <input type="hidden" id="cred-ibge" value="">
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+          <div style="margin-bottom:10px">
+            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px">Tipo de requisição</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" class="btn-mun active" id="btn-cred-tipo-todos"  onclick="selecionarCredTipo('todos','btn-cred-tipo-todos')">Todos</button>
+              <button type="button" class="btn-mun"        id="btn-cred-tipo-prec"   onclick="selecionarCredTipo('prec','btn-cred-tipo-prec')">⚖️ Varas — Precatório</button>
+              <button type="button" class="btn-mun"        id="btn-cred-tipo-rpv"    onclick="selecionarCredTipo('rpv','btn-cred-tipo-rpv')">🏛️ Juizados — RPV</button>
+            </div>
+            <input type="hidden" id="cred-tipo" value="todos">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Assunto</label>
+              <input type="text" id="cred-assunto" placeholder="Ex: servidor, pensão..." style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
+            </div>
             <div class="form-group" style="margin-bottom:0">
               <label>Natureza</label>
               <select id="cred-natureza">
-                <option value="">Todas</option>
-                <option value="A" selected>Alimentar</option>
+                <option value="" selected>Todas</option>
+                <option value="A">Alimentar</option>
                 <option value="C">Comum</option>
               </select>
             </div>
@@ -848,44 +862,29 @@
     </div>
   </div>
 
-  <!-- ABA: TODOS OS LINKS -->
-  <div id="portais" class="panel">
+  <!-- ABA: LISTA OFFLINE -->
+  <div id="lista-offline" class="panel">
     <div class="card">
-      <h2>Federais (TRF2 — RJ e ES)</h2>
-      <div class="link-grid">
-        <a class="link-card" href="https://www.trf2.jus.br/trf2/artigo/dipre/consulta-precatorios-rpvs" target="_blank"><span class="badge badge-fed">Federal</span><strong>Consulta Precatórios e RPVs</strong><small>Busca por CPF ou processo</small></a>
-        <a class="link-card" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span class="badge badge-fed">Federal</span><strong>e-Proc TRF2</strong><small>Processos desde out/2018</small></a>
-        <a class="link-card" href="https://www.trf2.jus.br/trf2/artigo/dipre/divida-consolidada-de-precatorios" target="_blank"><span class="badge badge-fed">Federal</span><strong>Dívida Consolidada</strong><small>Lista cronológica da fila</small></a>
-        <a class="link-card" href="https://www.cnj.jus.br/precatorios/" target="_blank"><span class="badge badge-fed">CNJ</span><strong>Painel Nacional CNJ</strong><small>Todos os tribunais</small></a>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <h2 style="margin:0 0 4px">📋 Lista Offline — Precatórios TRF6 2026</h2>
+          <p style="color:var(--text-muted);font-size:0.82rem;margin:0">137 processos alimentares · <span id="lo-status">Não cruzado com DataJud</span></p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="text" id="lo-filtro" placeholder="Filtrar nome, CPF, obs…"
+            oninput="filtrarListaOffline()"
+            style="padding:7px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--text);font-size:0.82rem;width:210px">
+          <button onclick="cruzarDataJud()" id="btn-cruzar"
+            style="padding:7px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap">
+            🔍 Cruzar DataJud
+          </button>
+          <button onclick="copiarCnjsOffline()"
+            style="padding:7px 13px;background:rgba(80,227,194,0.1);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:8px;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+            Copiar CNJs
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="card">
-      <h2>Federais (TRF3 — SP e MS)</h2>
-      <div class="link-grid">
-        <a class="link-card" href="https://www.trf3.jus.br/trf3/index.php?id=1826" target="_blank"><span class="badge badge-fed">TRF3</span><strong>Consulta RPV/Precatório TRF3</strong><small>Busca por CPF ou processo</small></a>
-        <a class="link-card" href="https://pje1g.trf3.jus.br/pje/ConsultaPublica/listView.seam" target="_blank"><span class="badge badge-fed">TRF3</span><strong>PJe TRF3 — Consulta Pública</strong><small>Acesso aos processos</small></a>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Municipais (TJRJ)</h2>
-      <div class="link-grid">
-        <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios/consultas1" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Consultas TJRJ</strong><small>Precatórios municipais RJ</small></a>
-        <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Portal Precatórios TJRJ</strong><small>Portal completo</small></a>
-        <a class="link-card" href="https://www.duquedecaxias.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura Duque de Caxias</strong><small>Secretaria de Fazenda</small></a>
-        <a class="link-card" href="https://fazenda.niteroi.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Fazenda Niterói</strong><small>Precatórios municipais</small></a>
-        <a class="link-card" href="https://www.angra.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura Angra dos Reis</strong><small>Procuradoria Municipal</small></a>
-        <a class="link-card" href="https://www.sjmeriti.rj.gov.br" target="_blank"><span class="badge badge-mun">Municipal</span><strong>Prefeitura SJ de Meriti</strong><small>Secretaria de Fazenda</small></a>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Mercado Secundário</h2>
-      <div class="link-grid">
-        <a class="link-card" href="https://pjus.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>PJus</strong><small>Marketplace de créditos judiciais</small></a>
-        <a class="link-card" href="https://lexcredativos.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>LexCred Ativos</strong><small>Ativos judiciais</small></a>
-        <a class="link-card" href="https://www.ativos.com" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>Ativos Precatórios</strong><small>Cessão de crédito</small></a>
-        <a class="link-card" href="https://ridolfinvest.com.br" target="_blank"><span class="badge badge-sec">Investidor</span><strong>Ridolfi Invest</strong><small>Compra de precatórios</small></a>
-        <a class="link-card" href="https://ccminvest.com.br" target="_blank"><span class="badge badge-sec">Investidor</span><strong>CCM Invest</strong><small>Compra e venda</small></a>
-      </div>
+      <div id="lo-tabela" style="overflow-x:auto"></div>
     </div>
   </div>
 
@@ -903,7 +902,7 @@
     <button class="bottom-nav-item" onclick="showApp('consultar', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>Consultar</button>
     <button class="bottom-nav-item" onclick="showApp('trf6', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>TRF6</button>
     <button class="bottom-nav-item" onclick="showApp('investir', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>Investir</button>
-    <button class="bottom-nav-item" onclick="showApp('portais', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Links</button>
+    <button class="bottom-nav-item" onclick="showApp('lista-offline', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Lista</button>
   </div>
 </nav>
 
@@ -1047,6 +1046,7 @@
       if (btn !== el && btn.getAttribute('onclick') === el.getAttribute('onclick')) btn.classList.add('active');
     });
     document.querySelector('.main-content')?.scrollTo(0, 0);
+    if (id === 'lista-offline' && Object.keys(_loEnriquecida).length === 0) cruzarDataJud();
   }
 
   // Abas de busca
@@ -1064,38 +1064,44 @@
 
   function selecionarCredorMun(ibge, btnId) {
     document.getElementById('cred-ibge').value = ibge;
-    document.querySelectorAll('[id^="btn-cred-"]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[id^="btn-cred-rio"],[id^="btn-cred-niteroi"],[id^="btn-cred-caxias"],[id^="btn-cred-angra"],[id^="btn-cred-meriti"]').forEach(b => b.classList.remove('active'));
     document.getElementById(btnId).classList.add('active');
   }
 
-  async function buscarCredorPorPrecatorio() {
+  function selecionarCredTipo(tipo, btnId) {
+    document.getElementById('cred-tipo').value = tipo;
+    document.querySelectorAll('[id^="btn-cred-tipo-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
+  }
+
+  async function buscarCredorPorPrecatorio(from = 0) {
     const ibge = parseInt(document.getElementById('cred-ibge').value);
     if (!ibge) { alert('Selecione o município do devedor.'); return; }
 
-    const nat    = document.getElementById('cred-natureza').value;
-    const tam    = parseInt(document.getElementById('cred-tamanho').value) || 100;
+    const nat         = document.getElementById('cred-natureza').value;
+    const assunto     = document.getElementById('cred-assunto')?.value?.trim() || '';
+    const tipo        = document.getElementById('cred-tipo').value;
+    const tam         = parseInt(document.getElementById('cred-tamanho').value) || 100;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
     const resultDiv   = document.getElementById('cred-resultados');
 
-    // Nomes aceitos para cada devedor municipal
-    const NOMES_MUN = {
-      3304557: ['MUNICÍPIO DO RIO DE JANEIRO', 'RIO DE JANEIRO'],
-      3303302: ['MUNICÍPIO DE NITERÓI', 'NITERÓI'],
-      3301702: ['MUNICÍPIO DE DUQUE DE CAXIAS', 'DUQUE DE CAXIAS'],
-      3300100: ['MUNICÍPIO DE ANGRA DOS REIS', 'ANGRA DOS REIS'],
-      3305109: ['MUNICÍPIO DE SÃO JOÃO DE MERITI', 'SÃO JOÃO DE MERITI',
-                'INSTITUTO DE PREVIDÊNCIA DE SÃO JOÃO DE MERITI', 'MERITI PREV']
+    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Buscando no DataJud TJRJ...</p></div>`;
+
+    // Rio de Janeiro: IBGE funciona bem (9k+ processos indexados com o campo preenchido)
+    // Demais municípios: IBGE incompleto no DataJud → filtrar pelo nome do órgão julgador
+    const NOME_VARA = {
+      3303302: 'NITEROI',
+      3301702: 'DUQUE DE CAXIAS',
+      3300100: 'ANGRA',
+      3305109: 'MERITI'
     };
-    const nomesDevedor = NOMES_MUN[ibge] || [];
+    const must   = [{ term: { 'movimentos.codigo': 12457 } }];
+    const nomeVara = NOME_VARA[ibge];
+    const filter = nomeVara
+      ? [{ match_phrase: { 'orgaoJulgador.nome': nomeVara } }]
+      : [{ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } }];
 
-    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div class="spinner-icon" style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Buscando no DataJud TJRJ...</p></div>`;
-
-    const must = [
-      { term: { 'movimentos.codigo': 12457 } }
-    ];
-    const filter = [
-      { term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } }
-    ];
+    if (assunto) must.push({ match: { 'assuntos.nome': assunto } });
 
     if (nat === 'A') {
       must.push({ bool: { should: [
@@ -1119,80 +1125,140 @@
     }
 
     const query = {
-      query: { bool: { must, filter } },
+      query: { bool: {
+        must, filter,
+        ...(tipo === 'prec' ? { must_not: [{ match_phrase: { 'orgaoJulgador.nome': 'JUIZADO' } }] } : {}),
+        ...(tipo === 'rpv'  ? { filter: [...filter, { match_phrase: { 'orgaoJulgador.nome': 'JUI ESP' } }] } : {})
+      } },
+      from,
       size: tam,
       sort: [{ dataAjuizamento: { order: 'desc' } }],
-      _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
+      _source: ['numeroProcesso','assuntos','orgaoJulgador','movimentos']
     };
 
     try {
       const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_tjrj`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
       });
-      const data = await resp.json();
+      const data  = await resp.json();
       const hits  = data?.hits?.hits || [];
       const total = data?.hits?.total?.value || 0;
 
       if (!hits.length) {
-        resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado. Tente outro ano ou natureza.</div>`;
+        resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado. Tente outro município ou natureza.</div>`;
         return;
       }
 
-      const todosCNJ = hits.map(h => {
-        const s   = h._source || {};
-        const num = s.numeroProcesso || '';
-        const fmt = num.replace(/\D/g,'').replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
-        const exps = (s.movimentos||[]).filter(m => m.codigo===12457);
-        const exp  = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : null;
-        const vara = s.orgaoJulgador?.nome || '';
-        const assunto = (s.assuntos||[])[0]?.nome || '';
-        return { fmt, exp, vara, assunto };
+      const rows = hits.map(h => {
+        const s      = h._source || {};
+        const num    = s.numeroProcesso || '';
+        const limpo  = num.replace(/\D/g,'');
+        const fmt    = limpo.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+        const exps   = (s.movimentos||[]).filter(m => m.codigo===12457);
+        const exp    = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : '';
+        const vara   = s.orgaoJulgador?.nome || '';
+        const ass    = (s.assuntos||[])[0]?.nome || '';
+        const partes = s.partes || [];
+        const credor = partes.filter(p=>(p.polo||'').toLowerCase()==='ativo').map(p=>p.nome).filter(Boolean).join(' / ') || '—';
+        return { fmt, limpo, exp, vara, assunto: ass, credor };
       });
 
-      const linhasCNJ = todosCNJ.map(r => r.fmt).join('\n');
+      window._credRows    = rows;
+      window._credTotal   = total;
+      window._credFrom    = from;
+      window._credTam     = tam;
+      if (from === 0) window._credSortExp = 'desc';
 
-      let html = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <span class="result-count" style="margin:0">${total} processo(s) com precatório expedido — exibindo ${hits.length}</span>
-          <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
-            Copiar todos
-          </button>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
-            <thead>
-              <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
-                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
-                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Expedido</th>
-                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
-                <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
-                <th style="padding:6px 4px"></th>
-              </tr>
-            </thead>
-            <tbody>
-              ${todosCNJ.map(r => `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-                  <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
-                  <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
-                  <td style="padding:6px 8px;color:var(--text-muted)">${r.vara}</td>
-                  <td style="padding:6px 8px;color:var(--text-muted)">${r.assunto}</td>
-                  <td style="padding:6px 4px;text-align:right;white-space:nowrap">
-                    <button onclick="navigator.clipboard.writeText('${r.fmt}').then(()=>window.open('https://tjrj.pje.jus.br/pje/ConsultaPublica/listView.seam','_blank'))" style="background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;cursor:pointer" title="Copia o CNJ e abre o PJe">
-                      📋 PJe
-                    </button>
-                  </td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>`;
-
-      resultDiv.innerHTML = html;
+      renderCredTable();
     } catch(e) {
       resultDiv.innerHTML = `<div class="error-msg" style="display:block">Erro: ${e.message}</div>`;
     }
   }
 
-  async function abrirListaCompacta(tam) {
+  function renderCredTable() {
+    const rows      = window._credRows || [];
+    const total     = window._credTotal || 0;
+    const from      = window._credFrom  || 0;
+    const tam       = window._credTam   || 100;
+    const sortDir   = window._credSortExp || 'desc';
+    const resultDiv = document.getElementById('cred-resultados');
+
+    const sorted = [...rows].sort((a, b) => {
+      const ea = a.exp || '', eb = b.exp || '';
+      return sortDir === 'asc' ? ea.localeCompare(eb) : eb.localeCompare(ea);
+    });
+
+    const totalPaginavel = Math.min(total, 10000);
+    const paginaAtual    = Math.floor(from / tam) + 1;
+    const totalPaginas   = Math.ceil(totalPaginavel / tam);
+    const temAnterior    = from > 0;
+    const temProxima     = from + tam < totalPaginavel;
+    const arrow          = sortDir === 'asc' ? ' ↑' : ' ↓';
+    const linhasCNJ      = sorted.map(r => r.fmt).join('\n');
+
+    const estiloPag = (ativo) => `padding:5px 10px;border-radius:6px;border:1px solid ${ativo?'rgba(99,102,241,0.6)':'rgba(255,255,255,0.12)'};background:${ativo?'rgba(99,102,241,0.28)':'rgba(255,255,255,0.04)'};color:${ativo?'#a5b4fc':'var(--text)'};cursor:${ativo?'default':'pointer'};font-size:0.78rem;font-weight:${ativo?'700':'400'}`;
+    const half = 4;
+    let pgStart = Math.max(1, paginaAtual - half);
+    let pgEnd   = Math.min(totalPaginas, paginaAtual + half);
+    if (pgEnd - pgStart < 8) {
+      if (pgStart === 1) pgEnd = Math.min(totalPaginas, 9);
+      else pgStart = Math.max(1, pgEnd - 8);
+    }
+    let btnPags = '';
+    if (pgStart > 1) {
+      btnPags += `<button onclick="buscarCredorPorPrecatorio(0)" style="${estiloPag(false)}">1</button>`;
+      if (pgStart > 2) btnPags += `<span style="color:var(--text-muted);padding:0 3px">…</span>`;
+    }
+    for (let p = pgStart; p <= pgEnd; p++) {
+      btnPags += `<button onclick="buscarCredorPorPrecatorio(${(p-1)*tam})" style="${estiloPag(p===paginaAtual)}">${p}</button>`;
+    }
+    if (pgEnd < totalPaginas) {
+      if (pgEnd < totalPaginas - 1) btnPags += `<span style="color:var(--text-muted);padding:0 3px">…</span>`;
+      btnPags += `<button onclick="buscarCredorPorPrecatorio(${(totalPaginas-1)*tam})" style="${estiloPag(false)}">${totalPaginas}</button>`;
+    }
+
+    resultDiv.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <span class="result-count" style="margin:0">${total.toLocaleString('pt-BR')} processo(s) — exibindo ${sorted.length} nesta página</span>
+        <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">Copiar página</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
+          <thead>
+            <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)">
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Nº CNJ</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Credor (polo ativo)</th>
+              <th style="padding:6px 8px;color:#50e3c2;font-weight:600;cursor:pointer;user-select:none" onclick="window._credSortExp=window._credSortExp==='asc'?'desc':'asc';renderCredTable()">Expedido${arrow}</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Vara</th>
+              <th style="padding:6px 8px;color:var(--text-muted);font-weight:600">Assunto</th>
+              <th style="padding:6px 4px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map(r => `
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
+                <td style="padding:6px 8px;color:var(--text);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.credor}">${r.credor}</td>
+                <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
+                <td style="padding:6px 8px;color:var(--text-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.vara}</td>
+                <td style="padding:6px 8px;color:var(--text-muted)">${r.assunto}</td>
+                <td style="padding:6px 4px;text-align:right;white-space:nowrap">
+                  <button onclick="navigator.clipboard.writeText('${r.fmt}').then(()=>window.open('https://tjrj.pje.jus.br/pje/ConsultaPublica/listView.seam','_blank'))" style="background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:5px;padding:3px 8px;font-size:0.68rem;cursor:pointer" title="Copia o CNJ e abre o PJe">
+                    📋 PJe
+                  </button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;flex-wrap:wrap">
+        <button onclick="buscarCredorPorPrecatorio(${from - tam})" ${temAnterior ? '' : 'disabled'} style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:${temAnterior ? 'var(--text)' : 'var(--text-muted)'};cursor:${temAnterior ? 'pointer' : 'default'};font-size:0.82rem">←</button>
+        ${btnPags}
+        <button onclick="buscarCredorPorPrecatorio(${from + tam})" ${temProxima ? '' : 'disabled'} style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:${temProxima ? 'var(--text)' : 'var(--text-muted)'};cursor:${temProxima ? 'pointer' : 'default'};font-size:0.82rem">→</button>
+      </div>`;
+  }
+
+  async function abrirListaFederal(tam) {
     const assunto    = document.getElementById('fed-assunto').value.trim();
     const trfSel     = document.getElementById('fed-trf').value;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
@@ -1391,12 +1457,34 @@
     const arrow          = sortDir === 'asc' ? ' ↑' : ' ↓';
     const linhasCNJ      = sorted.map(r => r.fmt).join('\n');
 
+    // Botões numéricos de página
+    const estiloPag = (ativo) => `padding:5px 10px;border-radius:6px;border:1px solid ${ativo?'rgba(99,102,241,0.6)':'rgba(255,255,255,0.12)'};background:${ativo?'rgba(99,102,241,0.28)':'rgba(255,255,255,0.04)'};color:${ativo?'#a5b4fc':'var(--text)'};cursor:${ativo?'default':'pointer'};font-size:0.78rem;font-weight:${ativo?'700':'400'}`;
+    const half = 4;
+    let pgStart = Math.max(1, paginaAtual - half);
+    let pgEnd   = Math.min(totalPaginas, paginaAtual + half);
+    if (pgEnd - pgStart < 8) {
+      if (pgStart === 1) pgEnd = Math.min(totalPaginas, 9);
+      else pgStart = Math.max(1, pgEnd - 8);
+    }
+    let btnPags = '';
+    if (pgStart > 1) {
+      btnPags += `<button onclick="buscarPrecatoriosFederal(0)" style="${estiloPag(false)}">1</button>`;
+      if (pgStart > 2) btnPags += `<span style="color:var(--text-muted);padding:0 3px">…</span>`;
+    }
+    for (let p = pgStart; p <= pgEnd; p++) {
+      btnPags += `<button onclick="buscarPrecatoriosFederal(${(p-1)*tam})" style="${estiloPag(p===paginaAtual)}">${p}</button>`;
+    }
+    if (pgEnd < totalPaginas) {
+      if (pgEnd < totalPaginas - 1) btnPags += `<span style="color:var(--text-muted);padding:0 3px">…</span>`;
+      btnPags += `<button onclick="buscarPrecatoriosFederal(${(totalPaginas-1)*tam})" style="${estiloPag(false)}">${totalPaginas}</button>`;
+    }
+
     let html = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <span class="result-count" style="margin:0">${total.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${sorted.length} nesta página</span>
         <div style="display:flex;gap:8px;align-items:center">
-          <button onclick="abrirListaCompacta(500)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 500</button>
-          <button onclick="abrirListaCompacta(1000)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 1000</button>
+          <button onclick="abrirListaFederal(500)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 500</button>
+          <button onclick="abrirListaFederal(1000)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 1000</button>
           <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">Copiar página</button>
         </div>
       </div>
@@ -1429,10 +1517,10 @@
           </tbody>
         </table>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap">
-        <button onclick="buscarPrecatoriosFederal(${from - tam})" ${temAnterior ? '' : 'disabled'} style="padding:6px 16px;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:${temAnterior ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)'};color:${temAnterior ? 'var(--text)' : 'var(--text-muted)'};cursor:${temAnterior ? 'pointer' : 'default'};font-size:0.78rem">← Anterior</button>
-        <span style="font-size:0.78rem;color:var(--text-muted)">Página <strong style="color:var(--text)">${paginaAtual}</strong> de ${totalPaginas.toLocaleString('pt-BR')}</span>
-        <button onclick="buscarPrecatoriosFederal(${from + tam})" ${temProxima ? '' : 'disabled'} style="padding:6px 16px;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:${temProxima ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)'};color:${temProxima ? 'var(--text)' : 'var(--text-muted)'};cursor:${temProxima ? 'pointer' : 'default'};font-size:0.78rem">Próxima →</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;flex-wrap:wrap">
+        <button onclick="buscarPrecatoriosFederal(${from - tam})" ${temAnterior ? '' : 'disabled'} style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:${temAnterior ? 'var(--text)' : 'var(--text-muted)'};cursor:${temAnterior ? 'pointer' : 'default'};font-size:0.82rem">←</button>
+        ${btnPags}
+        <button onclick="buscarPrecatoriosFederal(${from + tam})" ${temProxima ? '' : 'disabled'} style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:${temProxima ? 'var(--text)' : 'var(--text-muted)'};cursor:${temProxima ? 'pointer' : 'default'};font-size:0.82rem">→</button>
       </div>`;
 
     if (erros.length) {
@@ -2429,6 +2517,254 @@
       if (ativo) buscar(ativo);
     }
   });
+
+  // ─── MODAL GENÉRICO (reutilizado pela Lista Offline) ──────────────────────
+  function fecharModalLO() {
+    const m = document.getElementById('modal-lo');
+    if (m) m.remove();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModalLO(); });
+
+  // ─── LISTA OFFLINE ────────────────────────────────────────────────────────
+  const LISTA_OFFLINE = [{nc:'17276',ano:'2026',cnj:'6004884-53.2025.4.06.9388',cpf:'283***********',nome:'',parcela:'80.566,48',tel:'',obs:'advogado'},{nc:'17334',ano:'2026',cnj:'6005115-80.2025.4.06.9388',cpf:'126*********',nome:'',parcela:'255.789,86',tel:'',obs:'bloqueado'},{nc:'17332',ano:'2026',cnj:'6005114-95.2025.4.06.9388',cpf:'356********',nome:'',parcela:'491.987,99',tel:'',obs:'bloqueado'},{nc:'17214',ano:'2026',cnj:'6004626-43.2025.4.06.9388',cpf:'165.989.384-49',nome:'',parcela:'452.444,28',tel:'',obs:'irmão do paulo roberto papo de convencer os...'},{nc:'',ano:'',cnj:'',cpf:'017.877.216-04',nome:'ILTON NETO DA PAIXAO',parcela:'337.685,90',tel:'31 98445-9596',obs:''},{nc:'17312',ano:'2026',cnj:'6005012-73.2025.4.06.9388',cpf:'859.248.656-49',nome:'SIMONE CUNHA MARTINS',parcela:'291.078,20',tel:'32 99832-3369',obs:''},{nc:'17172',ano:'2026',cnj:'6004482-69.2025.4.06.9388',cpf:'282.488.726-53',nome:'JOSE OTACISIO DE AVILA',parcela:'225.085,57',tel:'32 98450-9292',obs:''},{nc:'17211',ano:'2026',cnj:'6004624-73.2025.4.06.9388',cpf:'765.848.016-91',nome:'MARIZA ELISABETH DA SILVA',parcela:'391.045,36',tel:'32 98814-4502',obs:''},{nc:'17339',ano:'2026',cnj:'6004468-85.2025.4.06.9388',cpf:'072.811.296-53',nome:'ANTONIO DE SA MOREIRA FILHO',parcela:'610.941,80',tel:'32 98826-9175',obs:''},{nc:'17168',ano:'2026',cnj:'6004294-76.2025.4.06.9388',cpf:'065.733.696-37',nome:'GIZETE MARIA ALVES LAGE',parcela:'336.605,08',tel:'32 99100-2900',obs:''},{nc:'17093',ano:'2026',cnj:'6004212-45.2025.4.06.9388',cpf:'012.724.836-65',nome:'YANDRA CARLA MARTINS',parcela:'256.096,60',tel:'32 99105-9664',obs:''},{nc:'14472',ano:'2026',cnj:'6003965-64.2025.4.06.9388',cpf:'089.586.446-05',nome:'TULIO CESAR RESENDE DE FARIA',parcela:'426.926,48',tel:'32 99125-3153 / 32 98487-3753',obs:''},{nc:'16992',ano:'2026',cnj:'6004339-80.2025.4.06.9388',cpf:'089.550.346-87',nome:'WILSON QUEIROZ',parcela:'291.233,99',tel:'32 99138-2195 / 37 99119-9399',obs:''},{nc:'17117',ano:'2026',cnj:'6004482-69.2025.4.06.9388',cpf:'859.248.656-49',nome:'SIMONE CUNHA MARTINS',parcela:'273.240,00',tel:'32 99914-0077',obs:''},{nc:'14574',ano:'2026',cnj:'6004468-69.2025.4.06.9388',cpf:'099.403.596-91',nome:'JOAO BOSCO DA SILVA',parcela:'425.817,56',tel:'32 99919-2453',obs:''},{nc:'17150',ano:'2026',cnj:'6004420-29.2025.4.06.9388',cpf:'051.511.336-08',nome:'RENATA DE ALMEIDA FERREIRA',parcela:'446.583,65',tel:'32 99932-5141',obs:''},{nc:'17100',ano:'2026',cnj:'6003855-65.2025.4.06.9388',cpf:'082.988.047-08',nome:'ANDREIA DE OLIVEIRA ALVIM',parcela:'964.435,20',tel:'32 99956-2422 / 32 99882-1975',obs:''},{nc:'17204',ano:'2026',cnj:'6004582-24.2025.4.06.9388',cpf:'077.687.126-92',nome:'LINDOMAR CUSTODIO',parcela:'636.513,70',tel:'32 99971-3132 / 32 98867-8683',obs:''},{nc:'17003',ano:'2026',cnj:'6004339-80.2025.4.06.9388',cpf:'609.948.786-72',nome:'LUIZ EDUARDO PEIXOTO',parcela:'273.240,00',tel:'32 99994-7778',obs:''},{nc:'17111',ano:'2026',cnj:'6004336-28.2025.4.06.9388',cpf:'045.766.167-49',nome:'SERGIO GILBERTO STEVANATO',parcela:'260.138,29',tel:'33 99918-9269',obs:''},{nc:'16852',ano:'2026',cnj:'6003685-93.2025.4.06.9388',cpf:'552.460.606-91',nome:'SILVANIA MOREIRA DE ARAUJO',parcela:'227.745,11',tel:'33 99929-7814',obs:''},{nc:'17339',ano:'2026',cnj:'6005134-86.2025.4.06.9388',cpf:'454*********',nome:'MARCOS ANTONIO FRANCA',parcela:'516.555,04',tel:'33 99950-3684 / (33) 99959-1416',obs:''},{nc:'17131',ano:'2026',cnj:'6004376-10.2025.4.06.9388',cpf:'434.215.396-34',nome:'LEILA DA COSTA BENTO',parcela:'406.031,08',tel:'34 99139-0516 / 34 99192-4663',obs:''},{nc:'17023',ano:'2026',cnj:'6004039-21.2025.4.06.9388',cpf:'574.815.128-68',nome:'MARILENE DE TOLEDO',parcela:'391.948,03',tel:'34 99144-0953 / 34 99777-0044',obs:''},{nc:'16905',ano:'2026',cnj:'6003835-74.2025.4.06.9388',cpf:'002.711.706-54',nome:'TEREZINHA GONCALVES DE SOUZA',parcela:'387.527,35',tel:'34 99171-5507 / 34 99170-8910',obs:''},{nc:'17020',ano:'2026',cnj:'6004037-51.2025.4.06.9388',cpf:'083.384.476-84',nome:'TALITA DE OLIVEIRA NAKAMUTA',parcela:'343.872,98',tel:'34 99234-7743',obs:''},{nc:'17018',ano:'2026',cnj:'6004035-81.2025.4.06.9388',cpf:'861.635.588-04',nome:'EDMA MARIA DE OLIVEIRA NAKAMUTA',parcela:'1.505.766,59',tel:'34 99234-7743',obs:''},{nc:'17054',ano:'2026',cnj:'6004066-04.2025.4.06.9388',cpf:'341.452.736-72',nome:'LAZUITA GORETTI DE OLIVEIRA',parcela:'955.487,54',tel:'34 99797-6211',obs:''},{nc:'17055',ano:'2026',cnj:'6004067-86.2025.4.06.9388',cpf:'421.029.526-49',nome:'JOSE MARIA RODRIGUES DE BESSA',parcela:'394.646,93',tel:'34 99902-6930',obs:''},{nc:'17021',ano:'2026',cnj:'6004038-36.2025.4.06.9388',cpf:'269.206.896-34',nome:'MARIA INES CAMPOS MELO',parcela:'851.604,94',tel:'34 99911-0955',obs:''},{nc:'17022',ano:'2026',cnj:'6004038-36.2025.4.06.9388',cpf:'106.909.486-20',nome:'NEUSA MARIA DE ABREU VIDIGAL',parcela:'244.585,32',tel:'34 99915-0402',obs:''},{nc:'16913',ano:'2026',cnj:'6004676-69.2025.4.06.9388',cpf:'334.387.579-15',nome:'ANTONIO ROBEL',parcela:'632.528,20',tel:'34 99937-2225',obs:''},{nc:'16744',ano:'2026',cnj:'6003860-87.2025.4.06.9388',cpf:'061.554.216-68',nome:'MARIA ABADIA PRATA BARSAM',parcela:'437.864,58',tel:'34 99960-7766',obs:''},{nc:'16751',ano:'2026',cnj:'6003367-13.2025.4.06.9388',cpf:'766.943.998-04',nome:'JOAO CEZARINI',parcela:'432.928,43',tel:'35 98402-0079',obs:''},{nc:'17234',ano:'2026',cnj:'6003374-05.2025.4.06.9388',cpf:'000.240.888-41',nome:'ALEXEIA PACHECO GOMES CLAUDIANO',parcela:'260.949,79',tel:'35 98817-0803',obs:''},{nc:'16724',ano:'2026',cnj:'6003349-89.2025.4.06.9388',cpf:'441.348.356-15',nome:'SANDRA MARIA CHEBERLE DOS SANTOS',parcela:'1.846.060,83',tel:'35 98820-8077',obs:''},{nc:'14762',ano:'2026',cnj:'6005081-08.2025.4.06.9388',cpf:'079.086.457-63',nome:'DANIELA VILLA FLOR MONTES REY SILVA',parcela:'1.644.937,43',tel:'35 98826-1784',obs:''},{nc:'',ano:'2026',cnj:'',cpf:'053.414.246-03',nome:'VIVIANE ARAUJO VELANO CASSIS',parcela:'273.240,00',tel:'35 98838-1010',obs:''},{nc:'14761',ano:'2026',cnj:'6005080-23.2025.4.06.9388',cpf:'041.026.956-56',nome:'LARISSA ARAUJO VELANO',parcela:'273.240,00',tel:'35 98838-1408',obs:''},{nc:'16976',ano:'2026',cnj:'6003957-87.2025.4.06.9388',cpf:'072.090.757-80',nome:'ALEXANDRE PEREIRA DE OLIVEIRA',parcela:'1.906.631,05',tel:'35 98855-9878',obs:''},{nc:'16742',ano:'2026',cnj:'6003366-28.2025.4.06.9388',cpf:'540.352.367-72',nome:'JORGE WAGNER DA SILVA',parcela:'279.360,00',tel:'35 99114-6852',obs:''},{nc:'16748',ano:'2026',cnj:'6003369-80.2025.4.06.9388',cpf:'565.870.076-00',nome:'ALCIR DA SILVA TAVARES',parcela:'1.248.703,23',tel:'35 99126-6726',obs:''},{nc:'17230',ano:'2026',cnj:'6003961-27.2025.4.06.9388',cpf:'171.715.716-53',nome:'PAULO LIMA',parcela:'1.948.058,29',tel:'35 99127-3669',obs:''},{nc:'16984',ano:'2026',cnj:'6003961-27.2025.4.06.9388',cpf:'053.175.718-80',nome:'CELSO LUIZ DA SILVA',parcela:'822.691,07',tel:'35 99142-4464 / 35 99936-5422',obs:''},{nc:'16732',ano:'2026',cnj:'6003353-29.2025.4.06.9388',cpf:'056.370.226-58',nome:'RICARDO AUGUSTO DA SILVA ALFENAS',parcela:'1.157.027,83',tel:'35 99176-5533',obs:''},{nc:'14751',ano:'2026',cnj:'6004931-27.2025.4.06.9388',cpf:'487.151.316-53',nome:'REINALDO SIMOES DE SOUZA',parcela:'273.240,00',tel:'35 99177-0159',obs:''},{nc:'16990',ano:'2026',cnj:'6003964-79.2025.4.06.9388',cpf:'071.458.776-19',nome:'TIAGO ANTONIONI ARAUJO DE OLIVEIRA',parcela:'729.682,90',tel:'35 99194-7773',obs:''},{nc:'16988',ano:'2026',cnj:'6003963-94.2025.4.06.9388',cpf:'820.011.467-87',nome:'JUAN FRANCISCO MENDEZ GAMARO',parcela:'901.982,48',tel:'35 99243-2282',obs:''},{nc:'17106',ano:'2026',cnj:'6004661-03.2025.4.06.9388',cpf:'979.835.948-87',nome:'JOAQUIM CARDOSO DE OLIVEIRA',parcela:'1.037.503,32',tel:'35 99714-7439',obs:''},{nc:'16974',ano:'2026',cnj:'6003956-05.2025.4.06.9388',cpf:'306.482.896-72',nome:'ANTONIO IDOLO DIAS',parcela:'629.680,52',tel:'35 99733-7755',obs:''},{nc:'16986',ano:'2026',cnj:'6003962-12.2025.4.06.9388',cpf:'042.735.966-01',nome:'HEBER LUIZ CAPONI ALBERTI',parcela:'1.192.822,29',tel:'35 99755-7859 / 35 98845-9881',obs:''},{nc:'17105',ano:'2026',cnj:'6004660-18.2025.4.06.9388',cpf:'698.358.616-68',nome:'MARIA SOFIA GONCALVES PEREIRA',parcela:'340.015,32',tel:'35 99822-0069',obs:''},{nc:'17232',ano:'2026',cnj:'6004660-18.2025.4.06.9388',cpf:'313.219.176-00',nome:'PEDRO RENATO CLAUDIANO',parcela:'2.519.905,52',tel:'35 99892-0699',obs:''},{nc:'16982',ano:'2026',cnj:'6003960-42.2025.4.06.9388',cpf:'984.561.057-91',nome:'CARLOS SOARES DOS SANTOS',parcela:'303.696,41',tel:'35 99961-8882',obs:''},{nc:'16980',ano:'2026',cnj:'6003959-57.2025.4.06.9388',cpf:'368.339.898-18',nome:'CAIO HENRIQUE TEIXEIRA DE CARVALHO',parcela:'316.783,84',tel:'35 99970-0205 / 35 99174-1622',obs:''},{nc:'16671',ano:'2026',cnj:'6003238-08.2025.4.06.9388',cpf:'015.375.206-87',nome:'ADARI NEVES MARTINS',parcela:'291.588,45',tel:'37 98804-2034',obs:''},{nc:'17115',ano:'2026',cnj:'6004335-25.2025.4.06.9388',cpf:'909.364.426-20',nome:'MARIA JOSE ANTUNES DRUMOND DE SAN',parcela:'266.830,18',tel:'37 98817-2752',obs:''},{nc:'14625',ano:'2026',cnj:'6004714-81.2025.4.06.9388',cpf:'119.109.826-52',nome:'ALEX ANTONIO DE FARIA',parcela:'291.554,84',tel:'37 99932-2083',obs:''},{nc:'17059',ano:'2026',cnj:'6004087-77.2025.4.06.9388',cpf:'045.031.338-70',nome:'PAULO ANTONIO DE FIGUEIREDO',parcela:'266.830,18',tel:'37 99918-4686',obs:''},{nc:'14624',ano:'2026',cnj:'6004713-96.2025.4.06.9388',cpf:'000.814.816-32',nome:'ITAMAR TEIXEIRA',parcela:'227.404,37',tel:'37 99948-5363',obs:''},{nc:'17213',ano:'2026',cnj:'6004625-58.2025.4.06.9388',cpf:'173.016.454-49',nome:'ANTONIO CARLOS LEITE PALACIO',parcela:'452.444,30',tel:'37 99973-9586',obs:''},{nc:'16654',ano:'2026',cnj:'6003200-93.2025.4.06.9388',cpf:'185.758.976-91',nome:'AMADO ANTONIO DE CARVALHO',parcela:'233.360,50',tel:'37 99982-0806',obs:''},{nc:'16942',ano:'2026',cnj:'6003891-10.2025.4.06.9388',cpf:'677.602.286-00',nome:'NEIRISMAR ANTUNES PEREIRA',parcela:'434.637,95',tel:'38 99199-6000',obs:''},{nc:'14669',ano:'2026',cnj:'6004730-35.2025.4.06.9388',cpf:'692.349.576-87',nome:'DAMAZIO WLADIMIR SILVA',parcela:'273.240,00',tel:'38 99728-6279',obs:''},{nc:'14758',ano:'2026',cnj:'6005071-61.2025.4.06.9388',cpf:'039.331.946-60',nome:'ERCILIA FONSECA ROSA MEDEIROS',parcela:'269.921,40',tel:'38 99813-1065',obs:''},{nc:'17188',ano:'2026',cnj:'6004556-26.2025.4.06.9388',cpf:'197.080.846-20',nome:'FRANCISCO PEREIRA DOS SANTOS',parcela:'1.289.034,07',tel:'38 99983-4066',obs:''},{nc:'14595',ano:'2026',cnj:'6004532-95.2025.4.06.9388',cpf:'360.351.651-68',nome:'WALTECIR GRACIANO PINHEIRO',parcela:'273.240,00',tel:'62 99347-6862',obs:''},{nc:'16799',ano:'2026',cnj:'6003476-27.2025.4.06.9388',cpf:'040.693.411-88',nome:'LUCAS CAMPOS VIANA',parcela:'1.557.567,19',tel:'67 99932-1907 / 61 98186-4298',obs:''},{nc:'17215',ano:'2026',cnj:'6004628-13.2025.4.06.9388',cpf:'134.753.204-87',nome:'PAULO ROBERTO LEITE PALACIO',parcela:'452.444,28',tel:'81 99248-3738',obs:''},{nc:'17216',ano:'2026',cnj:'6004628-13.2025.4.06.9388',cpf:'352.029.634-91',nome:'ROSANA MARIA LEITE PALACIO',parcela:'452.444,28',tel:'81 99248-3738',obs:''},{nc:'17298',ano:'2026',cnj:'6004957-25.2025.4.06.9388',cpf:'245***********',nome:'',parcela:'240.835,16',tel:'',obs:'advogado'},{nc:'17282',ano:'2026',cnj:'6004925-20.2025.4.06.9388',cpf:'218***********',nome:'',parcela:'17.412,86',tel:'',obs:'advogado'},{nc:'16842',ano:'2026',cnj:'6003599-25.2025.4.06.9388',cpf:'046.522.336-20',nome:'VERA LUCIA CRISTINA DE BRITO',parcela:'632.413,28',tel:'31 97138-5987',obs:''},{nc:'17294',ano:'2026',cnj:'6005079-38.2025.4.06.9388',cpf:'019.017.316-34',nome:'MARIA DO ROSARIO ARAUJO VELANO',parcela:'646.911,39',tel:'31 97120-5560',obs:''},{nc:'17171',ano:'2026',cnj:'6004480-02.2025.4.06.9388',cpf:'202.046.717-87',nome:'LUIZ ANTONIO TEIXEIRA NEVES',parcela:'529.004,22',tel:'24 98112-6788',obs:''},{nc:'16962',ano:'2026',cnj:'6003712-76.2025.4.06.9388',cpf:'794.609.609-87',nome:'RANIERI DE SA BARRETO',parcela:'396.628,41',tel:'22 99961-3400',obs:''},{nc:'16726',ano:'2026',cnj:'6003354-14.2025.4.06.9388',cpf:'071.839.428-30',nome:'HELIANA DE AZEVEDO FRANCO DO NASC',parcela:'1.968.970,28',tel:'19 99848-9944',obs:''},{nc:'16734',ano:'2026',cnj:'6003354-14.2025.4.06.9388',cpf:'259.801.088-40',nome:'RODRIGO LEANDRO BONIFACIO',parcela:'1.838.042,37',tel:'19 98178-7990',obs:''},{nc:'14275',ano:'2026',cnj:'6004271-33.2025.4.06.9388',cpf:'100.944.166-30',nome:'RENAN DOMINGOS DE SOUZA',parcela:'273.240,00',tel:'17 99268-2926',obs:''},{nc:'14828',ano:'2026',cnj:'6003785-48.2025.4.06.9388',cpf:'099.274.376-17',nome:'MATEUS DAMASCENO',parcela:'738.009,20',tel:'11 99639-6257',obs:''},{nc:'16885',ano:'2026',cnj:'6003785-48.2025.4.06.9388',cpf:'307.441.328-00',nome:'CARLOS HENRIQUE DE ASSIS COSTA',parcela:'738.009,20',tel:'11 94498-1566',obs:''},{nc:'16884',ano:'2026',cnj:'6003785-48.2025.4.06.9388',cpf:'307.441.328-00',nome:'CARLOS HENRIQUE DE ASSIS COSTA',parcela:'1.722.021,49',tel:'11 94498-1566',obs:''},{nc:'17044',ano:'2026',cnj:'6004264-41.2025.4.06.9388',cpf:'030.649.206-77',nome:'ALENCAR JUNIOR DA SILVA',parcela:'230.408,74',tel:'034 30.649.206-77',obs:''},{nc:'16809',ano:'2026',cnj:'6005016-10.2025.4.06.9388',cpf:'896.417.888-68',nome:'EDUARDO CELIO BOAVENTURA',parcela:'245.916,00',tel:'+55 31 9104-2294',obs:''},{nc:'14583',ano:'2026',cnj:'6004732-52.2025.4.06.9388',cpf:'059.045.326-28',nome:'TEREZA NOGUEIRA',parcela:'226.201,13',tel:'(38) 3845-7121',obs:''},{nc:'17228',ano:'2026',cnj:'6004732-05.2025.4.06.9388',cpf:'384.760.021-49',nome:'NIVALDO CARLOS DA SILVA',parcela:'4.692.694,80',tel:'(35) 99897-9771',obs:''},{nc:'16720',ano:'2026',cnj:'6003340-30.2025.4.06.9388',cpf:'559.214.936-00',nome:'SEBASTIAO SERGIO BELLINI FILHO',parcela:'461.707,23',tel:'(34) 98897-1376 / (34) 98847-1045',obs:''},{nc:'16850',ano:'2026',cnj:'6003678-04.2025.4.06.9388',cpf:'349.858.916-49',nome:'CASSIO LUIZ MELO SOARES',parcela:'1.466.069,16',tel:'(33) 99999-6916',obs:''},{nc:'16800',ano:'2026',cnj:'6003714-02.2025.4.06.9388',cpf:'565.524.436-53',nome:'ALICE MOREIRA PINTO DE SOUZA',parcela:'705.965,69',tel:'(33) 99955-6919',obs:''},{nc:'16800',ano:'2026',cnj:'6003714-02.2025.4.06.9388',cpf:'565.524.436-53',nome:'JORGE DELFIM DOS SANTOS',parcela:'434.671,55',tel:'(33) 98715-6067',obs:''},{nc:'17025',ano:'2026',cnj:'6004044-43.2025.4.06.9388',cpf:'331.190.906-20',nome:'JOSE LUIZ FERNANDES',parcela:'378.536,96',tel:'(32) 3234-2651 / (32) 3061-4191',obs:''},{nc:'17012',ano:'2026',cnj:'6004016-75.2025.4.06.9388',cpf:'369.946.347-87',nome:'JOSE AUGUSTO CEZAR ALMEIDA SAPUCAI',parcela:'543.396,07',tel:'38 99191990 / 38 99191-0163',obs:''},{nc:'16655',ano:'2026',cnj:'6003301-88.2025.4.06.9388',cpf:'567.761.016-04',nome:'MARIA DA CONCEICAO BENICIO',parcela:'474.349,72',tel:'37 99818-4014',obs:''},{nc:'16926',ano:'2026',cnj:'6003875-36.2025.4.06.9388',cpf:'019.226.548-60',nome:'LUCILIA RIBEIRO DE ALMEIDA',parcela:'226.103,68',tel:'35 99877-0484',obs:''},{nc:'16703',ano:'2026',cnj:'6003319-54.2025.4.06.9388',cpf:'662.228.006-10',nome:'LEONARDO RIBEIRO FERREIRA',parcela:'459.666,14',tel:'35 99755-0970 / 38 99755-9970',obs:''},{nc:'16728',ano:'2026',cnj:'6003298-78.2025.4.06.9388',cpf:'309.860.526-04',nome:'MARIA ALICE RIBEIRO MACEDO',parcela:'576.459,62',tel:'35 99858-6812',obs:''},{nc:'16991',ano:'2026',cnj:'6003298-78.2025.4.06.9388',cpf:'750.728.076-99',nome:'EDSON ARAUJO',parcela:'406.491,60',tel:'34 99974-6711',obs:''},{nc:'17180',ano:'2026',cnj:'6004538-05.2025.4.06.9388',cpf:'712.120.356-15',nome:'HELENA AUGUSTA ALVES DE OLIVEIRA',parcela:'240.687,64',tel:'31 99703-7471',obs:''},{nc:'17181',ano:'2026',cnj:'6004538-05.2025.4.06.9388',cpf:'130.665.956-68',nome:'DORIVAL FAGUNDES FILHO',parcela:'780.106,60',tel:'31 99977-5012',obs:''},{nc:'16847',ano:'2026',cnj:'6003615-76.2025.4.06.9388',cpf:'868.772.306-04',nome:'OLGA CARVALHO HOTT',parcela:'559.521,63',tel:'31 99142-0563 / 31 99327-0063',obs:''},{nc:'16820',ano:'2026',cnj:'6003509-17.2025.4.06.9388',cpf:'161.923.796-72',nome:'CAMILO JERONIMO LUZIA',parcela:'266.994,18',tel:'31 98454-2640',obs:''},{nc:'16950',ano:'2026',cnj:'6003311-98.2025.4.06.9388',cpf:'232.340.246-72',nome:'CAIO LUIZ DE CARVALHO',parcela:'823.634,13',tel:'31 97113-2930 / 31 99502-2097',obs:''},{nc:'16722',ano:'2026',cnj:'6004217-67.2025.4.06.9388',cpf:'319.715.396-00',nome:'EVA NATALICIA DO NASCIMENTO',parcela:'302.885,41',tel:'24 99211-3912',obs:'telefone da filha'},{nc:'16875',ano:'2026',cnj:'6003783-78.2025.4.06.9388',cpf:'525.860.066-15',nome:'JOSE MADUREIRA VASCONCELLOS',parcela:'2.073.403,05',tel:'(62) 98158-4447',obs:''},{nc:'17097',ano:'2026',cnj:'6004298-16.2025.4.06.9388',cpf:'038.272.676-68',nome:'JOSE BENTO DOS SANTOS',parcela:'306.508,45',tel:'31 97156-7163',obs:''},{nc:'16777',ano:'2026',cnj:'6003392-26.2025.4.06.9388',cpf:'628.628.986-00',nome:'ADAIR CARDOSO DA SILVA',parcela:'494.731,94',tel:'31 97180-5280',obs:''},{nc:'17135',ano:'2026',cnj:'6003762-05.2025.4.06.9388',cpf:'660.600.526-49',nome:'DIRENE DE LOURDES VILACA',parcela:'525.071,23',tel:'31 97558-2184',obs:''},{nc:'17208',ano:'2026',cnj:'6004598-75.2025.4.06.9388',cpf:'408.103.256-20',nome:'JOSELIA DE PAULA GOMES',parcela:'342.614,16',tel:'31 97595-2013',obs:''},{nc:'16789',ano:'2026',cnj:'6003455-51.2025.4.06.9388',cpf:'142.591.256-72',nome:'JOAQUIM ALMEIDA DE GOUVEIA',parcela:'236.214,86',tel:'31 98040-0166',obs:''},{nc:'16843',ano:'2026',cnj:'6003605-32.2025.4.06.9388',cpf:'129.416.465-15',nome:'JAILTON DA SILVA',parcela:'246.663,98',tel:'31 98113-3295',obs:''},{nc:'17135',ano:'2026',cnj:'6004382-17.2025.4.06.9388',cpf:'401.071.596-00',nome:'NELSON SILVESTRE DE OLIVEIRA',parcela:'347.810,89',tel:'31 98318-7211',obs:''},{nc:'14742',ano:'2026',cnj:'6004059-12.2025.4.06.9388',cpf:'207.145.566-53',nome:'EPITACIO PESSOA PONCE DE LION',parcela:'875.337,70',tel:'31 98395-2343',obs:''},{nc:'16787',ano:'2026',cnj:'6004929-57.2025.4.06.9388',cpf:'551.356.176-04',nome:'GUSTAVO GUEDES DUQUE',parcela:'273.240,00',tel:'31 98464-3951',obs:''},{nc:'17261',ano:'2026',cnj:'6004851-63.2025.4.06.9388',cpf:'452.330.046-15',nome:'VANDER GOUVEIA DE MOURA',parcela:'518.457,65',tel:'31 98532-1027',obs:''},{nc:'16648',ano:'2026',cnj:'6003130-76.2025.4.06.9388',cpf:'277.398.306-82',nome:'JANIR CANTARINO',parcela:'409.828,74',tel:'31 98582-4685',obs:''},{nc:'16944',ano:'2026',cnj:'6003897-17.2025.4.06.9388',cpf:'198.906.306-30',nome:'RAINERO DE ANDRADE FILHO',parcela:'322.015,73',tel:'31 98725-5310',obs:''},{nc:'16999',ano:'2026',cnj:'6003990-77.2025.4.06.9388',cpf:'777.676.246-68',nome:'RAQUEL ABREU VALENTE',parcela:'356.944,38',tel:'31 98787-2223',obs:''},{nc:'16664',ano:'2026',cnj:'6004346-72.2025.4.06.9388',cpf:'007.440.366-40',nome:'MARIA LAURA NUNES DE MORAIS VENTU',parcela:'283.852,03',tel:'31 98789-3791',obs:''},{nc:'16768',ano:'2026',cnj:'6003214-77.2025.4.06.9388',cpf:'289.450.936-72',nome:'DEROCY RUBIM FERREIRA',parcela:'603.494,95',tel:'31 98826-0422 / 27 98810-8588',obs:''},{nc:'17029',ano:'2026',cnj:'6003387-04.2025.4.06.9388',cpf:'534.891.286-72',nome:'MARIA DE LOURDES FERNANDES',parcela:'273.584,36',tel:'31 98846-6000',obs:''},{nc:'17173',ano:'2026',cnj:'6004490-46.2025.4.06.9388',cpf:'001.960.296-00',nome:'PAULO ROGERIO FERREIRA DA SILVA',parcela:'421.888,32',tel:'31 98851-3710 / 31 98880-3710',obs:''},{nc:'16756',ano:'2026',cnj:'6003379-27.2025.4.06.9388',cpf:'317.907.476-00',nome:'VICENTE ESMAEL DE SOUZA',parcela:'224.162,96',tel:'31 98935-9917',obs:''},{nc:'17154',ano:'2026',cnj:'6004427-21.2025.4.06.9388',cpf:'603.195.426-53',nome:'ARMENIO TADIM BRASIL',parcela:'236.882,74',tel:'31 99079-3256',obs:''},{nc:'17140',ano:'2026',cnj:'6004388-24.2025.4.06.9388',cpf:'270.355.496-68',nome:'SEBASTIAO BRAZ DOS REIS',parcela:'550.882,08',tel:'31 99106-1815',obs:'irm'},{nc:'17164',ano:'2026',cnj:'6004457-56.2025.4.06.9388',cpf:'850.898.776-53',nome:'GISLENE MOREIRA BRANDAO ALVES',parcela:'278.479,01',tel:'31 99136-2030',obs:''},{nc:'17119',ano:'2026',cnj:'6004346-72.2025.4.06.9388',cpf:'295.277.406-49',nome:'ELIANE SIMOES DE SOUZA',parcela:'521.590,77',tel:'31 99239-4996',obs:''},{nc:'17132',ano:'2026',cnj:'6003506-62.2025.4.06.9388',cpf:'253.797.636-34',nome:'GERALDO MAGELA CORREA',parcela:'621.143,95',tel:'31 99616-1148',obs:''},{nc:'16811',ano:'2026',cnj:'6004629-95.2025.4.06.9388',cpf:'177.229.266-49',nome:'NISIO AGRIPINO FERNANDES',parcela:'245.587,50',tel:'31 99633-0507 / (31) 98466-7290',obs:''},{nc:'14644',ano:'2026',cnj:'6004046-13.2025.4.06.9388',cpf:'808.848.577-00',nome:'PAULO ROBERTO MOREIRA LIMA',parcela:'559.419,85',tel:'31 99649-1616',obs:''},{nc:'17143',ano:'2026',cnj:'6004629-95.2025.4.06.9388',cpf:'070.866.676-09',nome:'MARIA DE LOURDES DOS SANTOS',parcela:'232.742,21',tel:'31 99758-1776',obs:''},{nc:'17148',ano:'2026',cnj:'6004404-75.2025.4.06.9388',cpf:'443.756.706-49',nome:'JOSE MARINHO DA SILVA',parcela:'500.842,87',tel:'31 99777-0323',obs:''},{nc:'17252',ano:'2026',cnj:'6004768-47.2025.4.06.9388',cpf:'408.203.606-78',nome:'ISAIAS DE AVILA',parcela:'468.118,09',tel:'31 99831-6392',obs:''},{nc:'17004',ano:'2026',cnj:'6003992-47.2025.4.06.9388',cpf:'585.765.416-53',nome:'AMERICO MOREIRA DA SILVA NETO',parcela:'220.305,71',tel:'31 99890-7620',obs:''},{nc:'17064',ano:'2026',cnj:'6004094-69.2025.4.06.9388',cpf:'249.903.376-20',nome:'LUIZ CARLOS DOS SANTOS',parcela:'444.787,34',tel:'31 99951-8902',obs:''},{nc:'17146',ano:'2026',cnj:'6004394-31.2025.4.06.9388',cpf:'133.010.046-87',nome:'EUSTAQUIO PIRES DOS SANTOS',parcela:'385.623,54',tel:'31 99954-4071',obs:''},{nc:'17090',ano:'2026',cnj:'6004293-91.2025.4.06.9388',cpf:'164.884.156-20',nome:'ANA MARIA DOS REIS',parcela:'493.878,24',tel:'31 99991-6550',obs:''},{nc:'16998',ano:'2026',cnj:'6003989-92.2025.4.06.9388',cpf:'402.413.196-68',nome:'MICHELE LAGE DE RESENDE',parcela:'234.056,12',tel:'',obs:''}];
+
+  let _loFiltro = '';
+  let _loEnriquecida = {};
+  let _loRaw = {};        // numeroProcesso → _source completo do DataJud
+
+  function filtrarListaOffline() {
+    _loFiltro = document.getElementById('lo-filtro').value.toLowerCase();
+    renderListaOffline();
+  }
+
+  function renderListaOffline() {
+    const carregando = document.getElementById('btn-cruzar')?.disabled;
+    const cruzado = Object.keys(_loEnriquecida).length > 0;
+    const lista = LISTA_OFFLINE.filter(r => {
+      if (!_loFiltro) return true;
+      return (r.nome + r.cpf + r.obs + r.cnj + r.parcela).toLowerCase().includes(_loFiltro);
+    });
+    const th = (t, c='var(--text-muted)') =>
+      `<th style="padding:6px 10px;color:${c};font-weight:600;white-space:nowrap;font-size:0.7rem;border-bottom:1px solid rgba(255,255,255,0.12)">${t}</th>`;
+
+    const rows = lista.map(r => {
+      const limpo = r.cnj ? r.cnj.replace(/\D/g,'') : '';
+      const enr   = limpo ? (_loEnriquecida[limpo] || null) : null;
+      const raw   = limpo ? (_loRaw[limpo] || null) : null;
+
+      const expTxt = enr?.expedido ? enr.expedido
+                   : carregando    ? '…'
+                   : cruzado && limpo ? '—' : '';
+      const expClr = enr?.expedido ? '#50e3c2' : 'var(--text-muted)';
+
+      const assunto = enr?.assunto
+        ? `<div style="font-size:0.62rem;color:var(--text-muted);margin-top:1px">${enr.assunto.substring(0,38)}</div>` : '';
+
+      // badge de status
+      let badge = '';
+      if (!r.cnj) badge = `<span style="background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:4px;padding:1px 5px;font-size:0.6rem">sem CNJ</span>`;
+      else if (enr?.expedido) badge = `<span style="background:rgba(80,227,194,0.12);color:#50e3c2;border-radius:4px;padding:1px 5px;font-size:0.6rem">✓ expedido</span>`;
+      else if (cruzado && limpo) badge = `<span style="background:rgba(255,255,255,0.06);color:var(--text-muted);border-radius:4px;padding:1px 5px;font-size:0.6rem">sem mov.</span>`;
+
+      let obsClr = 'var(--text-muted)';
+      if (r.obs === 'bloqueado') obsClr = '#f87171';
+      else if (r.obs === 'advogado') obsClr = '#fbbf24';
+
+      const clickable = !!raw;
+      const rowStyle = `border-bottom:1px solid rgba(255,255,255,0.04);${clickable?'cursor:pointer;':''}transition:background 0.15s`;
+
+      return `<tr style="${rowStyle}"
+        ${clickable ? `onclick="abrirDetalheOffline('${limpo}')"` : ''}
+        onmouseover="if(${clickable})this.style.background='rgba(99,102,241,0.08)'"
+        onmouseout="this.style.background=''">
+        <td style="padding:5px 10px;font-size:0.68rem;color:var(--text-muted)">${r.nc||'—'}</td>
+        <td style="padding:5px 10px">
+          <span style="font-family:monospace;font-size:0.66rem;color:${clickable?'#a5b4fc':'var(--text-muted)'}">${r.cnj||'—'}</span>
+          <div style="margin-top:2px">${badge}</div>
+        </td>
+        <td style="padding:5px 10px;font-size:0.72rem;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.nome||''}">${r.nome||'—'}</td>
+        <td style="padding:5px 10px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap">${r.cpf}</td>
+        <td style="padding:5px 10px;font-size:0.72rem;color:#a5b4fc;text-align:right;white-space:nowrap;font-weight:600">${r.parcela}</td>
+        <td style="padding:5px 10px;font-size:0.7rem;color:${expClr};white-space:nowrap">${expTxt}${assunto}</td>
+        <td style="padding:5px 10px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap">${r.tel}</td>
+        <td style="padding:5px 10px;font-size:0.68rem;color:${obsClr};max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.obs||''}">${r.obs||''}</td>
+      </tr>`;
+    }).join('');
+
+    const comExp = Object.values(_loEnriquecida).filter(e => e.expedido).length;
+    const resumo = cruzado
+      ? `<span style="color:#50e3c2">${comExp} expedidos</span> · ${Object.keys(_loEnriquecida).length} encontrados no DataJud · clique numa linha para ver detalhes`
+      : carregando ? '⏳ Consultando DataJud TRF6…' : 'Não consultado ainda';
+
+    document.getElementById('lo-tabela').innerHTML = `
+      <div style="font-size:0.74rem;color:var(--text-muted);margin-bottom:10px">
+        Mostrando <strong style="color:var(--text)">${lista.length}</strong> de ${LISTA_OFFLINE.length} · ${resumo}
+      </div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="text-align:left">
+          ${th('Nº C')}${th('CNJ')}${th('Nome')}${th('CPF')}${th('Parcela')}${th('Expedido DataJud','#50e3c2')}${th('Tel')}${th('Obs')}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>`;
+  }
+
+  async function cruzarDataJud() {
+    const btn = document.getElementById('btn-cruzar');
+    const statusEl = document.getElementById('lo-status');
+    if (btn) { btn.textContent = '⏳ Carregando…'; btn.disabled = true; }
+    if (statusEl) statusEl.textContent = 'Consultando DataJud TRF6…';
+    renderListaOffline();   // mostra "…" nas células
+
+    const PROXY = 'https://consultarprocessos-production.up.railway.app';
+    const numeros = [...new Set(LISTA_OFFLINE.filter(r => r.cnj).map(r => r.cnj.replace(/\D/g,'')))];
+    try {
+      const resp = await fetch(`${PROXY}/datajud/api_publica_trf6`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: { terms: { numeroProcesso: numeros } },
+          size: numeros.length + 10,
+          _source: ['numeroProcesso','movimentos','assuntos','orgaoJulgador','dataAjuizamento','classeProcessual','partes']
+        })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const hits = data?.hits?.hits || [];
+      _loEnriquecida = {};
+      _loRaw = {};
+      for (const h of hits) {
+        const s = h._source || {};
+        const num = (s.numeroProcesso || '').replace(/\D/g,'');
+        if (!num) continue;
+        const exps = (s.movimentos || []).filter(m => m.codigo === 12457);
+        const exp = exps.length ? (exps[exps.length-1].dataHora || '').substring(0,10) : '';
+        const assunto = (s.assuntos || [])[0]?.nome || '';
+        _loEnriquecida[num] = { expedido: exp, assunto };
+        _loRaw[num] = s;
+      }
+      const comExp = Object.values(_loEnriquecida).filter(e => e.expedido).length;
+      if (statusEl) statusEl.textContent = `${hits.length} processos encontrados · ${comExp} com expedição`;
+      if (btn) btn.textContent = '🔄 Atualizar';
+    } catch(e) {
+      if (statusEl) statusEl.textContent = 'Erro: ' + e.message;
+      if (btn) btn.textContent = '❌ Tentar novamente';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+    renderListaOffline();
+  }
+
+  function abrirDetalheOffline(num) {
+    const s   = _loRaw[num];
+    if (!s) return;
+    const row = LISTA_OFFLINE.find(r => r.cnj && r.cnj.replace(/\D/g,'') === num);
+
+    // movimentos ordenados por data desc
+    const movs = [...(s.movimentos || [])].sort((a,b) => (b.dataHora||'').localeCompare(a.dataHora||''));
+    const fmtData = d => d ? d.substring(0,10) : '—';
+
+    const movRows = movs.map(m => {
+      const isExp = m.codigo === 12457;
+      const clr   = isExp ? '#50e3c2' : 'var(--text)';
+      const bg    = isExp ? 'rgba(80,227,194,0.07)' : 'transparent';
+      return `<tr style="background:${bg};border-bottom:1px solid rgba(255,255,255,0.05)">
+        <td style="padding:4px 8px;font-size:0.68rem;color:var(--text-muted);white-space:nowrap">${fmtData(m.dataHora)}</td>
+        <td style="padding:4px 8px;font-size:0.7rem;color:${clr}${isExp?' ;font-weight:600':''}">${m.nome||''}${isExp?' ⭐':''}</td>
+      </tr>`;
+    }).join('');
+
+    const assuntos = (s.assuntos||[]).map(a => `<span style="background:rgba(99,102,241,0.2);color:#a5b4fc;border-radius:4px;padding:2px 7px;font-size:0.7rem;display:inline-block;margin:2px">${a.nome}</span>`).join('');
+    const vara  = s.orgaoJulgador?.nome || '—';
+    const dtAdj = fmtData(s.dataAjuizamento);
+    const classe = s.classeProcessual?.nome || '—';
+
+    const pjeUrl = `https://pje.trf6.jus.br/pje/ConsultaPublica/listView.seam`;
+
+    fecharModalLO();
+    const overlay = document.createElement('div');
+    overlay.id = 'modal-lo';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    overlay.onclick = e => { if (e.target === overlay) fecharModalLO(); };
+    overlay.innerHTML = `
+      <div style="background:var(--surface);border:1px solid rgba(255,255,255,0.12);border-radius:14px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;position:relative">
+        <button onclick="fecharModalLO()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.08);border:none;color:var(--text);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1rem;line-height:1">×</button>
+
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">Nº CNJ</div>
+          <div style="font-family:monospace;font-size:0.9rem;color:#a5b4fc;font-weight:600">${row?.cnj || s.numeroProcesso}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px">
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:4px">CREDOR (lista)</div>
+            <div style="font-size:0.82rem;color:var(--text);font-weight:600">${row?.nome || '—'}</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">${row?.cpf || ''}</div>
+          </div>
+          <div style="background:rgba(99,102,241,0.1);border-radius:8px;padding:12px">
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:4px">PARCELA</div>
+            <div style="font-size:1rem;color:#a5b4fc;font-weight:700">R$ ${row?.parcela || '—'}</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px">
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:4px">VARA / ÓRGÃO</div>
+            <div style="font-size:0.76rem;color:var(--text)">${vara}</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px">
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:4px">AJUIZAMENTO</div>
+            <div style="font-size:0.82rem;color:var(--text)">${dtAdj}</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:2px">${classe}</div>
+          </div>
+        </div>
+
+        ${assuntos ? `<div style="margin-bottom:14px"><div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:6px">ASSUNTOS</div>${assuntos}</div>` : ''}
+
+        ${_loEnriquecida[num]?.expedido
+          ? `<div style="background:rgba(80,227,194,0.1);border:1px solid rgba(80,227,194,0.25);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;color:#50e3c2">
+              ⭐ <strong>Precatório/RPV expedido em ${_loEnriquecida[num].expedido}</strong>
+             </div>`
+          : `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;color:#fbbf24">
+              Movimento de expedição (cód. 12457) não encontrado no DataJud
+             </div>`}
+
+        <div style="margin-bottom:12px">
+          <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:6px">MOVIMENTOS (${movs.length})</div>
+          <div style="max-height:220px;overflow-y:auto;border-radius:6px;border:1px solid rgba(255,255,255,0.08)">
+          <table style="width:100%;border-collapse:collapse">
+            <tbody>${movRows}</tbody>
+          </table>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+          <a href="${pjeUrl}" target="_blank"
+            style="padding:8px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none">
+            Abrir no PJe TRF6 ↗
+          </a>
+          ${row?.tel ? `<a href="https://wa.me/55${row.tel.replace(/\D/g,'')}" target="_blank"
+            style="padding:8px 16px;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;font-size:0.8rem;text-decoration:none">
+            WhatsApp ${row.tel}
+          </a>` : ''}
+          <button onclick="fecharModalLO()"
+            style="padding:8px 16px;background:rgba(255,255,255,0.07);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:0.8rem;cursor:pointer">
+            Fechar
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function copiarCnjsOffline() {
+    const cnjs = LISTA_OFFLINE.filter(r => r.cnj).map(r => r.cnj).join('\n');
+    navigator.clipboard.writeText(cnjs).then(() => {
+      const btn = event.target;
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', renderListaOffline);
 </script>
 </body>
 </html>
