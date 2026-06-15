@@ -1636,7 +1636,7 @@
     if (tipo === 'numero') {
       const num = document.getElementById('input-numero').value.trim().replace(/\D/g,'');
       if (!num) return null;
-      return { query: { match: { numeroProcesso: num } }, size: 10 };
+      return { query: { term: { numeroProcesso: num } }, size: 10 };
     }
     if (tipo === 'cpf') {
       const cpf = document.getElementById('input-cpf').value.trim().replace(/\D/g,'');
@@ -1649,10 +1649,10 @@
     const m = valor.trim().match(/\d{7}-\d{2}\.\d{4}\.(\d+)\.(\d{2})\.\d{4}/);
     if (!m) return null;
     const [, jus, trib] = m;
-    if (jus === '4') return {trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'}
-      [Object.keys({trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'}).find(k=>({trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'})[k]===trib)] || null;
-    if (jus === '8') return {tjrj:'19',tjsp:'26',tjmg:'13'}
-      [Object.keys({tjrj:'19',tjsp:'26',tjmg:'13'}).find(k=>({tjrj:'19',tjsp:'26',tjmg:'13'})[k]===trib)] || null;
+    const FED = { '01':'trf1','02':'trf2','03':'trf3','04':'trf4','05':'trf5','06':'trf6' };
+    const EST = { '19':'tjrj','26':'tjsp','13':'tjmg' };
+    if (jus === '4') return FED[trib] || null;
+    if (jus === '8') return EST[trib] || null;
     if (jus === '3' && trib === '00') return 'stj';
     return null;
   }
