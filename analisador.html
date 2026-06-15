@@ -208,18 +208,25 @@
     const must_not = [];
 
     // Fase processual
-    const faseMap = {
-      cumprimento: ['Cumprimento de Sentença'],
-      execucao:    ['Execução contra a Fazenda Pública'],
-      titulo:      ['Execução de Título Extrajudicial'],
-      all:         ['Cumprimento de Sentença','Execução contra a Fazenda Pública','Execução de Título Extrajudicial'],
+    // Códigos TPU reais confirmados no TJRJ:
+    // 156 = Cumprimento de sentença
+    // 12154 = Execução de Título Extrajudicial (novo)
+    // 159  = Execução de Título Extrajudicial (legado)
+    const faseCodigoMap = {
+      cumprimento: [156],
+      execucao:    [12154, 159],
+      all:         [156, 12154, 159],
     };
-    must.push({ bool: { should: faseMap[fase].map(n => ({ match_phrase: { 'classe.nome': n } })), minimum_should_match: 1 }});
+    must.push({ bool: { should: faseCodigoMap[fase].map(c => ({ term: { 'classe.codigo': c } })), minimum_should_match: 1 }});
+
+    // Excluir criminal (283=Ação Penal Ordinária, 10943=Ação Penal Sumária)
+    must_not.push({ term: { 'classe.codigo': 283 }});
+    must_not.push({ term: { 'classe.codigo': 10943 }});
 
     // Município por IBGE
     filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': parseInt(ibgeAtual) }});
 
-    // Grau G1 (exclui JEF/RPV e criminal)
+    // Grau G1 (exclui JEF/RPV)
     filter.push({ term: { 'grau.keyword': 'G1' }});
 
     // Antiguidade

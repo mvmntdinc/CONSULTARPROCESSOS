@@ -1388,13 +1388,12 @@
     // Apenas 1º grau (G1) — exclui JEF (RPV) e instâncias recursais
     filter.push({ term: { 'grau.keyword': 'G1' } });
 
-    // Fases de execução/cumprimento contra fazenda pública
-    // Códigos TPU: 1028=Cumprimento de Sentença, 1525=Cumprimento Provisório, 1533=Exec. Título Extrajudicial
+    // Códigos TPU confirmados no TJRJ:
+    // 156=Cumprimento de sentença, 12154/159=Execução de Título Extrajudicial
     must.push({ bool: { should: [
-      { term: { 'classe.codigo': 1028 } },
-      { term: { 'classe.codigo': 1525 } },
-      { term: { 'classe.codigo': 1533 } },
-      { match: { 'classe.nome': 'Execução contra a Fazenda Pública' } },
+      { term: { 'classe.codigo': 156 } },
+      { term: { 'classe.codigo': 12154 } },
+      { term: { 'classe.codigo': 159 } },
     ], minimum_should_match: 1 }});
 
     // Processo antigo (sentença transitou + tempo de espera)
