@@ -599,6 +599,17 @@
             </div>
           </div>
 
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Expedido de</label>
+              <input type="date" id="fed-data-de" value="2025-01-01" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Expedido até</label>
+              <input type="date" id="fed-data-ate" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:0.82rem">
+            </div>
+          </div>
+
           <div class="alert alert-blue" style="margin-top:8px">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             Busca no DataJud processos com <strong>expedição de precatório</strong> (movimento 12457). "Todos" consulta os 6 TRFs em paralelo. Clique em 📋 para copiar o CNJ e abrir a consulta pública.
@@ -1207,6 +1218,8 @@
     const nat        = document.getElementById('fed-natureza').value;
     const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
     const trfSel     = document.getElementById('fed-trf').value;
+    const dataDe     = document.getElementById('fed-data-de').value;
+    const dataAte    = document.getElementById('fed-data-ate').value;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
     const resultDiv  = document.getElementById('fed-resultados');
 
@@ -1242,6 +1255,13 @@
         { match: { 'assuntos.nome': 'Repetição' } },
         { match: { 'assuntos.nome': 'Obrigação de Fazer' } },
       ], minimum_should_match: 1 }});
+    }
+
+    if (dataDe || dataAte) {
+      const range = {};
+      if (dataDe) range.gte = dataDe;
+      if (dataAte) range.lte = dataAte;
+      must.push({ range: { 'movimentos.dataHora': range } });
     }
 
     const query = {
