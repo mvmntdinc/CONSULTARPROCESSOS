@@ -1238,13 +1238,6 @@
       must.push({ match: { 'assuntos.nome': assunto } });
     }
 
-    if (dataDe || dataAte) {
-      const range = {};
-      if (dataDe) range.gte = dataDe;
-      if (dataAte) range.lte = dataAte;
-      must.push({ range: { 'movimentos.dataHora': range } });
-    }
-
     const query = {
       query: { bool: { must } },
       from,
@@ -1285,8 +1278,15 @@
 
     todos.sort((a,b) => (b.exp||'').localeCompare(a.exp||''));
 
-    if (!todos.length) {
-      resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado nos TRFs.</div>`;
+    const todosF = todos.filter(r => {
+      if ((dataDe || dataAte) && !r.exp) return false;
+      if (dataDe && r.exp < dataDe) return false;
+      if (dataAte && r.exp > dataAte) return false;
+      return true;
+    });
+
+    if (!todosF.length) {
+      resultDiv.innerHTML = `<div class="alert">Nenhum processo encontrado${dataDe || dataAte ? ' no período informado' : ' nos TRFs'}.</div>`;
       return;
     }
 
@@ -1297,11 +1297,11 @@
     const temAnterior = from > 0;
     const temProxima  = from + tam < totalPaginavel;
 
-    const linhasCNJ = todos.map(r => r.fmt).join('\n');
+    const linhasCNJ = todosF.map(r => r.fmt).join('\n');
 
     let html = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${from + 1}–${from + todos.length}</span>
+        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${todosF.length} nesta página</span>
         <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
           Copiar página
         </button>
@@ -1319,7 +1319,7 @@
             </tr>
           </thead>
           <tbody>
-            ${todos.map(r => `
+            ${todosF.map(r => `
               <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
                 <td style="padding:6px 8px;font-family:monospace;color:var(--text);white-space:nowrap">${r.fmt}</td>
                 <td style="padding:6px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp || '—'}</td>
