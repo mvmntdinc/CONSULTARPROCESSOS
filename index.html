@@ -1334,7 +1334,7 @@
       if (natureza) params.set('natureza', natureza);
       if (ano) params.set('ano', ano);
 
-      const resp = await fetch(`${TJRJ_PROXY}/fila?${params}`);
+      const resp = await fetch(`${TJRJ_PROXY}/tjrj/fila?${params}`);
 
       document.getElementById('spinner').style.display = 'none';
 
