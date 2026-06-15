@@ -1645,7 +1645,29 @@
     }
   }
 
+  function detectarTribunalDoCNJ(valor) {
+    const m = valor.trim().match(/\d{7}-\d{2}\.\d{4}\.(\d+)\.(\d{2})\.\d{4}/);
+    if (!m) return null;
+    const [, jus, trib] = m;
+    if (jus === '4') return {trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'}
+      [Object.keys({trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'}).find(k=>({trf1:'01',trf2:'02',trf3:'03',trf4:'04',trf5:'05',trf6:'06'})[k]===trib)] || null;
+    if (jus === '8') return {tjrj:'19',tjsp:'26',tjmg:'13'}
+      [Object.keys({tjrj:'19',tjsp:'26',tjmg:'13'}).find(k=>({tjrj:'19',tjsp:'26',tjmg:'13'})[k]===trib)] || null;
+    if (jus === '3' && trib === '00') return 'stj';
+    return null;
+  }
+
   async function buscar(tipo) {
+    if (tipo === 'numero') {
+      const val = document.getElementById('input-numero').value;
+      const detected = detectarTribunalDoCNJ(val);
+      if (detected && detected !== tribunalAtual) {
+        selectTribunal(
+          document.querySelector(`.tribunal-btn[onclick*="'${detected}'"]`),
+          detected
+        );
+      }
+    }
     const query = buildQuery(tipo);
     if (!query) { alert('Preencha o campo de busca.'); return; }
     await executarBusca(query, tribunalAtual);
