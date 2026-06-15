@@ -1305,7 +1305,7 @@
     document.getElementById('tjrj-nome-entidade').value = nome;
     document.querySelectorAll('[id^="btn-tjrj-"]').forEach(b => b.classList.remove('active'));
     // Acha o botão pelo id numérico
-    const map = { 1:'capital',3:'niteroi',2:'caxias',5:'angra',34:'meriti',35:'meriti-prev' };
+    const map = { 2:'capital',9:'niteroi',7:'caxias',27:'angra',34:'meriti',290:'meriti-prev' };
     const btnId = 'btn-tjrj-' + (map[id] || id);
     const btn = document.getElementById(btnId);
     if (btn) btn.classList.add('active');
