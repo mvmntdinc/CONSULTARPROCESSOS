@@ -1236,18 +1236,11 @@
     if (assunto) {
       must.push({ match: { 'assuntos.nome': assunto } });
     }
-    if (dataDe || dataAte) {
-      const range = {};
-      if (dataDe) range.gte = dataDe;
-      if (dataAte) range.lte = dataAte;
-      must.push({ range: { 'movimentos.dataHora': range } });
-    }
-
     const query = {
       query: { bool: { must } },
       from,
       size: tam,
-      sort: [{ 'movimentos.dataHora': { order: 'desc' } }],
+      sort: [{ dataAjuizamento: { order: 'desc' } }],
       _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
     };
 
