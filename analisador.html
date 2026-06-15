@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisador de Municípios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:#ededed;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+  header{padding:18px 32px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:12px}
+  header h1{font-size:15px;font-weight:600;letter-spacing:.02em}
+  .badge{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:4px;font-size:11px;font-weight:600;padding:2px 8px;letter-spacing:.06em}
+
+  .layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 57px)}
+
+  /* PAINEL ESQUERDO */
+  .sidebar{border-right:1px solid rgba(255,255,255,0.08);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+
+  .section-label{font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+
+  .mun-grid{display:flex;flex-direction:column;gap:6px}
+  .mun-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#888;padding:8px 12px;font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .15s}
+  .mun-btn:hover{border-color:rgba(255,255,255,0.2);color:#ccc}
+  .mun-btn.active{border-color:#fff;background:rgba(255,255,255,0.06);color:#fff;font-weight:500}
+
+  .sep{border:none;border-top:1px solid rgba(255,255,255,0.06)}
+
+  label{display:block;font-size:11px;color:#666;margin-bottom:5px;font-weight:500}
+  select,input[type=text],textarea{width:100%;background:#0a0a0a;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#ededed;font-family:inherit;font-size:13px;padding:8px 10px;outline:none;transition:border .15s}
+  select:focus,input:focus,textarea:focus{border-color:rgba(255,255,255,0.3)}
+  select option{background:#111}
+
+  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#888;cursor:pointer}
+  .checkbox-row input{accent-color:#fff;cursor:pointer}
+
+  .btn-run{width:100%;background:#fff;color:#000;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s;margin-top:4px}
+  .btn-run:hover{opacity:.88}
+  .btn-run:disabled{opacity:.4;cursor:not-allowed}
+
+  .query-preview{background:#0a0a0a;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;font-family:'SF Mono',monospace;font-size:11px;color:#666;max-height:140px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+  /* PAINEL DIREITO */
+  .main{overflow-y:auto;display:flex;flex-direction:column}
+
+  .top-bar{padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px}
+  .stat{font-size:13px;color:#555}
+  .stat span{color:#ededed;font-weight:600}
+  .view-toggle{display:flex;gap:4px;margin-left:auto}
+  .vtab{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#666;font-size:12px;padding:4px 10px;cursor:pointer;font-family:inherit}
+  .vtab.active{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.2)}
+
+  .results-area{flex:1;padding:20px 24px}
+
+  /* TABELA */
+  .results-table{width:100%;border-collapse:collapse;font-size:13px}
+  .results-table th{text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:#555;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:#000;z-index:1}
+  .results-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top}
+  .results-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+  .tag-blue{background:rgba(50,145,255,.12);color:#3291ff;border:1px solid rgba(50,145,255,.2)}
+  .tag-green{background:rgba(80,227,194,.1);color:#50e3c2;border:1px solid rgba(80,227,194,.2)}
+  .tag-yellow{background:rgba(245,166,35,.1);color:#f5a623;border:1px solid rgba(245,166,35,.2)}
+  .tag-red{background:rgba(255,77,77,.1);color:#ff4d4d;border:1px solid rgba(255,77,77,.2)}
+  .tag-gray{background:rgba(255,255,255,.06);color:#888;border:1px solid rgba(255,255,255,.1)}
+
+  .mov-list{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto}
+  .mov-item{font-size:11px;color:#666;display:flex;gap:6px}
+  .mov-item.destaque{color:#50e3c2}
+  .mov-item.alerta{color:#f5a623}
+  .mov-date{color:#444;flex-shrink:0}
+
+  /* JSON VIEW */
+  .json-view{font-family:'SF Mono',Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;color:#6ee7b7}
+
+  /* EMPTY / SPINNER */
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:#333;text-align:center;padding:60px}
+  .spinner-ring{width:28px;height:28px;border:2px solid rgba(255,255,255,.1);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .num-proc{font-family:'SF Mono',monospace;font-size:12px;color:#3291ff}
+  .copy-btn{background:none;border:none;color:#444;cursor:pointer;font-size:10px;padding:0 4px;font-family:inherit}
+  .copy-btn:hover{color:#888}
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <h1>Analisador de Municípios</h1>
+  <span class="badge">INTERNO</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div>
+      <div class="section-label">Município</div>
+      <div class="mun-grid">
+        <button class="mun-btn" onclick="selMun(this,'3304557','Rio de Janeiro')">Rio de Janeiro</button>
+        <button class="mun-btn" onclick="selMun(this,'3303302','Niterói')">Niterói</button>
+        <button class="mun-btn" onclick="selMun(this,'3301702','Duque de Caxias')">Duque de Caxias</button>
+        <button class="mun-btn" onclick="selMun(this,'3300100','Angra dos Reis')">Angra dos Reis</button>
+        <button class="mun-btn" onclick="selMun(this,'3305109','São João de Meriti')">São João de Meriti</button>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <div>
+      <div class="section-label">Fase Processual</div>
+      <select id="fase">
+        <option value="all">Todas as fases de execução</option>
+        <option value="cumprimento">Cumprimento de Sentença</option>
+        <option value="execucao">Execução contra a Fazenda Pública</option>
+        <option value="titulo">Execução de Título Extrajudicial</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="section-label">Processo iniciado antes de</div>
+      <select id="anos">
+        <option value="3">3 anos</option>
+        <option value="5" selected>5 anos</option>
+        <option value="7">7 anos</option>
+        <option value="10">10 anos</option>
+        <option value="15">15 anos</option>
+      </select>
+    </div>
+
+    <hr class="sep">
+
+    <div>
+      <div class="section-label">Filtros de Movimentação</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label class="checkbox-row"><input type="checkbox" id="f-transito" checked> Trânsito em julgado (cód. 848)</label>
+        <label class="checkbox-row"><input type="checkbox" id="f-homolog"> Homologação de cálculo</label>
+        <label class="checkbox-row"><input type="checkbox" id="f-sem-precatorio" checked> Sem precatório expedido</label>
+        <label class="checkbox-row"><input type="checkbox" id="f-sem-recurso"> Sem recurso pendente</label>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <div>
+      <div class="section-label">Resultados por página</div>
+      <select id="size">
+        <option value="20">20</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+
+    <button class="btn-run" id="btn-run" onclick="rodarQuery()" disabled>Analisar</button>
+
+    <div>
+      <div class="section-label" style="margin-bottom:6px">Query enviada</div>
+      <div class="query-preview" id="query-preview">Selecione um município para começar</div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-panel">
+    <div class="center" id="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div style="font-size:13px">Selecione um município e clique em <strong>Analisar</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const PROXY = 'https://consultarprocessos-production.up.railway.app';
+  let ibgeAtual = null;
+  let munAtual = '';
+  let viewMode = 'table';
+
+  function selMun(el, ibge, nome) {
+    document.querySelectorAll('.mun-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    ibgeAtual = ibge;
+    munAtual = nome;
+    document.getElementById('btn-run').disabled = false;
+    atualizarPreview();
+  }
+
+  function buildQuery() {
+    const fase = document.getElementById('fase').value;
+    const anos = parseInt(document.getElementById('anos').value);
+    const fTransito   = document.getElementById('f-transito').checked;
+    const fHomolog    = document.getElementById('f-homolog').checked;
+    const fSemPrec    = document.getElementById('f-sem-precatorio').checked;
+    const fSemRecurso = document.getElementById('f-sem-recurso').checked;
+    const size        = parseInt(document.getElementById('size').value);
+
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - anos);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+    const must = [];
+    const filter = [];
+    const must_not = [];
+
+    // Fase processual
+    const faseMap = {
+      cumprimento: ['Cumprimento de Sentença'],
+      execucao:    ['Execução contra a Fazenda Pública'],
+      titulo:      ['Execução de Título Extrajudicial'],
+      all:         ['Cumprimento de Sentença','Execução contra a Fazenda Pública','Execução de Título Extrajudicial'],
+    };
+    must.push({ bool: { should: faseMap[fase].map(n => ({ match_phrase: { 'classe.nome': n } })), minimum_should_match: 1 }});
+
+    // Município por IBGE
+    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': parseInt(ibgeAtual) }});
+
+    // Grau G1 (exclui JEF/RPV e criminal)
+    filter.push({ term: { 'grau.keyword': 'G1' }});
+
+    // Antiguidade
+    filter.push({ range: { dataAjuizamento: { lte: cutoffStr }}});
+
+    // Trânsito em julgado
+    if (fTransito) must.push({ term: { 'movimentos.codigo': 848 }});
+
+    // Homologação de cálculo
+    if (fHomolog) {
+      must.push({ bool: { should: [
+        { match_phrase: { 'movimentos.nome': 'Homologação de Cálculo' }},
+        { match_phrase: { 'movimentos.nome': 'Liquidação de Sentença' }},
+      ], minimum_should_match: 1 }});
+    }
+
+    // Sem precatório já expedido
+    if (fSemPrec) {
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' }});
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido' }});
+    }
+
+    // Sem recurso pendente
+    if (fSemRecurso) {
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Especial' }});
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Extraordinário' }});
+      must_not.push({ match_phrase: { 'movimentos.nome': 'Embargos de Declaração' }});
+    }
+
+    return {
+      size,
+      sort: [{ dataAjuizamento: { order: 'asc' }}],
+      query: { bool: { must, filter, must_not }},
+    };
+  }
+
+  function atualizarPreview() {
+    if (!ibgeAtual) return;
+    try {
+      const q = buildQuery();
+      document.getElementById('query-preview').textContent = JSON.stringify(q, null, 2);
+    } catch(e) {}
+  }
+
+  // Atualiza preview ao mudar qualquer filtro
+  document.querySelectorAll('select,input').forEach(el => {
+    el.addEventListener('change', () => { if (ibgeAtual) atualizarPreview(); });
+  });
+
+  async function rodarQuery() {
+    if (!ibgeAtual) return;
+    const query = buildQuery();
+    const btn = document.getElementById('btn-run');
+    btn.disabled = true;
+    btn.textContent = 'Consultando...';
+
+    setMain(`<div class="center"><div class="spinner-ring"></div><div style="color:#555;font-size:13px">Consultando DataJud TJRJ...</div></div>`);
+
+    try {
+      const resp = await fetch(`${PROXY}/datajud/api_publica_tjrj`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query),
+      });
+      const data = await resp.json();
+      renderResultados(data, query);
+    } catch(e) {
+      setMain(`<div class="center"><div style="color:#f87171;font-size:13px">Erro: ${e.message}</div></div>`);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Analisar';
+  }
+
+  function renderResultados(data, query) {
+    const hits = data?.hits?.hits || [];
+    const total = data?.hits?.total?.value || 0;
+    const rel = data?.hits?.total?.relation === 'gte' ? '10.000+' : total;
+
+    if (!hits.length) {
+      setMain(`<div class="center"><div style="color:#555">Nenhum processo encontrado com esses filtros.</div></div>`);
+      return;
+    }
+
+    const topBar = `
+      <div class="top-bar">
+        <div class="stat">Município: <span>${munAtual}</span></div>
+        <div class="stat">Resultados: <span>${rel}</span></div>
+        <div class="stat">Exibindo: <span>${hits.length}</span></div>
+        <div class="view-toggle">
+          <button class="vtab ${viewMode==='table'?'active':''}" onclick="setView('table',${JSON.stringify(hits).replace(/"/g,'&quot;')})">Tabela</button>
+          <button class="vtab ${viewMode==='json'?'active':''}" onclick="setView('json',${JSON.stringify(hits).replace(/"/g,'&quot;')})">JSON</button>
+        </div>
+      </div>`;
+
+    window._hitsCache = hits;
+
+    if (viewMode === 'json') {
+      setMain(topBar + `<div class="results-area"><div class="json-view">${escHTML(JSON.stringify(data, null, 2))}</div></div>`);
+    } else {
+      setMain(topBar + `<div class="results-area"><table class="results-table">${renderTabela(hits)}</table></div>`);
+    }
+  }
+
+  function setView(mode, hits) {
+    viewMode = mode;
+    if (mode === 'json') {
+      document.querySelector('.results-area').innerHTML = `<div class="json-view">${escHTML(JSON.stringify(window._hitsCache, null, 2))}</div>`;
+    } else {
+      document.querySelector('.results-area').innerHTML = `<table class="results-table">${renderTabela(window._hitsCache)}</table>`;
+    }
+    document.querySelectorAll('.vtab').forEach((t,i) => t.classList.toggle('active', ['table','json'][i] === mode));
+  }
+
+  function renderTabela(hits) {
+    const MOVS_DESTAQUE = [848, 11009, 11010];
+    const MOVS_ALERT = [26,36,85,92];
+
+    const thead = `<thead><tr>
+      <th>#</th>
+      <th>Processo</th>
+      <th>Classe</th>
+      <th>Órgão Julgador</th>
+      <th>Ajuizamento</th>
+      <th>Assuntos</th>
+      <th>Movimentações chave</th>
+    </tr></thead>`;
+
+    const rows = hits.map((h, i) => {
+      const s = h._source;
+      const movs = s.movimentos || [];
+      const dataAdj = s.dataAjuizamento ? s.dataAjuizamento.slice(0,10) : '—';
+      const anos = s.dataAjuizamento ? Math.floor((Date.now() - new Date(s.dataAjuizamento)) / 31536000000) : '?';
+
+      // Movimentos relevantes
+      const codsRel = [848, 11009, 11010, 26, 193, 22, 60, 246, 245, 458, 459];
+      const palavrasRel = ['Trânsito','Precatório','Homolog','Liquidação','Sentença','Recurso','Expedição','Execução','Cumprimento'];
+      const movsRel = movs.filter(m =>
+        codsRel.includes(m.codigo) || palavrasRel.some(p => m.nome.includes(p))
+      ).slice(-6);
+
+      const temTransito = movs.some(m => m.codigo === 848);
+      const temPrec = movs.some(m => m.nome.includes('Precatório'));
+
+      const classeTag = temPrec
+        ? `<span class="tag tag-gray">EXPEDIDO</span>`
+        : temTransito
+          ? `<span class="tag tag-green">TRANSITADO</span>`
+          : `<span class="tag tag-yellow">EM CURSO</span>`;
+
+      const assuntosTxt = (s.assuntos || []).map(a => a.nome).slice(0,3).join(', ') || '—';
+
+      const movsHtml = movsRel.map(m => {
+        const data = m.dataHora ? m.dataHora.slice(0,10) : '';
+        const destaque = m.codigo === 848 || m.nome.includes('Precatório') || m.nome.includes('Homolog');
+        const alerta = m.nome.includes('Recurso') || m.nome.includes('Embargos');
+        return `<div class="mov-item ${destaque?'destaque':alerta?'alerta':''}">
+          <span class="mov-date">${data}</span>
+          <span>${m.nome}</span>
+        </div>`;
+      }).join('');
+
+      return `<tr>
+        <td style="color:#444;font-size:12px">${i+1}</td>
+        <td>
+          <div class="num-proc">${s.numeroProcesso || '—'}</div>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${s.numeroProcesso}')">copiar</button>
+          <div style="margin-top:4px">${classeTag}</div>
+        </td>
+        <td style="font-size:12px;color:#888">${s.classe?.nome || '—'}</td>
+        <td style="font-size:12px;color:#888">${s.orgaoJulgador?.nome || '—'}</td>
+        <td>
+          <div style="font-size:13px">${dataAdj}</div>
+          <div style="font-size:11px;color:#555">${anos} anos</div>
+        </td>
+        <td style="font-size:12px;color:#666;max-width:180px">${assuntosTxt}</td>
+        <td><div class="mov-list">${movsHtml || '<span style="color:#333;font-size:11px">—</span>'}</div></td>
+      </tr>`;
+    }).join('');
+
+    return thead + '<tbody>' + rows + '</tbody>';
+  }
+
+  function setMain(html) {
+    document.getElementById('main-panel').innerHTML = html;
+  }
+
+  function escHTML(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
