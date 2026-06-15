@@ -7,416 +7,565 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:#ededed;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:#000;color:#ededed;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
 
-  header{padding:18px 32px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:12px}
-  header h1{font-size:15px;font-weight:600;letter-spacing:.02em}
-  .badge{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:4px;font-size:11px;font-weight:600;padding:2px 8px;letter-spacing:.06em}
+header{padding:14px 28px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px}
+header h1{font-size:14px;font-weight:600}
+.badge-int{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25);border-radius:4px;font-size:10px;font-weight:700;padding:2px 7px;letter-spacing:.06em}
 
-  .layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 57px)}
+.layout{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 49px)}
 
-  /* PAINEL ESQUERDO */
-  .sidebar{border-right:1px solid rgba(255,255,255,0.08);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+/* SIDEBAR */
+.sb{border-right:1px solid rgba(255,255,255,.07);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.sl{font-size:10px;font-weight:700;color:#444;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.mun-list{display:flex;flex-direction:column;gap:5px}
+.mbtn{background:transparent;border:1px solid rgba(255,255,255,.09);border-radius:6px;color:#777;padding:7px 11px;font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .12s}
+.mbtn:hover{border-color:rgba(255,255,255,.18);color:#bbb}
+.mbtn.active{border-color:#fff;background:rgba(255,255,255,.05);color:#fff;font-weight:500}
+.sep{border:none;border-top:1px solid rgba(255,255,255,.05)}
+label.lbl{display:block;font-size:11px;color:#555;margin-bottom:4px;font-weight:500}
+select,input[type=number]{width:100%;background:#0a0a0a;border:1px solid rgba(255,255,255,.09);border-radius:5px;color:#ededed;font-family:inherit;font-size:13px;padding:7px 9px;outline:none}
+select:focus,input:focus{border-color:rgba(255,255,255,.25)}
+.chk-row{display:flex;align-items:center;gap:7px;font-size:12px;color:#777;cursor:pointer}
+.chk-row input{accent-color:#fff;cursor:pointer}
+.btn-run{width:100%;background:#fff;color:#000;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .12s}
+.btn-run:hover{opacity:.85}
+.btn-run:disabled{opacity:.35;cursor:not-allowed}
+.btn-extract{width:100%;background:transparent;color:#666;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .12s}
+.btn-extract:hover{border-color:rgba(255,255,255,.2);color:#aaa}
 
-  .section-label{font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.07);padding:0 24px}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:#555;font-size:13px;font-family:inherit;padding:12px 16px;cursor:pointer;transition:all .12s}
+.tab.active{color:#fff;border-bottom-color:#fff}
+.tab:hover:not(.active){color:#aaa}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
 
-  .mun-grid{display:flex;flex-direction:column;gap:6px}
-  .mun-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#888;padding:8px 12px;font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .15s}
-  .mun-btn:hover{border-color:rgba(255,255,255,0.2);color:#ccc}
-  .mun-btn.active{border-color:#fff;background:rgba(255,255,255,0.06);color:#fff;font-weight:500}
+/* STATUS BAR */
+.status-bar{padding:8px 24px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:16px;align-items:center;font-size:12px;color:#555}
+.status-bar b{color:#ededed}
+.tag-score{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+.s-prime{background:rgba(16,185,129,.18);color:#6ee7b7}
+.s-high{background:rgba(245,158,11,.18);color:#fcd34d}
+.s-med{background:rgba(99,102,241,.18);color:#a5b4fc}
+.s-low{background:rgba(255,255,255,.06);color:#9ca3af}
+.s-skip{background:rgba(239,68,68,.15);color:#fca5a5}
 
-  .sep{border:none;border-top:1px solid rgba(255,255,255,0.06)}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;color:#444;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:#000;z-index:1}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.num{font-family:'SF Mono',Consolas,monospace;font-size:11px;color:#3291ff}
+.cp{background:none;border:none;color:#333;cursor:pointer;font-size:10px;padding:0 3px;font-family:inherit}
+.cp:hover{color:#777}
+.mov-k{display:flex;flex-direction:column;gap:2px;max-height:100px;overflow-y:auto}
+.mov-row{font-size:11px;display:flex;gap:5px}
+.mov-row.verde{color:#6ee7b7}
+.mov-row.amarelo{color:#fcd34d}
+.mov-row.muted{color:#444}
+.mov-date{color:#333;flex-shrink:0;font-family:monospace}
 
-  label{display:block;font-size:11px;color:#666;margin-bottom:5px;font-weight:500}
-  select,input[type=text],textarea{width:100%;background:#0a0a0a;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#ededed;font-family:inherit;font-size:13px;padding:8px 10px;outline:none;transition:border .15s}
-  select:focus,input:focus,textarea:focus{border-color:rgba(255,255,255,0.3)}
-  select option{background:#111}
+/* SCORE BAR */
+.score-wrap{display:flex;align-items:center;gap:6px}
+.score-num{font-size:15px;font-weight:700;min-width:32px}
+.score-bar-bg{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px}
+.score-bar-fill{height:4px;border-radius:2px;transition:width .3s}
 
-  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#888;cursor:pointer}
-  .checkbox-row input{accent-color:#fff;cursor:pointer}
+/* RANKING */
+.rank-section{margin-bottom:28px}
+.rank-section h3{font-size:11px;font-weight:700;color:#444;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06)}
+.rank-item{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.rank-item:last-child{border-bottom:none}
+.rank-code{font-family:monospace;font-size:10px;color:#444;min-width:50px}
+.rank-name{flex:1;font-size:12px;color:#aaa}
+.rank-count{font-size:12px;font-weight:600;color:#ededed;min-width:40px;text-align:right}
+.rank-bar{width:80px;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.rank-bar-fill{height:3px;background:rgba(255,255,255,.2);border-radius:2px}
 
-  .btn-run{width:100%;background:#fff;color:#000;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s;margin-top:4px}
-  .btn-run:hover{opacity:.88}
-  .btn-run:disabled{opacity:.4;cursor:not-allowed}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#333;text-align:center;padding:60px;flex:1}
+.spinner{width:24px;height:24px;border:2px solid rgba(255,255,255,.08);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .query-preview{background:#0a0a0a;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;font-family:'SF Mono',monospace;font-size:11px;color:#666;max-height:140px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.prog-wrap{background:rgba(255,255,255,.04);border-radius:6px;padding:12px 14px;font-size:12px;color:#666}
+.prog-bar{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:8px}
+.prog-fill{height:3px;background:#fff;border-radius:2px;transition:width .2s}
 
-  /* PAINEL DIREITO */
-  .main{overflow-y:auto;display:flex;flex-direction:column}
-
-  .top-bar{padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px}
-  .stat{font-size:13px;color:#555}
-  .stat span{color:#ededed;font-weight:600}
-  .view-toggle{display:flex;gap:4px;margin-left:auto}
-  .vtab{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#666;font-size:12px;padding:4px 10px;cursor:pointer;font-family:inherit}
-  .vtab.active{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.2)}
-
-  .results-area{flex:1;padding:20px 24px}
-
-  /* TABELA */
-  .results-table{width:100%;border-collapse:collapse;font-size:13px}
-  .results-table th{text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:#555;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:#000;z-index:1}
-  .results-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top}
-  .results-table tr:hover td{background:rgba(255,255,255,0.02)}
-
-  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
-  .tag-blue{background:rgba(50,145,255,.12);color:#3291ff;border:1px solid rgba(50,145,255,.2)}
-  .tag-green{background:rgba(80,227,194,.1);color:#50e3c2;border:1px solid rgba(80,227,194,.2)}
-  .tag-yellow{background:rgba(245,166,35,.1);color:#f5a623;border:1px solid rgba(245,166,35,.2)}
-  .tag-red{background:rgba(255,77,77,.1);color:#ff4d4d;border:1px solid rgba(255,77,77,.2)}
-  .tag-gray{background:rgba(255,255,255,.06);color:#888;border:1px solid rgba(255,255,255,.1)}
-
-  .mov-list{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto}
-  .mov-item{font-size:11px;color:#666;display:flex;gap:6px}
-  .mov-item.destaque{color:#50e3c2}
-  .mov-item.alerta{color:#f5a623}
-  .mov-date{color:#444;flex-shrink:0}
-
-  /* JSON VIEW */
-  .json-view{font-family:'SF Mono',Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;color:#6ee7b7}
-
-  /* EMPTY / SPINNER */
-  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:#333;text-align:center;padding:60px}
-  .spinner-ring{width:28px;height:28px;border:2px solid rgba(255,255,255,.1);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  .num-proc{font-family:'SF Mono',monospace;font-size:12px;color:#3291ff}
-  .copy-btn{background:none;border:none;color:#444;cursor:pointer;font-size:10px;padding:0 4px;font-family:inherit}
-  .copy-btn:hover{color:#888}
+.kb-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.kb-stat{background:#0a0a0a;border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:12px;text-align:center}
+.kb-stat-num{font-size:22px;font-weight:700;color:#fff}
+.kb-stat-lbl{font-size:11px;color:#555;margin-top:2px}
 </style>
 </head>
 <body>
 
 <header>
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   <h1>Analisador de Municípios</h1>
-  <span class="badge">INTERNO</span>
+  <span class="badge-int">INTERNO</span>
 </header>
 
 <div class="layout">
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
-
+  <div class="sb">
     <div>
-      <div class="section-label">Município</div>
-      <div class="mun-grid">
-        <button class="mun-btn" onclick="selMun(this,'3304557','Rio de Janeiro')">Rio de Janeiro</button>
-        <button class="mun-btn" onclick="selMun(this,'3303302','Niterói')">Niterói</button>
-        <button class="mun-btn" onclick="selMun(this,'3301702','Duque de Caxias')">Duque de Caxias</button>
-        <button class="mun-btn" onclick="selMun(this,'3300100','Angra dos Reis')">Angra dos Reis</button>
-        <button class="mun-btn" onclick="selMun(this,'3305109','São João de Meriti')">São João de Meriti</button>
+      <div class="sl">Município</div>
+      <div class="mun-list">
+        <button class="mbtn" onclick="selMun(this,3304557,'Rio de Janeiro')">Rio de Janeiro</button>
+        <button class="mbtn" onclick="selMun(this,3303302,'Niterói')">Niterói</button>
+        <button class="mbtn" onclick="selMun(this,3301702,'Duque de Caxias')">Duque de Caxias</button>
+        <button class="mbtn" onclick="selMun(this,3300100,'Angra dos Reis')">Angra dos Reis</button>
+        <button class="mbtn" onclick="selMun(this,3305109,'São João de Meriti')">São João de Meriti</button>
+        <button class="mbtn" onclick="selMun(this,'todos','Todos os Municípios')">Todos</button>
       </div>
     </div>
 
     <hr class="sep">
 
     <div>
-      <div class="section-label">Fase Processual</div>
-      <select id="fase">
-        <option value="all">Todas as fases de execução</option>
-        <option value="cumprimento">Cumprimento de Sentença</option>
-        <option value="execucao">Execução contra a Fazenda Pública</option>
-        <option value="titulo">Execução de Título Extrajudicial</option>
-      </select>
+      <div class="sl">Filtros fixos</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <label class="chk-row"><input type="checkbox" checked disabled> Sem segredo de justiça</label>
+        <label class="chk-row"><input type="checkbox" checked disabled> Grau G1 (1ª instância)</label>
+        <label class="chk-row"><input type="checkbox" id="f-transito" checked> Trânsito em julgado</label>
+        <label class="chk-row"><input type="checkbox" id="f-sem-prec" checked> Sem precatório expedido</label>
+      </div>
     </div>
 
     <div>
-      <div class="section-label">Processo iniciado antes de</div>
+      <label class="lbl">Processo iniciado antes de</label>
       <select id="anos">
         <option value="3">3 anos</option>
         <option value="5" selected>5 anos</option>
         <option value="7">7 anos</option>
         <option value="10">10 anos</option>
-        <option value="15">15 anos</option>
       </select>
     </div>
 
-    <hr class="sep">
-
     <div>
-      <div class="section-label">Filtros de Movimentação</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <label class="checkbox-row"><input type="checkbox" id="f-transito" checked> Trânsito em julgado (cód. 848)</label>
-        <label class="checkbox-row"><input type="checkbox" id="f-homolog"> Homologação de cálculo</label>
-        <label class="checkbox-row"><input type="checkbox" id="f-sem-precatorio" checked> Sem precatório expedido</label>
-        <label class="checkbox-row"><input type="checkbox" id="f-sem-recurso"> Sem recurso pendente</label>
-      </div>
-    </div>
-
-    <hr class="sep">
-
-    <div>
-      <div class="section-label">Resultados por página</div>
+      <label class="lbl">Resultados</label>
       <select id="size">
-        <option value="20">20</option>
         <option value="50" selected>50</option>
         <option value="100">100</option>
+        <option value="200">200</option>
       </select>
     </div>
 
-    <button class="btn-run" id="btn-run" onclick="rodarQuery()" disabled>Analisar</button>
+    <hr class="sep">
 
-    <div>
-      <div class="section-label" style="margin-bottom:6px">Query enviada</div>
-      <div class="query-preview" id="query-preview">Selecione um município para começar</div>
+    <button class="btn-run" id="btn-run" onclick="rodar()" disabled>Analisar</button>
+    <button class="btn-extract" id="btn-extract" onclick="extrair10k()" disabled>Extrair 10k → Base de Conhecimento</button>
+    <button class="btn-extract" onclick="limparBase()" style="color:#f87171;border-color:rgba(239,68,68,.2)">Limpar base</button>
+
+    <div id="prog-area" style="display:none">
+      <div class="prog-wrap">
+        <span id="prog-txt">Extraindo...</span>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
     </div>
-
   </div>
 
   <!-- MAIN -->
-  <div class="main" id="main-panel">
-    <div class="center" id="empty-state">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <div style="font-size:13px">Selecione um município e clique em <strong>Analisar</strong></div>
+  <div class="main">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('resultados',this)">Resultados</button>
+      <button class="tab" onclick="switchTab('ranking',this)">Ranking</button>
+      <button class="tab" onclick="switchTab('base',this)">Base de Conhecimento</button>
+    </div>
+    <div id="status-bar" class="status-bar" style="display:none"></div>
+    <div class="content" id="content">
+      <div class="empty">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.15"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="font-size:13px">Selecione um município e clique em <strong>Analisar</strong></div>
+      </div>
     </div>
   </div>
-
 </div>
 
 <script>
-  const PROXY = 'https://consultarprocessos-production.up.railway.app';
-  let ibgeAtual = null;
-  let munAtual = '';
-  let viewMode = 'table';
+const PROXY = 'https://consultarprocessos-production.up.railway.app';
+const LS_KEY = 'tjrj_base';
+let ibgeAtual = null;
+let munAtual  = '';
+let tabAtual  = 'resultados';
 
-  function selMun(el, ibge, nome) {
-    document.querySelectorAll('.mun-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    ibgeAtual = ibge;
-    munAtual = nome;
-    document.getElementById('btn-run').disabled = false;
-    atualizarPreview();
+// ── Score ──────────────────────────────────────────────────────────────
+const SCORE_RULES = [
+  { pts: 50, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de Precatório') || m.nome?.includes('Precatório Expedido')), label: 'Expedição de Precatório' },
+  { pts: 45, fn: s => s.movimentos?.some(m => m.nome?.includes('Expedição de RPV') || m.nome?.includes('Requisição de Pequeno Valor')), label: 'Expedição de RPV' },
+  { pts: 30, fn: s => s.movimentos?.some(m => m.codigo === 848), label: 'Trânsito em julgado' },
+  { pts: 25, fn: s => s.classe?.codigo === 156, label: 'Cumprimento de Sentença' },
+  { pts: 20, fn: s => s.movimentos?.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')), label: 'Homologação/Liquidação' },
+  { pts: 15, fn: s => s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000, label: 'Processo > 5 anos' },
+  { pts: 10, fn: s => s.nivelSigilo === 0, label: 'Sem segredo de justiça' },
+];
+
+function calcScore(s) {
+  let total = 0;
+  const earned = [];
+  for (const r of SCORE_RULES) {
+    if (r.fn(s)) { total += r.pts; earned.push({ pts: r.pts, label: r.label }); }
+  }
+  return { total, earned };
+}
+
+function scoreTag(n) {
+  if (n >= 90) return `<span class="tag-score s-prime">PRIME ${n}</span>`;
+  if (n >= 65) return `<span class="tag-score s-high">HIGH ${n}</span>`;
+  if (n >= 40) return `<span class="tag-score s-med">MED ${n}</span>`;
+  if (n >= 20) return `<span class="tag-score s-low">LOW ${n}</span>`;
+  return `<span class="tag-score s-skip">SKIP ${n}</span>`;
+}
+
+function scoreColor(n) {
+  if (n >= 90) return '#6ee7b7';
+  if (n >= 65) return '#fcd34d';
+  if (n >= 40) return '#a5b4fc';
+  if (n >= 20) return '#9ca3af';
+  return '#fca5a5';
+}
+
+// ── Base de Conhecimento ───────────────────────────────────────────────
+function getBase() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{"classes":{},"assuntos":{},"movimentos":{},"total":0}'); }
+  catch { return { classes:{}, assuntos:{}, movimentos:{}, total:0 }; }
+}
+function saveBase(b) { localStorage.setItem(LS_KEY, JSON.stringify(b)); }
+
+function alimentarBase(hits) {
+  const b = getBase();
+  for (const h of hits) {
+    const s = h._source;
+    b.total++;
+
+    const ck = String(s.classe?.codigo);
+    if (!b.classes[ck]) b.classes[ck] = { codigo: s.classe?.codigo, nome: s.classe?.nome, count: 0 };
+    b.classes[ck].count++;
+
+    for (const a of (s.assuntos || [])) {
+      const ak = String(a.codigo);
+      if (!b.assuntos[ak]) b.assuntos[ak] = { codigo: a.codigo, nome: a.nome, count: 0 };
+      b.assuntos[ak].count++;
+    }
+    for (const m of (s.movimentos || [])) {
+      const mk = String(m.codigo);
+      if (!b.movimentos[mk]) b.movimentos[mk] = { codigo: m.codigo, nome: m.nome, count: 0 };
+      b.movimentos[mk].count++;
+    }
+  }
+  saveBase(b);
+}
+
+function limparBase() {
+  if (!confirm('Limpar toda a base de conhecimento?')) return;
+  localStorage.removeItem(LS_KEY);
+  alert('Base limpa.');
+}
+
+// ── Query builder ──────────────────────────────────────────────────────
+function buildQuery(size, from = 0) {
+  const anos = parseInt(document.getElementById('anos').value);
+  const fTransito  = document.getElementById('f-transito').checked;
+  const fSemPrec   = document.getElementById('f-sem-prec').checked;
+
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - anos);
+
+  const must      = [];
+  const filter    = [];
+  const must_not  = [];
+
+  // Classes de execução confirmadas no TJRJ
+  must.push({ bool: { should: [
+    { term: { 'classe.codigo': 156 } },
+    { term: { 'classe.codigo': 12154 } },
+    { term: { 'classe.codigo': 159 } },
+  ], minimum_should_match: 1 }});
+
+  // Município
+  if (ibgeAtual === 'todos') {
+    filter.push({ bool: { should: [
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': 3304557 } },
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': 3303302 } },
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': 3301702 } },
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': 3300100 } },
+      { term: { 'orgaoJulgador.codigoMunicipioIBGE': 3305109 } },
+    ], minimum_should_match: 1 }});
+  } else {
+    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibgeAtual } });
   }
 
-  function buildQuery() {
-    const fase = document.getElementById('fase').value;
-    const anos = parseInt(document.getElementById('anos').value);
-    const fTransito   = document.getElementById('f-transito').checked;
-    const fHomolog    = document.getElementById('f-homolog').checked;
-    const fSemPrec    = document.getElementById('f-sem-precatorio').checked;
-    const fSemRecurso = document.getElementById('f-sem-recurso').checked;
-    const size        = parseInt(document.getElementById('size').value);
+  filter.push({ term: { 'grau.keyword': 'G1' } });
+  filter.push({ term: { 'nivelSigilo': 0 } });
+  filter.push({ range: { dataAjuizamento: { lte: cutoff.toISOString().slice(0,10) } } });
 
-    const cutoff = new Date();
-    cutoff.setFullYear(cutoff.getFullYear() - anos);
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
-
-    const must = [];
-    const filter = [];
-    const must_not = [];
-
-    // Fase processual
-    // Códigos TPU reais confirmados no TJRJ:
-    // 156 = Cumprimento de sentença
-    // 12154 = Execução de Título Extrajudicial (novo)
-    // 159  = Execução de Título Extrajudicial (legado)
-    const faseCodigoMap = {
-      cumprimento: [156],
-      execucao:    [12154, 159],
-      all:         [156, 12154, 159],
-    };
-    must.push({ bool: { should: faseCodigoMap[fase].map(c => ({ term: { 'classe.codigo': c } })), minimum_should_match: 1 }});
-
-    // Excluir criminal (283=Ação Penal Ordinária, 10943=Ação Penal Sumária)
-    must_not.push({ term: { 'classe.codigo': 283 }});
-    must_not.push({ term: { 'classe.codigo': 10943 }});
-
-    // Município por IBGE
-    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': parseInt(ibgeAtual) }});
-
-    // Grau G1 (exclui JEF/RPV)
-    filter.push({ term: { 'grau.keyword': 'G1' }});
-
-    // Antiguidade
-    filter.push({ range: { dataAjuizamento: { lte: cutoffStr }}});
-
-    // Trânsito em julgado
-    if (fTransito) must.push({ term: { 'movimentos.codigo': 848 }});
-
-    // Homologação de cálculo
-    if (fHomolog) {
-      must.push({ bool: { should: [
-        { match_phrase: { 'movimentos.nome': 'Homologação de Cálculo' }},
-        { match_phrase: { 'movimentos.nome': 'Liquidação de Sentença' }},
-      ], minimum_should_match: 1 }});
-    }
-
-    // Sem precatório já expedido
-    if (fSemPrec) {
-      must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' }});
-      must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido' }});
-    }
-
-    // Sem recurso pendente
-    if (fSemRecurso) {
-      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Especial' }});
-      must_not.push({ match_phrase: { 'movimentos.nome': 'Recurso Extraordinário' }});
-      must_not.push({ match_phrase: { 'movimentos.nome': 'Embargos de Declaração' }});
-    }
-
-    return {
-      size,
-      sort: [{ dataAjuizamento: { order: 'asc' }}],
-      query: { bool: { must, filter, must_not }},
-    };
+  if (fTransito) must.push({ term: { 'movimentos.codigo': 848 } });
+  if (fSemPrec) {
+    must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' } });
+    must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido' } });
   }
 
-  function atualizarPreview() {
-    if (!ibgeAtual) return;
-    try {
-      const q = buildQuery();
-      document.getElementById('query-preview').textContent = JSON.stringify(q, null, 2);
-    } catch(e) {}
-  }
+  // Excluir criminal
+  must_not.push({ term: { 'classe.codigo': 283 } });
+  must_not.push({ term: { 'classe.codigo': 10943 } });
 
-  // Atualiza preview ao mudar qualquer filtro
-  document.querySelectorAll('select,input').forEach(el => {
-    el.addEventListener('change', () => { if (ibgeAtual) atualizarPreview(); });
+  return {
+    size, from,
+    sort: [{ dataAjuizamento: { order: 'asc' } }],
+    query: { bool: { must, filter, must_not } },
+  };
+}
+
+async function fetchPage(size, from = 0) {
+  const resp = await fetch(`${PROXY}/datajud/api_publica_tjrj`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(buildQuery(size, from)),
   });
+  return resp.json();
+}
 
-  async function rodarQuery() {
-    if (!ibgeAtual) return;
-    const query = buildQuery();
-    const btn = document.getElementById('btn-run');
-    btn.disabled = true;
-    btn.textContent = 'Consultando...';
+// ── Extração 10k ──────────────────────────────────────────────────────
+async function extrair10k() {
+  if (!ibgeAtual) { alert('Selecione um município.'); return; }
+  const btn = document.getElementById('btn-extract');
+  btn.disabled = true;
+  document.getElementById('prog-area').style.display = 'block';
 
-    setMain(`<div class="center"><div class="spinner-ring"></div><div style="color:#555;font-size:13px">Consultando DataJud TJRJ...</div></div>`);
+  const PAGE = 100, MAX = 10000;
+  let fetched = 0;
 
+  for (let from = 0; from < MAX; from += PAGE) {
     try {
-      const resp = await fetch(`${PROXY}/datajud/api_publica_tjrj`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(query),
-      });
-      const data = await resp.json();
-      renderResultados(data, query);
-    } catch(e) {
-      setMain(`<div class="center"><div style="color:#f87171;font-size:13px">Erro: ${e.message}</div></div>`);
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Analisar';
+      const data = await fetchPage(PAGE, from);
+      const hits = data?.hits?.hits || [];
+      if (!hits.length) break;
+      alimentarBase(hits);
+      fetched += hits.length;
+      const pct = Math.round((fetched / MAX) * 100);
+      document.getElementById('prog-txt').textContent = `Extraindo… ${fetched.toLocaleString()} / ${MAX.toLocaleString()} processos`;
+      document.getElementById('prog-fill').style.width = pct + '%';
+    } catch(e) { break; }
   }
 
-  function renderResultados(data, query) {
-    const hits = data?.hits?.hits || [];
+  document.getElementById('prog-txt').textContent = `Concluído — ${fetched.toLocaleString()} processos na base`;
+  btn.disabled = false;
+
+  if (tabAtual === 'base') renderBase();
+}
+
+// ── Analisar ──────────────────────────────────────────────────────────
+async function rodar() {
+  if (!ibgeAtual) return;
+  const size = parseInt(document.getElementById('size').value);
+  const btn  = document.getElementById('btn-run');
+  btn.disabled = true; btn.textContent = 'Consultando…';
+  setContent('<div class="empty"><div class="spinner"></div><div style="color:#555;font-size:13px;margin-top:8px">Consultando DataJud…</div></div>');
+  document.getElementById('status-bar').style.display = 'none';
+
+  try {
+    const data  = await fetchPage(size);
+    const hits  = data?.hits?.hits || [];
     const total = data?.hits?.total?.value || 0;
-    const rel = data?.hits?.total?.relation === 'gte' ? '10.000+' : total;
+    const rel   = data?.hits?.total?.relation === 'gte' ? '10.000+' : total;
 
-    if (!hits.length) {
-      setMain(`<div class="center"><div style="color:#555">Nenhum processo encontrado com esses filtros.</div></div>`);
-      return;
-    }
+    alimentarBase(hits);
 
-    const topBar = `
-      <div class="top-bar">
-        <div class="stat">Município: <span>${munAtual}</span></div>
-        <div class="stat">Resultados: <span>${rel}</span></div>
-        <div class="stat">Exibindo: <span>${hits.length}</span></div>
-        <div class="view-toggle">
-          <button class="vtab ${viewMode==='table'?'active':''}" onclick="setView('table',${JSON.stringify(hits).replace(/"/g,'&quot;')})">Tabela</button>
-          <button class="vtab ${viewMode==='json'?'active':''}" onclick="setView('json',${JSON.stringify(hits).replace(/"/g,'&quot;')})">JSON</button>
-        </div>
-      </div>`;
+    if (!hits.length) { setContent('<div class="empty"><div style="color:#555">Nenhum resultado.</div></div>'); return; }
 
-    window._hitsCache = hits;
+    window._hits = hits;
+    window._rel  = rel;
+    window._total = total;
 
-    if (viewMode === 'json') {
-      setMain(topBar + `<div class="results-area"><div class="json-view">${escHTML(JSON.stringify(data, null, 2))}</div></div>`);
-    } else {
-      setMain(topBar + `<div class="results-area"><table class="results-table">${renderTabela(hits)}</table></div>`);
-    }
+    renderResultados(hits, rel);
+  } catch(e) {
+    setContent(`<div class="empty"><div style="color:#f87171">Erro: ${esc(e.message)}</div></div>`);
   }
 
-  function setView(mode, hits) {
-    viewMode = mode;
-    if (mode === 'json') {
-      document.querySelector('.results-area').innerHTML = `<div class="json-view">${escHTML(JSON.stringify(window._hitsCache, null, 2))}</div>`;
-    } else {
-      document.querySelector('.results-area').innerHTML = `<table class="results-table">${renderTabela(window._hitsCache)}</table>`;
-    }
-    document.querySelectorAll('.vtab').forEach((t,i) => t.classList.toggle('active', ['table','json'][i] === mode));
-  }
+  btn.disabled = false; btn.textContent = 'Analisar';
+}
 
-  function renderTabela(hits) {
-    const MOVS_DESTAQUE = [848, 11009, 11010];
-    const MOVS_ALERT = [26,36,85,92];
+// ── Render Resultados ─────────────────────────────────────────────────
+function renderResultados(hits, rel) {
+  const scored = hits.map(h => {
+    const s = h._source;
+    const { total, earned } = calcScore(s);
+    return { s, total, earned };
+  }).sort((a,b) => b.total - a.total);
 
-    const thead = `<thead><tr>
-      <th>#</th>
-      <th>Processo</th>
-      <th>Classe</th>
-      <th>Órgão Julgador</th>
-      <th>Ajuizamento</th>
-      <th>Assuntos</th>
-      <th>Movimentações chave</th>
-    </tr></thead>`;
+  const maxScore = Math.max(...scored.map(x => x.total), 1);
 
-    const rows = hits.map((h, i) => {
-      const s = h._source;
-      const movs = s.movimentos || [];
-      const dataAdj = s.dataAjuizamento ? s.dataAjuizamento.slice(0,10) : '—';
-      const anos = s.dataAjuizamento ? Math.floor((Date.now() - new Date(s.dataAjuizamento)) / 31536000000) : '?';
+  const sb = document.getElementById('status-bar');
+  sb.style.display = 'flex';
+  sb.innerHTML = `<span>Município: <b>${munAtual}</b></span>
+    <span>Total estimado: <b>${rel}</b></span>
+    <span>Exibindo: <b>${hits.length}</b></span>
+    <span style="margin-left:auto;color:#444;font-size:11px">↑ ordenado por score</span>`;
 
-      // Movimentos relevantes
-      const codsRel = [848, 11009, 11010, 26, 193, 22, 60, 246, 245, 458, 459];
-      const palavrasRel = ['Trânsito','Precatório','Homolog','Liquidação','Sentença','Recurso','Expedição','Execução','Cumprimento'];
-      const movsRel = movs.filter(m =>
-        codsRel.includes(m.codigo) || palavrasRel.some(p => m.nome.includes(p))
-      ).slice(-6);
+  const MOVS_VERDE   = [848, 11009, 11010];
+  const MOVS_AMAREL  = [193, 22, 246, 245];
 
-      const temTransito = movs.some(m => m.codigo === 848);
-      const temPrec = movs.some(m => m.nome.includes('Precatório'));
+  const rows = scored.map((x, i) => {
+    const { s, total, earned } = x;
+    const movs = s.movimentos || [];
+    const palavrasK = ['Trânsito','Precatório','Homolog','Liquidação','Expedição','Cumprimento','Execução'];
+    const movsRel = movs.filter(m =>
+      MOVS_VERDE.includes(m.codigo) || MOVS_AMAREL.includes(m.codigo) ||
+      palavrasK.some(p => m.nome?.includes(p))
+    ).slice(-5);
 
-      const classeTag = temPrec
-        ? `<span class="tag tag-gray">EXPEDIDO</span>`
-        : temTransito
-          ? `<span class="tag tag-green">TRANSITADO</span>`
-          : `<span class="tag tag-yellow">EM CURSO</span>`;
-
-      const assuntosTxt = (s.assuntos || []).map(a => a.nome).slice(0,3).join(', ') || '—';
-
-      const movsHtml = movsRel.map(m => {
-        const data = m.dataHora ? m.dataHora.slice(0,10) : '';
-        const destaque = m.codigo === 848 || m.nome.includes('Precatório') || m.nome.includes('Homolog');
-        const alerta = m.nome.includes('Recurso') || m.nome.includes('Embargos');
-        return `<div class="mov-item ${destaque?'destaque':alerta?'alerta':''}">
-          <span class="mov-date">${data}</span>
-          <span>${m.nome}</span>
-        </div>`;
-      }).join('');
-
-      return `<tr>
-        <td style="color:#444;font-size:12px">${i+1}</td>
-        <td>
-          <div class="num-proc">${s.numeroProcesso || '—'}</div>
-          <button class="copy-btn" onclick="navigator.clipboard.writeText('${s.numeroProcesso}')">copiar</button>
-          <div style="margin-top:4px">${classeTag}</div>
-        </td>
-        <td style="font-size:12px;color:#888">${s.classe?.nome || '—'}</td>
-        <td style="font-size:12px;color:#888">${s.orgaoJulgador?.nome || '—'}</td>
-        <td>
-          <div style="font-size:13px">${dataAdj}</div>
-          <div style="font-size:11px;color:#555">${anos} anos</div>
-        </td>
-        <td style="font-size:12px;color:#666;max-width:180px">${assuntosTxt}</td>
-        <td><div class="mov-list">${movsHtml || '<span style="color:#333;font-size:11px">—</span>'}</div></td>
-      </tr>`;
+    const movsHtml = movsRel.map(m => {
+      const cls = m.codigo === 848 || m.nome?.includes('Homolog') || m.nome?.includes('Precatório') ? 'verde'
+                : m.nome?.includes('Recurso') || m.nome?.includes('Embargos') ? 'amarelo' : 'muted';
+      return `<div class="mov-row ${cls}"><span class="mov-date">${(m.dataHora||'').slice(0,10)}</span><span>${esc(m.nome||'')}</span></div>`;
     }).join('');
 
-    return thead + '<tbody>' + rows + '</tbody>';
-  }
+    const color = scoreColor(total);
+    const barW  = Math.round((total / maxScore) * 100);
+    const data  = s.dataAjuizamento ? s.dataAjuizamento.slice(0,10) : '—';
+    const anos  = s.dataAjuizamento ? Math.floor((Date.now() - new Date(s.dataAjuizamento)) / 31536000000) : '?';
+    const assuntos = (s.assuntos||[]).slice(0,3).map(a=>esc(a.nome)).join(', ') || '—';
+    const earnedTip = earned.map(e => `+${e.pts} ${e.label}`).join(' | ');
 
-  function setMain(html) {
-    document.getElementById('main-panel').innerHTML = html;
-  }
+    return `<tr>
+      <td style="color:#444;font-size:11px">${i+1}</td>
+      <td>
+        <div class="num">${esc(s.numeroProcesso||'—')}</div>
+        <button class="cp" onclick="navigator.clipboard.writeText('${esc(s.numeroProcesso||'')}')">copiar</button>
+      </td>
+      <td style="font-size:11px;color:#777">${esc(s.classe?.nome||'—')}</td>
+      <td style="font-size:11px;color:#666">${esc(s.orgaoJulgador?.nome||'—')}</td>
+      <td>
+        <div style="font-size:12px">${data}</div>
+        <div style="font-size:10px;color:#444">${anos}a</div>
+      </td>
+      <td style="font-size:11px;color:#555;max-width:150px">${assuntos}</td>
+      <td><div class="mov-k">${movsHtml||'<span style="color:#333;font-size:10px">—</span>'}</div></td>
+      <td>
+        <div class="score-wrap" title="${earnedTip}">
+          <div class="score-num" style="color:${color}">${total}</div>
+          <div style="flex:1">
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:${barW}%;background:${color}"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:3px">${scoreTag(total)}</div>
+      </td>
+    </tr>`;
+  }).join('');
 
-  function escHTML(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  setContent(`<table class="tbl">
+    <thead><tr>
+      <th>#</th><th>Processo</th><th>Classe</th><th>Órgão</th>
+      <th>Ajuizamento</th><th>Assuntos</th><th>Movimentos-chave</th><th>Score</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`);
+}
+
+// ── Render Ranking ────────────────────────────────────────────────────
+function renderRanking() {
+  const b = getBase();
+  if (!b.total) {
+    setContent('<div class="empty"><div style="color:#555;font-size:13px">Execute uma busca ou extraia 10k para gerar o ranking.</div></div>');
+    return;
   }
+  const sort = obj => Object.values(obj).sort((a,b) => b.count - a.count);
+  const maxC = Math.max(...Object.values(b.classes).map(x=>x.count), 1);
+  const maxA = Math.max(...Object.values(b.assuntos).map(x=>x.count), 1);
+  const maxM = Math.max(...Object.values(b.movimentos).map(x=>x.count), 1);
+
+  const mkSection = (title, items, max) => `
+    <div class="rank-section">
+      <h3>${title}</h3>
+      ${items.map(item => `
+        <div class="rank-item">
+          <span class="rank-code">[${item.codigo}]</span>
+          <span class="rank-name">${esc(item.nome||'—')}</span>
+          <div class="rank-bar"><div class="rank-bar-fill" style="width:${Math.round(item.count/max*100)}%"></div></div>
+          <span class="rank-count">${item.count.toLocaleString()}</span>
+        </div>`).join('')}
+    </div>`;
+
+  setContent(
+    mkSection('CLASSES', sort(b.classes), maxC) +
+    mkSection('ASSUNTOS (top 60)', sort(b.assuntos).slice(0,60), maxA) +
+    mkSection('MOVIMENTOS (top 80)', sort(b.movimentos).slice(0,80), maxM)
+  );
+}
+
+// ── Render Base ───────────────────────────────────────────────────────
+function renderBase() {
+  const b = getBase();
+  const nClasses   = Object.keys(b.classes).length;
+  const nAssuntos  = Object.keys(b.assuntos).length;
+  const nMovimentos = Object.keys(b.movimentos).length;
+
+  const exportJSON = () => {
+    const blob = new Blob([JSON.stringify(b, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'tjrj_base.json'; a.click();
+  };
+
+  window._exportBase = exportJSON;
+
+  const scoreRulesHtml = SCORE_RULES.map(r => `
+    <div class="rank-item">
+      <span style="font-size:13px;font-weight:700;color:#6ee7b7;min-width:40px">+${r.pts}</span>
+      <span class="rank-name">${r.label}</span>
+    </div>`).join('');
+
+  setContent(`
+    <div class="kb-stats">
+      <div class="kb-stat"><div class="kb-stat-num">${b.total.toLocaleString()}</div><div class="kb-stat-lbl">Processos analisados</div></div>
+      <div class="kb-stat"><div class="kb-stat-num">${nClasses}</div><div class="kb-stat-lbl">Classes únicas</div></div>
+      <div class="kb-stat"><div class="kb-stat-num">${nAssuntos}</div><div class="kb-stat-lbl">Assuntos únicos</div></div>
+    </div>
+    <div class="kb-stats" style="grid-template-columns:1fr 1fr">
+      <div class="kb-stat"><div class="kb-stat-num">${nMovimentos}</div><div class="kb-stat-lbl">Movimentos únicos</div></div>
+      <div class="kb-stat" style="cursor:pointer" onclick="_exportBase()"><div class="kb-stat-num" style="font-size:18px">↓</div><div class="kb-stat-lbl">Exportar JSON</div></div>
+    </div>
+    <div class="rank-section">
+      <h3>Sistema de Score — Regras Ativas</h3>
+      ${scoreRulesHtml}
+    </div>
+    <div style="font-size:11px;color:#333;margin-top:8px">
+      Acumula dados de todas as buscas e extrações. Use "Extrair 10k" para construir a base completa.
+    </div>
+  `);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+function switchTab(tab, el) {
+  tabAtual = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('status-bar').style.display = 'none';
+
+  if (tab === 'resultados') {
+    if (window._hits) renderResultados(window._hits, window._rel);
+    else setContent('<div class="empty"><div style="color:#555;font-size:13px">Selecione um município e clique em <strong>Analisar</strong></div></div>');
+  } else if (tab === 'ranking') {
+    renderRanking();
+  } else if (tab === 'base') {
+    renderBase();
+  }
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────
+function selMun(el, ibge, nome) {
+  document.querySelectorAll('.mbtn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  ibgeAtual = ibge;
+  munAtual  = nome;
+  document.getElementById('btn-run').disabled = false;
+  document.getElementById('btn-extract').disabled = false;
+}
+
+function setContent(html) { document.getElementById('content').innerHTML = html; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
