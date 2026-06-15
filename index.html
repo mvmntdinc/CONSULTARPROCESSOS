@@ -1203,7 +1203,7 @@
     document.getElementById(btnId).classList.add('active');
   }
 
-  async function buscarPrecatoriosFederal() {
+  async function buscarPrecatoriosFederal(from = 0) {
     const nat        = document.getElementById('fed-natureza').value;
     const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
     const trfSel     = document.getElementById('fed-trf').value;
@@ -1246,6 +1246,7 @@
 
     const query = {
       query: { bool: { must } },
+      from,
       size: tam,
       sort: [{ dataAjuizamento: { order: 'desc' } }],
       _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
@@ -1288,13 +1289,20 @@
       return;
     }
 
+    // Elasticsearch limita from+size a 10.000
+    const totalPaginavel = Math.min(totalGlobal, 10000);
+    const paginaAtual = Math.floor(from / tam) + 1;
+    const totalPaginas = Math.ceil(totalPaginavel / tam);
+    const temAnterior = from > 0;
+    const temProxima  = from + tam < totalPaginavel;
+
     const linhasCNJ = todos.map(r => r.fmt).join('\n');
 
     let html = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${todos.length}</span>
+        <span class="result-count" style="margin:0">${totalGlobal.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${from + 1}–${from + todos.length}</span>
         <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
-          Copiar todos
+          Copiar página
         </button>
       </div>
       <div style="overflow-x:auto">
@@ -1325,6 +1333,11 @@
               </tr>`).join('')}
           </tbody>
         </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap">
+        <button onclick="buscarPrecatoriosFederal(${from - tam})" ${temAnterior ? '' : 'disabled'} style="padding:6px 16px;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:${temAnterior ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)'};color:${temAnterior ? 'var(--text)' : 'var(--text-muted)'};cursor:${temAnterior ? 'pointer' : 'default'};font-size:0.78rem">← Anterior</button>
+        <span style="font-size:0.78rem;color:var(--text-muted)">Página <strong style="color:var(--text)">${paginaAtual}</strong> de ${totalPaginas.toLocaleString('pt-BR')}</span>
+        <button onclick="buscarPrecatoriosFederal(${from + tam})" ${temProxima ? '' : 'disabled'} style="padding:6px 16px;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:${temProxima ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)'};color:${temProxima ? 'var(--text)' : 'var(--text-muted)'};cursor:${temProxima ? 'pointer' : 'default'};font-size:0.78rem">Próxima →</button>
       </div>`;
 
     if (erros.length) {
@@ -1332,6 +1345,7 @@
     }
 
     resultDiv.innerHTML = html;
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function consultarCNJDatajud() {
