@@ -1409,9 +1409,8 @@
       { term: { 'classe.codigo': 159   } },
     ], minimum_should_match: 1 }});
 
-    // Município pelo IBGE + Vara da Fazenda Pública (proxy do réu = município)
+    // Município pelo IBGE
     filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
-    filter.push({ match: { 'orgaoJulgador.nome': 'FAZENDA' } });
     filter.push({ term: { 'grau.keyword': 'G1' } });
     filter.push({ term: { 'nivelSigilo': 0 } });
     filter.push({ range: { dataAjuizamento: { lte: cutoffStr } } });

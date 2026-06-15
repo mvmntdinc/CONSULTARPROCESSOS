@@ -288,9 +288,6 @@ function buildQuery(size, from = 0) {
     { term: { 'classe.codigo': 159 } },
   ], minimum_should_match: 1 }});
 
-  // Vara da Fazenda Pública — proxy do réu municipal (partes não indexado no DataJud)
-  filter.push({ match: { 'orgaoJulgador.nome': 'FAZENDA' } });
-
   // Município
   if (ibgeAtual === 'todos') {
     filter.push({ bool: { should: [
