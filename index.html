@@ -507,13 +507,13 @@
         <div class="filtros-avancados">
           <h3>Município réu</h3>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;margin-top:8px">
-            <button type="button" class="btn-mun" id="btn-pm-rio" onclick="selecionarMunPM('MUNICÍPIO DO RIO DE JANEIRO','btn-pm-rio')">Rio de Janeiro</button>
-            <button type="button" class="btn-mun" id="btn-pm-niteroi" onclick="selecionarMunPM('MUNICÍPIO DE NITERÓI','btn-pm-niteroi')">Niterói</button>
-            <button type="button" class="btn-mun" id="btn-pm-caxias" onclick="selecionarMunPM('MUNICÍPIO DE DUQUE DE CAXIAS','btn-pm-caxias')">Duque de Caxias</button>
-            <button type="button" class="btn-mun" id="btn-pm-angra" onclick="selecionarMunPM('MUNICÍPIO DE ANGRA DOS REIS','btn-pm-angra')">Angra dos Reis</button>
-            <button type="button" class="btn-mun" id="btn-pm-meriti" onclick="selecionarMunPM('MUNICÍPIO DE SÃO JOÃO DE MERITI','btn-pm-meriti')">São João de Meriti</button>
+            <button type="button" class="btn-mun" id="btn-pm-rio" onclick="selecionarMunPM('rio','btn-pm-rio')">Rio de Janeiro</button>
+            <button type="button" class="btn-mun" id="btn-pm-niteroi" onclick="selecionarMunPM('niteroi','btn-pm-niteroi')">Niterói</button>
+            <button type="button" class="btn-mun" id="btn-pm-caxias" onclick="selecionarMunPM('caxias','btn-pm-caxias')">Duque de Caxias</button>
+            <button type="button" class="btn-mun" id="btn-pm-angra" onclick="selecionarMunPM('angra','btn-pm-angra')">Angra dos Reis</button>
+            <button type="button" class="btn-mun" id="btn-pm-meriti" onclick="selecionarMunPM('meriti','btn-pm-meriti')">São João de Meriti</button>
           </div>
-          <input type="hidden" id="pm-mun-nome" value="">
+          <input type="hidden" id="pm-mun-ibge" value="">
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
             <div>
@@ -1349,17 +1349,26 @@
   }
 
   // ======= PROSPECÇÃO PRECATÓRIOS MUNICIPAIS RJ =======
-  function selecionarMunPM(nome, btnId) {
-    document.getElementById('pm-mun-nome').value = nome;
+  function selecionarMunPM(ibgeKey, btnId) {
+    document.getElementById('pm-mun-ibge').value = ibgeKey;
     document.querySelectorAll('[id^="btn-pm-"]').forEach(b => b.classList.remove('active'));
     document.getElementById(btnId).classList.add('active');
   }
 
-  async function buscarProspMunicipal() {
-    const mun = document.getElementById('pm-mun-nome').value.trim();
-    if (!mun) { alert('Selecione um município.'); return; }
+  // IBGE codes para filtrar pelo município do órgão julgador
+  const PM_IBGE = {
+    'rio':    3304557,
+    'niteroi':3303302,
+    'caxias': 3301702,
+    'angra':  3300100,
+    'meriti': 3305109,
+  };
 
-    const fase = document.getElementById('pm-fase').value;
+  async function buscarProspMunicipal() {
+    const ibgeKey = document.getElementById('pm-mun-ibge').value;
+    if (!ibgeKey) { alert('Selecione um município.'); return; }
+
+    const ibge = PM_IBGE[ibgeKey];
     const anos = parseInt(document.getElementById('pm-anos').value) || 5;
     const comTransito   = document.getElementById('pm-transito').checked;
     const comLiquidacao = document.getElementById('pm-liquidacao').checked;
@@ -1371,64 +1380,61 @@
 
     const must = [];
     const filter = [];
+    const must_not = [];
 
-    // Réu = município
-    must.push({
-      nested: {
-        path: 'partes',
-        query: { bool: { must: [
-          { match: { 'partes.nome': mun } },
-          { match: { 'partes.tipoDePolo': 'PASSIVO' } }
-        ]}}
-      }
-    });
+    // Município pelo órgão julgador (campo confiável no schema)
+    filter.push({ term: { 'orgaoJulgador.codigoMunicipioIBGE': ibge } });
 
-    // Fase processual
-    const classesMap = {
-      'cumprimento': ['Cumprimento de Sentença', 'Cumprimento Provisório de Sentença'],
-      'execucao':    ['Execução de Título Extrajudicial', 'Execução contra a Fazenda Pública'],
-    };
-    if (fase && classesMap[fase]) {
-      must.push({ bool: { should: classesMap[fase].map(c => ({ match: { 'classe.nome': c } })), minimum_should_match: 1 } });
-    } else {
-      must.push({ bool: { should: [
-        { match: { 'classe.nome': 'Cumprimento de Sentença' } },
-        { match: { 'classe.nome': 'Cumprimento Provisório de Sentença' } },
-        { match: { 'classe.nome': 'Execução de Título Extrajudicial' } },
-        { match: { 'classe.nome': 'Execução contra a Fazenda Pública' } },
-      ], minimum_should_match: 1 }});
-    }
+    // Apenas 1º grau (G1) — exclui JEF (RPV) e instâncias recursais
+    filter.push({ term: { 'grau.keyword': 'G1' } });
 
-    // Antiguidade
+    // Fases de execução/cumprimento contra fazenda pública
+    // Códigos TPU: 1028=Cumprimento de Sentença, 1525=Cumprimento Provisório, 1533=Exec. Título Extrajudicial
+    must.push({ bool: { should: [
+      { term: { 'classe.codigo': 1028 } },
+      { term: { 'classe.codigo': 1525 } },
+      { term: { 'classe.codigo': 1533 } },
+      { match: { 'classe.nome': 'Execução contra a Fazenda Pública' } },
+    ], minimum_should_match: 1 }});
+
+    // Processo antigo (sentença transitou + tempo de espera)
     filter.push({ range: { dataAjuizamento: { lte: cutoffStr } } });
 
-    // Filtros de movimentação (best-effort)
+    // Trânsito em julgado — código TPU 848 (confiável)
     if (comTransito) {
-      must.push({ nested: { path: 'movimentos', query: { bool: { should: [
-        { match: { 'movimentos.nome': 'Trânsito em Julgado' } },
-        { match: { 'movimentos.nome': 'Transitado em Julgado' } },
-      ], minimum_should_match: 1 }}}});
+      must.push({ nested: { path: 'movimentos', query: {
+        term: { 'movimentos.codigo': 848 }
+      }}});
     }
+
+    // Liquidação / homologação de cálculo — códigos TPU 11009, 11010 ou nome
     if (comLiquidacao) {
       must.push({ nested: { path: 'movimentos', query: { bool: { should: [
-        { match: { 'movimentos.nome': 'Liquidação' } },
+        { term: { 'movimentos.codigo': 11009 } },
+        { term: { 'movimentos.codigo': 11010 } },
         { match: { 'movimentos.nome': 'Homologação de Cálculo' } },
-        { match: { 'movimentos.nome': 'Homologação' } },
+        { match: { 'movimentos.nome': 'Liquidação de Sentença' } },
       ], minimum_should_match: 1 }}}});
     }
+
+    // Excluir processos que já viraram precatório
+    must_not.push({ nested: { path: 'movimentos', query: { bool: { should: [
+      { match: { 'movimentos.nome': 'Expedição de Precatório' } },
+      { match: { 'movimentos.nome': 'Precatório Expedido' } },
+    ], minimum_should_match: 1 }}}});
+
+    // Excluir recursos pendentes
     if (semRecurso) {
-      filter.push({ bool: { must_not: [
-        { nested: { path: 'movimentos', query: { bool: { should: [
-          { match: { 'movimentos.nome': 'Apelação' } },
-          { match: { 'movimentos.nome': 'Recurso Especial' } },
-          { match: { 'movimentos.nome': 'Recurso Extraordinário' } },
-          { match: { 'movimentos.nome': 'Embargos de Declaração' } },
-        ], minimum_should_match: 1 }}}}
-      ]}});
+      must_not.push({ nested: { path: 'movimentos', query: { bool: { should: [
+        { term: { 'movimentos.codigo': 11010 } }, // Recurso Especial
+        { match: { 'movimentos.nome': 'Recurso Especial' } },
+        { match: { 'movimentos.nome': 'Recurso Extraordinário' } },
+        { match: { 'movimentos.nome': 'Embargos de Declaração' } },
+      ], minimum_should_match: 1 }}}});
     }
 
     const query = {
-      query: { bool: { must, filter } },
+      query: { bool: { must, filter, must_not } },
       size: 100,
       sort: [{ dataAjuizamento: { order: 'asc' } }]
     };
