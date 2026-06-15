@@ -568,7 +568,17 @@
       <!-- ===== FEDERAIS TRF1-6 ===== -->
       <div id="stab-federal" style="display:none">
         <div class="filtros-avancados">
-          <h3>Precatórios Federais — todos os TRF</h3>
+          <h3>Tribunal</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px">
+            <button type="button" class="btn-mun active" id="btn-fed-todos" onclick="selecionarTRF('','btn-fed-todos')">Todos</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf1" onclick="selecionarTRF('trf1','btn-fed-trf1')">TRF1</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf2" onclick="selecionarTRF('trf2','btn-fed-trf2')">TRF2</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf3" onclick="selecionarTRF('trf3','btn-fed-trf3')">TRF3</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf4" onclick="selecionarTRF('trf4','btn-fed-trf4')">TRF4</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf5" onclick="selecionarTRF('trf5','btn-fed-trf5')">TRF5</button>
+            <button type="button" class="btn-mun" id="btn-fed-trf6" onclick="selecionarTRF('trf6','btn-fed-trf6')">TRF6</button>
+          </div>
+          <input type="hidden" id="fed-trf" value="">
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
             <div class="form-group" style="margin-bottom:0">
@@ -580,18 +590,18 @@
               </select>
             </div>
             <div class="form-group" style="margin-bottom:0">
-              <label>Exibir por TRF</label>
+              <label>Exibir</label>
               <select id="fed-tamanho">
-                <option value="30">30 por tribunal</option>
-                <option value="50" selected>50 por tribunal</option>
-                <option value="100">100 por tribunal</option>
+                <option value="30">30 resultados</option>
+                <option value="50" selected>50 resultados</option>
+                <option value="100">100 resultados</option>
               </select>
             </div>
           </div>
 
           <div class="alert alert-blue" style="margin-top:8px">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Busca em paralelo nos 6 TRFs (DataJud). Retorna processos com <strong>expedição de precatório</strong> (movimento 12457). Clique em 📋 para copiar o CNJ e abrir a consulta pública do tribunal.
+            Busca no DataJud processos com <strong>expedição de precatório</strong> (movimento 12457). "Todos" consulta os 6 TRFs em paralelo. Clique em 📋 para copiar o CNJ e abrir a consulta pública.
           </div>
         </div>
 
@@ -1187,13 +1197,23 @@
     }
   }
 
+  function selecionarTRF(trf, btnId) {
+    document.getElementById('fed-trf').value = trf;
+    document.querySelectorAll('[id^="btn-fed-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
+  }
+
   async function buscarPrecatoriosFederal() {
     const nat        = document.getElementById('fed-natureza').value;
     const tam        = parseInt(document.getElementById('fed-tamanho').value) || 50;
+    const trfSel     = document.getElementById('fed-trf').value;
     const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
     const resultDiv  = document.getElementById('fed-resultados');
 
-    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div class="spinner-icon" style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Consultando TRF1 a TRF6 em paralelo...</p></div>`;
+    const trfs = trfSel ? [trfSel] : ['trf1','trf2','trf3','trf4','trf5','trf6'];
+    const labelTRF = trfSel ? trfSel.toUpperCase() : 'TRF1 a TRF6';
+
+    resultDiv.innerHTML = `<div style="text-align:center;padding:28px;color:var(--text-muted)"><div class="spinner-icon" style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div><p style="margin-top:10px;font-size:0.82rem">Consultando ${labelTRF}...</p></div>`;
 
     const EPROC = {
       TRF1: num => `https://eproc1g.trf1.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica&num_processo=${num}`,
@@ -1231,7 +1251,6 @@
       _source: ['numeroProcesso','assuntos','orgaoJulgador','dataAjuizamento','movimentos']
     };
 
-    const trfs = ['trf1','trf2','trf3','trf4','trf5','trf6'];
     const resultados = await Promise.allSettled(trfs.map(async trf => {
       const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_${trf}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
