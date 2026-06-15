@@ -882,6 +882,10 @@
             style="padding:7px 13px;background:rgba(80,227,194,0.1);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:8px;font-size:0.82rem;cursor:pointer;white-space:nowrap">
             Copiar CNJs
           </button>
+          <button onclick="baixarVCF()"
+            style="padding:7px 13px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+            📥 Baixar Contatos
+          </button>
         </div>
       </div>
       <div id="lo-tabela" style="overflow-x:auto"></div>
@@ -2774,6 +2778,59 @@
         </div>
       </div>`;
     document.body.appendChild(overlay);
+  }
+
+  function baixarVCF() {
+    const linhas = [];
+    LISTA_OFFLINE.forEach((r, i) => {
+      if (!r.tel) return;
+      // um contato por número (pode ter dois separados por /)
+      const tels = r.tel.split('/').map(t => t.trim()).filter(Boolean);
+      // nome para exibição
+      const nomeExib = r.nome
+        ? r.nome
+        : r.cpf && !r.cpf.includes('*') ? 'CPF ' + r.cpf
+        : r.nc ? 'NC-' + r.nc
+        : 'Credor ' + (i + 1);
+      // parcela formatada
+      const parcela = r.parcela ? 'R$ ' + r.parcela : '';
+      // nota completa
+      const notaParts = [];
+      if (r.cnj)     notaParts.push('CNJ: ' + r.cnj);
+      if (parcela)   notaParts.push('Parcela: ' + parcela);
+      if (r.cpf)     notaParts.push('CPF: ' + r.cpf);
+      if (r.nc)      notaParts.push('NC: ' + r.nc);
+      if (r.obs)     notaParts.push('Obs: ' + r.obs);
+      const nota = notaParts.join(' | ');
+      tels.forEach((tel, ti) => {
+        // normaliza para +55XXXXXXXXXXX
+        let num = tel.replace(/\D/g,'');
+        if (!num.startsWith('55')) num = '55' + num;
+        num = '+' + num;
+        // sobrenome e nome separados (vCard N:)
+        const partes = nomeExib.split(' ');
+        const sobrenome = partes[partes.length - 1];
+        const primeiros = partes.slice(0, -1).join(' ');
+        const sufixo = tels.length > 1 ? ` (${ti + 1})` : '';
+        linhas.push(
+          'BEGIN:VCARD',
+          'VERSION:3.0',
+          `FN:${nomeExib}${sufixo}`,
+          `N:${sobrenome};${primeiros};;;`,
+          `TEL;TYPE=CELL,VOICE:${num}`,
+          `ORG:Precatório TRF6 2026`,
+          `NOTE:${nota}`,
+          'END:VCARD'
+        );
+      });
+    });
+    const blob = new Blob([linhas.join('\r\n')], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'precatorios_trf6_2026.vcf';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function copiarCnjsOffline() {
