@@ -427,9 +427,7 @@
 
       <!-- Prospecção RPV/INSS -->
       <div id="stab-prospeccao" style="display:none">
-        <div class="alert alert-blue" style="margin-bottom:14px">
-          <strong>Modo Prospecção:</strong> Busca processos contra o INSS em fase de cumprimento de sentença nos JEFs — ideal para encontrar RPVs com cálculo homologado para oferta de cessão.
-        </div>
+
         <div class="filtros-avancados">
           <h3>Filtros de prospecção</h3>
           <div class="form-group" style="margin-bottom:10px">
@@ -507,8 +505,9 @@
 
       <!-- Prospecção Municipal RJ -->
       <div id="stab-municipal" style="display:none">
-        <div class="alert alert-blue" style="margin-bottom:14px">
-          <strong>Fila Real de Precatórios — Portal TJRJ:</strong> Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.
+        <div style="margin-bottom:14px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Fila Real de Precatórios — Portal TJRJ</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5">Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.</div>
         </div>
         <div class="filtros-avancados">
           <h3>Selecionar Entidade Devedora</h3>
@@ -595,28 +594,6 @@
       <div id="results-list"></div>
     </div>
 
-    <div class="card" style="margin-top:14px">
-      <h2>Como usar a prospecção</h2>
-      <p>A API DataJud retorna dados processuais mas <strong>não o valor da RPV</strong> — esse fica no portal de cada tribunal. O fluxo ideal é:</p>
-      <div class="steps" style="margin-top:10px">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body"><strong>Busque pelo nome do executado (INSS) ou órgão julgador</strong><p>Filtre por cumprimentos de sentença com movimentações recentes de homologação de cálculo.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body"><strong>Identifique o advogado do processo</strong><p>Aparece nos resultados. É o contato mais direto — ele tem carteira de clientes com RPVs pendentes.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body"><strong>Contate e peça o valor + CPF do credor</strong><p>Com o CPF, consulte o portal do tribunal para confirmar o valor e o status da RPV.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body"><strong>Faça a proposta de cessão</strong><p>RPV INSS já homologada: desconto típico de 20–30%. Valor certo + pagamento em 60 dias após expedição.</p></div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- ABA: COMO CONSULTAR -->
