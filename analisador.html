@@ -199,6 +199,7 @@ const SCORE_RULES = [
   { pts:  30, fn: s => s.movimentos?.some(m => m.codigo === 848), label: 'Trânsito em julgado' },
   { pts:  25, fn: s => s.classe?.codigo === 156, label: 'Cumprimento de Sentença' },
   { pts:  20, fn: s => s.movimentos?.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')), label: 'Homologação/Liquidação' },
+  { pts:  20, fn: s => s.movimentos?.some(m => m.codigo === 11385), label: 'Execução/Cumprimento Iniciado' },
   { pts:  15, fn: s => s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000, label: 'Processo > 5 anos' },
   { pts:  10, fn: s => s.nivelSigilo === 0, label: 'Sem segredo de justiça' },
   { pts: -20, fn: s => s.movimentos?.some(m => m.nome?.includes('Suspensão') || m.nome?.includes('Sobrestamento')), label: 'Processo suspenso' },
@@ -312,6 +313,7 @@ function buildQuery(size, from = 0) {
     must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' } });
     must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido' } });
   }
+  must_not.push({ term: { 'movimentos.codigo': 12457 } });
 
   // Excluir criminal
   must_not.push({ term: { 'classe.codigo': 283 } });

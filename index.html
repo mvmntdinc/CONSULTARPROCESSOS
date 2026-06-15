@@ -1358,6 +1358,7 @@
     if (movs.some(m => m.codigo === 848))                                                                           pts += 30;
     if (s.classe?.codigo === 156)                                                                                   pts += 25;
     if (movs.some(m => m.nome?.includes('Homologação') || m.nome?.includes('Liquidação')))                        pts += 20;
+    if (movs.some(m => m.codigo === 11385))                                                                        pts += 20;
     if (s.dataAjuizamento && (Date.now() - new Date(s.dataAjuizamento)) > 5 * 365.25 * 86400000)                  pts += 15;
     if (s.nivelSigilo === 0)                                                                                       pts += 10;
     // Penalidades
@@ -1424,6 +1425,7 @@
 
     must_not.push({ match_phrase: { 'movimentos.nome': 'Expedição de Precatório' } });
     must_not.push({ match_phrase: { 'movimentos.nome': 'Precatório Expedido'     } });
+    must_not.push({ term: { 'movimentos.codigo': 12457 } });
     must_not.push({ term: { 'classe.codigo': 283   } });
     must_not.push({ term: { 'classe.codigo': 10943 } });
 
