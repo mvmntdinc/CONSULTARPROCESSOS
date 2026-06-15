@@ -284,7 +284,7 @@
 
   /* ── Spinner ── */
   .spinner { display: none; text-align: center; padding: 48px; color: var(--text-muted); }
-  .spinner-icon { font-size: 24px; animation: spin 1s linear infinite; display: inline-block; }
+  .spinner-icon { animation: spin 1s linear infinite; display: inline-flex; color: var(--accent); }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   /* ── Results ── */
@@ -337,8 +337,13 @@
     font-size: 0.6rem; font-weight: 600;
     color: var(--text-muted); padding: 4px 8px; transition: color .15s;
   }
-  .bottom-nav-item .bn-icon { font-size: 1.2rem; }
+  .bottom-nav-item .bn-icon { width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
+  .bottom-nav-item .bn-icon svg { display:block; }
   .bottom-nav-item.active { color: var(--accent); }
+  .s-icon { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .s-icon svg { display:block; }
+  .icon { display:inline-flex; align-items:center; vertical-align:middle; }
+  .icon svg { display:block; }
 
   @media (max-width: 700px) {
     .sidebar { display: none; }
@@ -354,7 +359,7 @@
 <header>
   <div class="header-brand">
     <div class="header-brand-dot">
-      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 2h1v1H9v-1zm2 0h1v1h-1v-1zm-2 2h1v1H9v-1zm2 0h1v1h-1v-1zm2-2h1v1h-1v-1zm0 2h1v1h-1v-1z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/><polyline points="2 9 12 9 22 9"/><line x1="12" y1="9" x2="6" y2="3"/><line x1="12" y1="9" x2="18" y2="3"/></svg>
     </div>
     <div>
       <h1>Nova Franco Precatórios</h1>
@@ -369,14 +374,14 @@
   <!-- Sidebar desktop -->
   <aside class="sidebar">
     <div class="sidebar-section">Busca</div>
-    <button class="sidebar-item active" onclick="showApp('buscar', this)"><span class="s-icon">🔍</span> Buscar Processos</button>
+    <button class="sidebar-item active" onclick="showApp('buscar', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span> Buscar Processos</button>
     <div class="sidebar-section">Guias</div>
-    <button class="sidebar-item" onclick="showApp('consultar', this)"><span class="s-icon">📋</span> Como Consultar</button>
-    <button class="sidebar-item" onclick="showApp('trf6', this)"><span class="s-icon">⚖️</span> TRF6 / Ofício Req.</button>
+    <button class="sidebar-item" onclick="showApp('consultar', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> Como Consultar</button>
+    <button class="sidebar-item" onclick="showApp('trf6', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span> TRF6 / Ofício Req.</button>
     <div class="sidebar-section">Mercado</div>
-    <button class="sidebar-item" onclick="showApp('investir', this)"><span class="s-icon">💼</span> Investir / Comprar</button>
-    <button class="sidebar-item" onclick="showApp('vender', this)"><span class="s-icon">💰</span> Vender Precatório</button>
-    <button class="sidebar-item" onclick="showApp('portais', this)"><span class="s-icon">🔗</span> Todos os Links</button>
+    <button class="sidebar-item" onclick="showApp('investir', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span> Investir / Comprar</button>
+    <button class="sidebar-item" onclick="showApp('vender', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Vender Precatório</button>
+    <button class="sidebar-item" onclick="showApp('portais', this)"><span class="s-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Todos os Links</button>
   </aside>
 
   <!-- Main -->
@@ -387,14 +392,14 @@
   <div id="buscar" class="panel active">
 
     <div class="card">
-      <h2>🔍 Busca via API DataJud — CNJ</h2>
+      <h2>Busca via API DataJud — CNJ</h2>
       <p>Pesquise processos em qualquer tribunal do Brasil. Use para prospectar RPVs e precatórios com cálculo homologado.</p>
 
       <div class="search-tabs">
         <button class="search-tab active" onclick="switchSearchTab('numero')">Por Número</button>
         <button class="search-tab" onclick="switchSearchTab('cpf')">Por CPF</button>
-        <button class="search-tab" onclick="switchSearchTab('prospeccao')">🎯 Prospecção RPV/INSS</button>
-        <button class="search-tab" onclick="switchSearchTab('municipal')">🏛️ Municipal RJ</button>
+        <button class="search-tab" onclick="switchSearchTab('prospeccao')">Prospecção RPV/INSS</button>
+        <button class="search-tab" onclick="switchSearchTab('municipal')">Municipal RJ</button>
       </div>
 
       <!-- Seletor de Tribunal (para nome/numero/cpf) -->
@@ -422,7 +427,7 @@
           <label>Número do Processo (CNJ)</label>
           <input type="text" id="input-numero" placeholder="Ex: 5017981-35.2023.4.03.6303" />
         </div>
-        <button class="btn-buscar" onclick="buscar('numero')">🔍 Buscar</button>
+        <button class="btn-buscar" onclick="buscar('numero')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Buscar</button>
       </div>
 
       <!-- Busca por CPF -->
@@ -431,22 +436,22 @@
           <label>CPF do Credor</label>
           <input type="text" id="input-cpf" placeholder="Ex: 435.123.456-78" />
         </div>
-        <button class="btn-buscar" onclick="buscar('cpf')">🔍 Buscar</button>
+        <button class="btn-buscar" onclick="buscar('cpf')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Buscar</button>
       </div>
 
       <!-- Prospecção RPV/INSS -->
       <div id="stab-prospeccao" style="display:none">
         <div class="alert alert-blue" style="margin-bottom:14px">
-          🎯 <strong>Modo Prospecção:</strong> Busca processos contra o INSS em fase de cumprimento de sentença nos JEFs — ideal para encontrar RPVs com cálculo homologado para oferta de cessão.
+          <strong>Modo Prospecção:</strong> Busca processos contra o INSS em fase de cumprimento de sentença nos JEFs — ideal para encontrar RPVs com cálculo homologado para oferta de cessão.
         </div>
         <div class="filtros-avancados">
-          <h3>⚙️ Filtros de prospecção</h3>
+          <h3>Filtros de prospecção</h3>
           <div class="form-group" style="margin-bottom:10px">
             <label>Natureza do precatório</label>
             <div style="display:flex;gap:8px;margin-top:4px">
-              <button type="button" class="btn-mun active" id="btn-prosp-nat-todos" onclick="selecionarNaturezaProsp('todos')" style="flex:1">🔍 Todos</button>
-              <button type="button" class="btn-mun" id="btn-prosp-nat-alimentar" onclick="selecionarNaturezaProsp('alimentar')" style="flex:1">🍎 Alimentar</button>
-              <button type="button" class="btn-mun" id="btn-prosp-nat-comum" onclick="selecionarNaturezaProsp('comum')" style="flex:1">📄 Comum</button>
+              <button type="button" class="btn-mun active" id="btn-prosp-nat-todos" onclick="selecionarNaturezaProsp('todos')" style="flex:1">Todos</button>
+              <button type="button" class="btn-mun" id="btn-prosp-nat-alimentar" onclick="selecionarNaturezaProsp('alimentar')" style="flex:1">Alimentar</button>
+              <button type="button" class="btn-mun" id="btn-prosp-nat-comum" onclick="selecionarNaturezaProsp('comum')" style="flex:1">Comum</button>
             </div>
           </div>
           <div class="filtros-grid">
@@ -454,17 +459,17 @@
               <label id="prosp-assunto-label">Assunto específico (opcional)</label>
               <select id="prosp-assunto">
                 <option value="">Todos os assuntos</option>
-                <optgroup label="── 🍎 Alimentar (prioridade de pagamento) ──">
-                  <option value="Aposentadoria">🍎 Aposentadoria</option>
-                  <option value="Auxílio">🍎 Auxílio (doença/acidente)</option>
-                  <option value="Benefício de Prestação Continuada">🍎 BPC/LOAS</option>
-                  <option value="Pensão">🍎 Pensão por Morte</option>
-                  <option value="Salário">🍎 Salário Maternidade</option>
+                <optgroup label="── Alimentar (prioridade de pagamento) ──">
+                  <option value="Aposentadoria">Aposentadoria</option>
+                  <option value="Auxílio">Auxílio (doença/acidente)</option>
+                  <option value="Benefício de Prestação Continuada">BPC/LOAS</option>
+                  <option value="Pensão">Pensão por Morte</option>
+                  <option value="Salário">Salário Maternidade</option>
                 </optgroup>
-                <optgroup label="── 📄 Comum ──">
-                  <option value="Revisão">📄 Revisão de Benefício</option>
-                  <option value="correção monetária">📄 Correção Monetária</option>
-                  <option value="reajuste">📄 Reajuste</option>
+                <optgroup label="── Comum ──">
+                  <option value="Revisão">Revisão de Benefício</option>
+                  <option value="correção monetária">Correção Monetária</option>
+                  <option value="reajuste">Reajuste</option>
                 </optgroup>
               </select>
             </div>
@@ -504,38 +509,38 @@
             </div>
           </div>
           <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px 16px;margin-top:4px">
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#166534">
-              <input type="checkbox" id="prosp-homolog" checked style="width:18px;height:18px;cursor:pointer" onchange="filtrarCardsFogo(this.checked)" />
-              🔥 Só processos com score ≥ 60 pts
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;font-weight:600;color:#6ee7b7">
+              <input type="checkbox" id="prosp-homolog" checked style="width:18px;height:18px;cursor:pointer;accent-color:#6366f1" onchange="filtrarCardsFogo(this.checked)" />
+              Só processos com score ≥ 60 pts
             </label>
             <p style="font-size:0.78rem;color:#4a7c59;margin-top:4px;margin-left:28px">Filtra só processos onde alguma das 3 últimas movimentações é homologação ou expedição (exclui pagamento — crédito já quitado)</p>
           </div>
         </div>
-        <button class="btn-buscar" onclick="buscarProspeccao()">🎯 Prospectar RPVs</button>
+        <button class="btn-buscar" onclick="buscarProspeccao()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Prospectar RPVs</button>
       </div>
 
       <!-- Prospecção Municipal RJ -->
       <div id="stab-municipal" style="display:none">
         <div class="alert alert-blue" style="margin-bottom:14px">
-          🏛️ <strong>Fila Real de Precatórios — Portal TJRJ:</strong> Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.
+          <strong>Fila Real de Precatórios — Portal TJRJ:</strong> Dados oficiais do portal de precatórios do TJRJ. Mostra a fila de pagamento com valores atualizados.
         </div>
         <div class="filtros-avancados">
-          <h3>⚙️ Selecionar Entidade Devedora</h3>
+          <h3>Selecionar Entidade Devedora</h3>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;margin-top:8px">
-            <button type="button" onclick="selecionarEntidadeTJRJ(2,'MUNICÍPIO DO RIO DE JANEIRO')" class="btn-mun" id="btn-tjrj-capital">🏙️ Rio de Janeiro</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(9,'MUNICÍPIO DE NITERÓI')" class="btn-mun" id="btn-tjrj-niteroi">🌉 Niterói</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(7,'MUNICÍPIO DE DUQUE DE CAXIAS')" class="btn-mun" id="btn-tjrj-caxias">🏭 Duque de Caxias</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(27,'MUNICÍPIO DE ANGRA DOS REIS')" class="btn-mun" id="btn-tjrj-angra">⚓ Angra dos Reis</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(34,'MUNICÍPIO DE SÃO JOÃO DE MERITI')" class="btn-mun" id="btn-tjrj-meriti">🏘️ São João de Meriti</button>
-            <button type="button" onclick="selecionarEntidadeTJRJ(290,'INSTITUTO  DE  PREVIDÊNCIA  DOS  SERVIDORES  PÚBLICOS  DE  SÃO  JOÃO  DE  MERITI - MERITI PREV')" class="btn-mun" id="btn-tjrj-meriti-prev">🏦 Meriti Prev</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(2,'MUNICÍPIO DO RIO DE JANEIRO')" class="btn-mun" id="btn-tjrj-capital">Rio de Janeiro</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(9,'MUNICÍPIO DE NITERÓI')" class="btn-mun" id="btn-tjrj-niteroi">Niterói</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(7,'MUNICÍPIO DE DUQUE DE CAXIAS')" class="btn-mun" id="btn-tjrj-caxias">Duque de Caxias</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(27,'MUNICÍPIO DE ANGRA DOS REIS')" class="btn-mun" id="btn-tjrj-angra">Angra dos Reis</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(34,'MUNICÍPIO DE SÃO JOÃO DE MERITI')" class="btn-mun" id="btn-tjrj-meriti">São João de Meriti</button>
+            <button type="button" onclick="selecionarEntidadeTJRJ(290,'INSTITUTO  DE  PREVIDÊNCIA  DOS  SERVIDORES  PÚBLICOS  DE  SÃO  JOÃO  DE  MERITI - MERITI PREV')" class="btn-mun" id="btn-tjrj-meriti-prev">Meriti Prev</button>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
               <label>Natureza</label>
               <select id="tjrj-natureza" style="width:100%;padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.88rem">
                 <option value="">Todas</option>
-                <option value="A">🍎 Alimentícia</option>
-                <option value="C">📄 Comum</option>
+                <option value="A">Alimentícia</option>
+                <option value="C">Comum</option>
               </select>
             </div>
             <div class="form-group" style="flex:1;min-width:160px;margin-bottom:0">
@@ -559,7 +564,7 @@
           <input type="hidden" id="tjrj-id-entidade" value="" />
           <input type="hidden" id="tjrj-nome-entidade" value="" />
         </div>
-        <button class="btn-buscar" onclick="buscarFilaTJRJ()" id="btn-buscar-tjrj" disabled>🏛️ Carregar Fila de Precatórios</button>
+        <button class="btn-buscar" onclick="buscarFilaTJRJ()" id="btn-buscar-tjrj" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>Carregar Fila de Precatórios</button>
 
         <!-- Resultados municipais TJRJ -->
         <div id="tjrj-resultados" style="display:none;margin-top:20px">
@@ -588,7 +593,7 @@
 
     <!-- Spinner -->
     <div class="spinner" id="spinner">
-      <div class="spinner-icon">⏳</div>
+      <div class="spinner-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div>
       <p style="margin-top:10px;font-size:0.85rem" id="spinner-text">Consultando DataJud...</p>
     </div>
 
@@ -596,7 +601,7 @@
     <div class="error-msg" id="error-msg"></div>
 
     <!-- Vazio -->
-    <div class="empty-msg" id="empty-msg">😕 Nenhum processo encontrado.</div>
+    <div class="empty-msg" id="empty-msg"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 12px;opacity:.4"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Nenhum processo encontrado.</div>
 
     <!-- Resultados -->
     <div class="results-container" id="results">
@@ -605,7 +610,7 @@
     </div>
 
     <div class="card" style="margin-top:14px">
-      <h2>💡 Como usar a prospecção</h2>
+      <h2>Como usar a prospecção</h2>
       <p>A API DataJud retorna dados processuais mas <strong>não o valor da RPV</strong> — esse fica no portal de cada tribunal. O fluxo ideal é:</p>
       <div class="steps" style="margin-top:10px">
         <div class="step">
@@ -636,14 +641,14 @@
     </div>
 
     <div class="card">
-      <h2>🏛️ Processo Federal (TRF2) — passo a passo</h2>
+      <h2>Processo Federal (TRF2) — passo a passo</h2>
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
             <strong>Acesse o portal de consulta do TRF2</strong>
             <a class="btn-link" href="https://www.trf2.jus.br/trf2/artigo/dipre/consulta-precatorios-rpvs" target="_blank">
-              <span>🔍</span>
+              <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
               <div>Consultar Precatórios e RPVs — TRF2<small>trf2.jus.br — clique aqui para abrir</small></div>
             </a>
           </div>
@@ -653,7 +658,7 @@
           <div class="step-body">
             <strong>Digite seu CPF ou o número do processo</strong>
             <p>No campo de busca, você pode pesquisar pelo <strong>CPF do credor</strong> ou pelo <strong>número do processo</strong> judicial de origem.</p>
-            <div class="tip">💡 Use o CPF sem pontos ou traços: só os números</div>
+            <div class="tip">Use o CPF sem pontos ou traços: só os números</div>
           </div>
         </div>
         <div class="step">
@@ -673,8 +678,8 @@
           <div class="step-num">4</div>
           <div class="step-body">
             <strong>Não achou? Tente também pelo e-Proc</strong>
-            <a class="btn-link-secondary" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span>📂</span> Sistema e-Proc TRF2</a>
-            <a class="btn-link-secondary" href="https://www.cnj.jus.br/precatorios/" target="_blank"><span>🏛️</span> Painel CNJ — visão nacional</a>
+            <a class="btn-link-secondary" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span> Sistema e-Proc TRF2</a>
+            <a class="btn-link-secondary" href="https://www.cnj.jus.br/precatorios/" target="_blank"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></span> Painel CNJ — visão nacional</a>
             <p style="margin-top:6px">Ligue para a DIPRE: <strong>(21) 2282-8000</strong> ou e-mail: <strong>dipre@trf2.jus.br</strong></p>
           </div>
         </div>
@@ -682,14 +687,14 @@
     </div>
 
     <div class="card">
-      <h2>🏙️ Processo Municipal — passo a passo</h2>
+      <h2>Processo Municipal — passo a passo</h2>
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
             <strong>Acesse o portal de precatórios do TJRJ</strong>
             <a class="btn-link" href="https://www.tjrj.jus.br/web/precatorios/consultas1" target="_blank">
-              <span>🔍</span>
+              <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
               <div>Consultar Precatórios — TJRJ<small>tjrj.jus.br — clique aqui para abrir</small></div>
             </a>
           </div>
@@ -705,14 +710,14 @@
           <div class="step-num">3</div>
           <div class="step-body">
             <strong>Pesquise por CPF ou número de processo</strong>
-            <div class="alert">⚠️ Precatórios municipais costumam ter filas mais longas e menos previsibilidade de pagamento que os federais.</div>
+            <div class="alert"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;flex-shrink:0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Precatórios municipais costumam ter filas mais longas e menos previsibilidade de pagamento que os federais.</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>📍 Subseções federais na sua região</h2>
+      <h2>Subseções federais na sua região</h2>
       <table>
         <tr><th>Município</th><th>Onde consultar / contato</th></tr>
         <tr><td><strong>Rio de Janeiro</strong></td><td>JFRJ — Av. Rio Branco 243 · (21) 3812-8604</td></tr>
@@ -727,13 +732,13 @@
   <!-- ABA: TRF6 -->
   <div id="trf6" class="panel">
     <div class="card">
-      <h2>⚖️ TRF6 — Tribunal Regional Federal da 6ª Região (Minas Gerais)</h2>
+      <h2>TRF6 — Tribunal Regional Federal da 6ª Região (Minas Gerais)</h2>
       <p>O TRF6 foi criado em 2022 e atende exclusivamente <strong>Minas Gerais</strong>. Se você tem um processo originado em MG contra a União, INSS ou autarquia federal, o precatório/RPV fica no TRF6.</p>
-      <div class="alert alert-blue">⚠️ Processos de MG expedidos <strong>antes de 2023</strong> podem ainda estar no TRF1. Se não achar no TRF6, tente também o portal do TRF1.</div>
+      <div class="alert alert-blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Processos de MG expedidos <strong>antes de 2023</strong> podem ainda estar no TRF1. Se não achar no TRF6, tente também o portal do TRF1.</div>
     </div>
 
     <div class="card">
-      <h2>📋 O que é o Ofício Requisitório?</h2>
+      <h2>O que é o Ofício Requisitório?</h2>
       <p>O <strong>Ofício Requisitório (OF)</strong> é o documento emitido pelo juiz de 1ª instância ao final do cumprimento de sentença, enviando a requisição de pagamento ao tribunal.</p>
       <table style="margin-top:10px">
         <tr><th>Etapa</th><th>O que acontece</th></tr>
@@ -747,14 +752,14 @@
     </div>
 
     <div class="card">
-      <h2>🔍 Como consultar no TRF6 — passo a passo</h2>
+      <h2>Como consultar no TRF6 — passo a passo</h2>
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
             <strong>Se o processo veio pelo sistema eproc</strong>
             <a class="btn-link" href="https://eproc2g.trf6.jus.br/eproc/externo_controlador.php?acao=processo_consulta_publica" target="_blank">
-              <span>🔍</span>
+              <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
               <div>Consulta Pública eproc — TRF6<small>eproc2g.trf6.jus.br</small></div>
             </a>
           </div>
@@ -764,7 +769,7 @@
           <div class="step-body">
             <strong>Se o processo veio pelo sistema PJe</strong>
             <a class="btn-link" href="https://processual.trf1.jus.br/consultaProcessual/numeroProcesso.php?secao=TRF1&enviar=ok" target="_blank">
-              <span>🔍</span>
+              <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
               <div>Consulta Processual PJe — TRF1/TRF6<small>processual.trf1.jus.br</small></div>
             </a>
           </div>
@@ -773,15 +778,15 @@
           <div class="step-num">3</div>
           <div class="step-body">
             <strong>Portal central de RPV e Precatórios do TRF6</strong>
-            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/rpv-e-precatorios/consulta-precatorio-e-rpv/" target="_blank"><span>🏛️</span> Portal TRF6 — RPV e Precatórios</a>
-            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/estatisticas/paineis-precatorios-e-rpvs/" target="_blank"><span>📊</span> Painel de estatísticas TRF6</a>
+            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/rpv-e-precatorios/consulta-precatorio-e-rpv/" target="_blank"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></span> Portal TRF6 — RPV e Precatórios</a>
+            <a class="btn-link-secondary" href="https://portal.trf6.jus.br/estatisticas/paineis-precatorios-e-rpvs/" target="_blank"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span> Painel de estatísticas TRF6</a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>📅 Calendário TRF6 — 2026</h2>
+      <h2>Calendário TRF6 — 2026</h2>
       <table>
         <tr><th>Evento</th><th>Data / Info</th></tr>
         <tr><td>Disponível para saque (proposta 2026)</td><td>A partir de <strong>8 de abril de 2026</strong></td></tr>
@@ -789,7 +794,7 @@
         <tr><td>Devedores</td><td>União Federal, autarquias e fundações federais</td></tr>
         <tr><td>Beneficiários</td><td>Mais de 15 mil credores em MG</td></tr>
       </table>
-      <div class="alert alert-green" style="margin-top:10px">✅ Precatórios federais (TRF6) têm o mesmo nível de segurança que TRF2 — devedora é a União Federal.</div>
+      <div class="alert alert-green" style="margin-top:10px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><path d="M20 6 9 17l-5-5"/></svg>Precatórios federais (TRF6) têm o mesmo nível de segurança que TRF2 — devedora é a União Federal.</div>
     </div>
   </div>
 
@@ -797,11 +802,11 @@
   <div id="investir" class="panel">
     <div class="card">
       <h2>Como encontrar precatórios para comprar</h2>
-      <p>Os tribunais não listam precatórios "à venda" — o mercado funciona por plataformas, escritórios e prospecção ativa via DataJud (use a aba 🔍 Buscar Processos).</p>
+      <p>Os tribunais não listam precatórios "à venda" — o mercado funciona por plataformas, escritórios e prospecção ativa via DataJud (use a aba Buscar Processos).</p>
     </div>
 
     <div class="card">
-      <h2>🛒 Plataformas de marketplace</h2>
+      <h2>Plataformas de marketplace</h2>
       <div class="link-grid">
         <a class="link-card" href="https://pjus.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>PJus</strong><small>Maior marketplace de créditos judiciais</small></a>
         <a class="link-card" href="https://lexcredativos.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>LexCred Ativos</strong><small>Gestão e negociação de ativos judiciais</small></a>
@@ -812,7 +817,7 @@
     </div>
 
     <div class="card">
-      <h2>📊 O que avaliar antes de comprar</h2>
+      <h2>O que avaliar antes de comprar</h2>
       <table>
         <tr><th>Critério</th><th>O que verificar</th></tr>
         <tr><td><strong>Tipo</strong></td><td>RPV (até 60 dias) vs. Precatório (fila anual)</td></tr>
@@ -833,7 +838,7 @@
       <p>Você transfere o direito de receber ao comprador agora, em troca de um valor à vista com desconto. Isso se chama <strong>cessão de crédito</strong>.</p>
     </div>
     <div class="card">
-      <h2>📋 Passo a passo</h2>
+      <h2>Passo a passo</h2>
       <div class="steps">
         <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Reúna os documentos</strong><p>Certidão do precatório/RPV (emitida pelo tribunal), número do processo, valor atualizado, RG, CPF e comprovante de residência.</p></div></div>
         <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Encontre compradores</strong><p>Use as plataformas da aba "Investir / Comprar" ou consulte escritórios especializados. Peça propostas de mais de um comprador.</p></div></div>
@@ -842,14 +847,14 @@
         <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Peticione no processo</strong><p>O novo credor (ou seu advogado) protocola a cessão nos autos para o tribunal registrar a mudança de titular.</p></div></div>
         <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Receba à vista</strong><p>Após a formalização, o comprador efetua o pagamento combinado.</p></div></div>
       </div>
-      <div class="alert">⚠️ Nunca pague nada adiantado — empresas sérias não cobram taxa para comprar seu precatório.</div>
+      <div class="alert"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Nunca pague nada adiantado — empresas sérias não cobram taxa para comprar seu precatório.</div>
     </div>
   </div>
 
   <!-- ABA: TODOS OS LINKS -->
   <div id="portais" class="panel">
     <div class="card">
-      <h2>🔗 Federais (TRF2 — RJ e ES)</h2>
+      <h2>Federais (TRF2 — RJ e ES)</h2>
       <div class="link-grid">
         <a class="link-card" href="https://www.trf2.jus.br/trf2/artigo/dipre/consulta-precatorios-rpvs" target="_blank"><span class="badge badge-fed">Federal</span><strong>Consulta Precatórios e RPVs</strong><small>Busca por CPF ou processo</small></a>
         <a class="link-card" href="https://www10.trf2.jus.br/consultas/precatorio-e-rpv/" target="_blank"><span class="badge badge-fed">Federal</span><strong>e-Proc TRF2</strong><small>Processos desde out/2018</small></a>
@@ -858,14 +863,14 @@
       </div>
     </div>
     <div class="card">
-      <h2>🔗 Federais (TRF3 — SP e MS)</h2>
+      <h2>Federais (TRF3 — SP e MS)</h2>
       <div class="link-grid">
         <a class="link-card" href="https://www.trf3.jus.br/trf3/index.php?id=1826" target="_blank"><span class="badge badge-fed">TRF3</span><strong>Consulta RPV/Precatório TRF3</strong><small>Busca por CPF ou processo</small></a>
         <a class="link-card" href="https://pje1g.trf3.jus.br/pje/ConsultaPublica/listView.seam" target="_blank"><span class="badge badge-fed">TRF3</span><strong>PJe TRF3 — Consulta Pública</strong><small>Acesso aos processos</small></a>
       </div>
     </div>
     <div class="card">
-      <h2>🏙️ Municipais (TJRJ)</h2>
+      <h2>Municipais (TJRJ)</h2>
       <div class="link-grid">
         <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios/consultas1" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Consultas TJRJ</strong><small>Precatórios municipais RJ</small></a>
         <a class="link-card" href="https://www.tjrj.jus.br/web/precatorios" target="_blank"><span class="badge badge-mun">TJRJ</span><strong>Portal Precatórios TJRJ</strong><small>Portal completo</small></a>
@@ -876,7 +881,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>💼 Mercado Secundário</h2>
+      <h2>Mercado Secundário</h2>
       <div class="link-grid">
         <a class="link-card" href="https://pjus.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>PJus</strong><small>Marketplace de créditos judiciais</small></a>
         <a class="link-card" href="https://lexcredativos.com.br" target="_blank"><span class="badge badge-sec">Plataforma</span><strong>LexCred Ativos</strong><small>Ativos judiciais</small></a>
@@ -897,11 +902,11 @@
 <!-- Bottom nav mobile -->
 <nav class="bottom-nav">
   <div class="bottom-nav-items">
-    <button class="bottom-nav-item active" onclick="showApp('buscar', this)"><span class="bn-icon">🔍</span>Buscar</button>
-    <button class="bottom-nav-item" onclick="showApp('consultar', this)"><span class="bn-icon">📋</span>Consultar</button>
-    <button class="bottom-nav-item" onclick="showApp('trf6', this)"><span class="bn-icon">⚖️</span>TRF6</button>
-    <button class="bottom-nav-item" onclick="showApp('investir', this)"><span class="bn-icon">💼</span>Investir</button>
-    <button class="bottom-nav-item" onclick="showApp('portais', this)"><span class="bn-icon">🔗</span>Links</button>
+    <button class="bottom-nav-item active" onclick="showApp('buscar', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>Buscar</button>
+    <button class="bottom-nav-item" onclick="showApp('consultar', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>Consultar</button>
+    <button class="bottom-nav-item" onclick="showApp('trf6', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>TRF6</button>
+    <button class="bottom-nav-item" onclick="showApp('investir', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>Investir</button>
+    <button class="bottom-nav-item" onclick="showApp('portais', this)"><span class="bn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Links</button>
   </div>
 </nav>
 
@@ -1008,7 +1013,7 @@
     if (estaEncerrado) {
       score = -999;
       motivos.length = 0;
-      motivos.push('❌ Encerrado');
+      motivos.push('Encerrado');
     }
 
     hit._score = score;
@@ -1018,11 +1023,11 @@
 
   // Cor do score
   function scoreCor(s) {
-    if (s >= 150) return { bg: 'rgba(16,185,129,0.18)', cor: '#6ee7b7', label: '🔥' };
-    if (s >= 100) return { bg: 'rgba(245,158,11,0.18)', cor: '#fcd34d', label: '⚡' };
-    if (s >= 60)  return { bg: 'rgba(99,102,241,0.18)', cor: '#a5b4fc', label: '✅' };
-    if (s >= 20)  return { bg: 'rgba(255,255,255,0.06)', cor: '#9ca3af', label: '📋' };
-    return           { bg: 'rgba(239,68,68,0.15)', cor: '#fca5a5', label: '❌' };
+    if (s >= 150) return { bg: 'rgba(16,185,129,0.18)', cor: '#6ee7b7', label: 'PRIME' };
+    if (s >= 100) return { bg: 'rgba(245,158,11,0.18)', cor: '#fcd34d', label: 'HIGH' };
+    if (s >= 60)  return { bg: 'rgba(99,102,241,0.18)', cor: '#a5b4fc', label: 'BOM' };
+    if (s >= 20)  return { bg: 'rgba(255,255,255,0.06)', cor: '#9ca3af', label: 'BAIXO' };
+    return           { bg: 'rgba(239,68,68,0.15)', cor: '#fca5a5', label: 'SKIP' };
   }
 
   // Navegação entre abas principais
@@ -1416,9 +1421,9 @@
     const tbody = document.getElementById('tjrj-tbody');
     tbody.innerHTML = '';
     for (const p of lista) {
-      const nat = p.SiglaNatureza === 'A' ? '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700">🍎 Alim.</span>'
-                : '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700">📄 Comum</span>';
-      const pago = p.Pago ? '<span style="color:#fca5a5;font-weight:700">✅ Pago</span>' : '<span style="color:#6ee7b7;font-weight:700">⏳ Pendente</span>';
+      const nat = p.SiglaNatureza === 'A' ? '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;padding:2px 8px;border-radius:8px;font-size:0.7rem;font-weight:700;letter-spacing:.04em">ALIM</span>'
+                : '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;padding:2px 8px;border-radius:8px;font-size:0.7rem;font-weight:700;letter-spacing:.04em">COMUM</span>';
+      const pago = p.Pago ? '<span style="color:#fca5a5;font-weight:700">Pago</span>' : '<span style="color:#6ee7b7;font-weight:700">Pendente</span>';
       const numPrec = p.NumeroPrecatorioCompleto || p.NumeroPrecatorio || '—';
       const ordem = p.OrdemCronologica || p.OrdemPagamento || p.NumSeqOrcAtual || '—';
       const orcamento = p.AnoOrcamento || p.Orcamento || '—';
@@ -1579,8 +1584,8 @@
     const comumT = ['correção monetária', 'correcao monetaria', 'reajuste', 'revisão', 'revisao', 'atualização', 'atualizacao', 'rmi', 'dib', 'teto'];
     function naturezaLabel(assuntoStr) {
       const a = (assuntoStr||'').toLowerCase();
-      if (alimentarT.some(t => a.includes(t))) return '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;font-size:0.68rem;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px">🍎</span>';
-      if (comumT.some(t => a.includes(t))) return '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.68rem;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px">📄</span>';
+      if (alimentarT.some(t => a.includes(t))) return '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;letter-spacing:.03em">ALIM</span>';
+      if (comumT.some(t => a.includes(t))) return '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;letter-spacing:.03em">CMM</span>';
       return '';
     }
     const linhas = hits.map(h => {
@@ -1589,7 +1594,7 @@
       const assunto = p.assuntos?.[0]?.nome || '—';
       const orgao = p.orgaoJulgador?.nome || '—';
       const grau = p.grau || '—';
-      const grauBadge = grau === 'JE' ? '<span style="background:rgba(16,185,129,0.15);color:#6ee7b7;font-size:0.7rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px">JE·RPV</span>' : `<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.7rem;padding:1px 6px;border-radius:8px;margin-left:4px">${grau}</span>`;
+      const grauBadge = grau === 'JE' ? '<span style="background:rgba(16,185,129,0.15);color:#6ee7b7;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:4px;letter-spacing:.03em">JE·RPV</span>' : `<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.65rem;font-weight:600;padding:1px 6px;border-radius:6px;margin-left:4px">${grau}</span>`;
       const movs = (p.movimentos||[]).slice(-3);
       const movsStr = movs.map(m => `${icone(m.nome)} ${m.nome||'?'}`).join(' | ');
       const link = linkParaTribunal(num);
@@ -1622,8 +1627,8 @@
     tr:hover td{background:rgba(255,255,255,0.04)}</style></head><body>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
       <h2 style="margin:0">📋 ${hits.length} processos</h2>
-      <button onclick="filtrarFogo()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer">🔥 Só Fogos</button>
-      <button onclick="mostrarTodos()" style="background:rgba(255,255,255,0.08);color:#e8eaf6;border:1px solid rgba(255,255,255,0.1);padding:7px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer">📋 Todos</button>
+      <button onclick="filtrarFogo()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer">Score alto</button>
+      <button onclick="mostrarTodos()" style="background:rgba(255,255,255,0.08);color:#e8eaf6;border:1px solid rgba(255,255,255,0.1);padding:7px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer">Todos</button>
       <span id="contador" style="font-size:0.82rem;color:#6b7280"></span>
     </div>
     <table id="tabela"><thead><tr><th>Número</th><th>Assunto</th><th>Órgão</th><th>Réu (Polo Passivo)</th><th>Movimentações</th><th>Score</th></tr></thead><tbody id="tbody">${linhas}</tbody></table>
@@ -1676,9 +1681,9 @@
       const comumTermos = ['correção monetária', 'correcao monetaria', 'reajuste', 'revisão', 'revisao', 'atualização', 'atualizacao', 'rmi', 'dib', 'teto'];
       let naturezaBadge = '';
       if (alimentarTermos.some(t => assuntoNome.includes(t))) {
-        naturezaBadge = '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">🍎 Alimentar</span>';
+        naturezaBadge = '<span style="background:rgba(245,158,11,0.15);color:#fcd34d;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:.04em">ALIMENTAR</span>';
       } else if (comumTermos.some(t => assuntoNome.includes(t))) {
-        naturezaBadge = '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px">📄 Comum</span>';
+        naturezaBadge = '<span style="background:rgba(255,255,255,0.06);color:#9ca3af;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:.04em">COMUM</span>';
       }
 
       // Advogados do polo ativo (exequente)
@@ -1707,9 +1712,9 @@
       function classifMov(nome) {
         const n = (nome||'').toLowerCase();
         const exc = excMovK.some(x => n.includes(x));
-        if (!exc && ouroMovK.some(k => n.includes(k))) return { cor: '#6ee7b7', bg: 'rgba(16,185,129,0.14)', icone: '🔥' };
-        if (!exc && bomMovK.some(k => n.includes(k)))  return { cor: '#93c5fd', bg: 'rgba(59,130,246,0.12)', icone: '✅' };
-        if (ruim.some(k => n.includes(k)))              return { cor: '#fca5a5', bg: 'rgba(239,68,68,0.12)', icone: '❌' };
+        if (!exc && ouroMovK.some(k => n.includes(k))) return { cor: '#6ee7b7', bg: 'rgba(16,185,129,0.14)', icone: '▲' };
+        if (!exc && bomMovK.some(k => n.includes(k)))  return { cor: '#93c5fd', bg: 'rgba(59,130,246,0.12)', icone: '✓' };
+        if (ruim.some(k => n.includes(k)))              return { cor: '#fca5a5', bg: 'rgba(239,68,68,0.12)', icone: '✗' };
         return { cor: '#9ca3af', bg: 'transparent', icone: '' };
       }
 
