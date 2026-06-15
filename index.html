@@ -1191,6 +1191,95 @@
     }
   }
 
+  async function abrirListaCompacta(tam) {
+    const assunto    = document.getElementById('fed-assunto').value.trim();
+    const trfSel     = document.getElementById('fed-trf').value;
+    const RAILWAY_URL = 'https://consultarprocessos-production.up.railway.app';
+    const trfs = trfSel ? [trfSel] : ['trf3','trf5','trf6'];
+
+    // Cria/abre o modal
+    let modal = document.getElementById('modal-lista-compacta');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modal-lista-compacta';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto';
+      modal.innerHTML = '<div id="modal-inner" style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.12);border-radius:14px;width:100%;max-width:860px;padding:24px;position:relative"></div>';
+      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+      document.body.appendChild(modal);
+    }
+    const inner = document.getElementById('modal-inner');
+    inner.innerHTML = `
+      <button onclick="document.getElementById('modal-lista-compacta').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer">✕</button>
+      <h3 style="margin:0 0 16px;font-size:1rem;color:var(--text)">Lista Compacta — buscando ${tam} resultados...</h3>
+      <div style="text-align:center;padding:32px;color:var(--text-muted)"><div style="display:inline-flex;animation:spin 0.8s linear infinite"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div></div>`;
+
+    const must = [{ term: { 'movimentos.codigo': 12457 } }];
+    if (assunto) must.push({ match: { 'assuntos.nome': assunto } });
+
+    const query = {
+      query: { bool: { must } },
+      size: tam,
+      sort: [{ dataAjuizamento: { order: 'desc' } }],
+      _source: ['numeroProcesso','assuntos','orgaoJulgador','movimentos']
+    };
+
+    const resultados = await Promise.allSettled(trfs.map(async trf => {
+      const resp = await fetch(`${RAILWAY_URL}/datajud/api_publica_${trf}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(query)
+      });
+      const data = await resp.json();
+      return { trf: trf.toUpperCase(), hits: data?.hits?.hits || [] };
+    }));
+
+    const rows = [];
+    for (const r of resultados) {
+      if (r.status !== 'fulfilled') continue;
+      for (const h of r.value.hits) {
+        const s     = h._source || {};
+        const num   = s.numeroProcesso || '';
+        const limpo = num.replace(/\D/g,'');
+        const fmt   = limpo.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6');
+        const exps  = (s.movimentos||[]).filter(m => m.codigo===12457);
+        const exp   = exps.length ? exps[exps.length-1].dataHora?.substring(0,10) : '';
+        const assuntoNome = (s.assuntos||[])[0]?.nome || '';
+        rows.push({ fmt, exp, trf: r.value.trf, assuntoNome });
+      }
+    }
+
+    // Ordena por expedição decrescente
+    rows.sort((a,b) => (b.exp||'').localeCompare(a.exp||''));
+
+    const todosCNJ = rows.map(r => r.fmt).join('\n');
+
+    inner.innerHTML = `
+      <button onclick="document.getElementById('modal-lista-compacta').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer">✕</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0;font-size:1rem;color:var(--text)">${rows.length} processos — ordenados por expedição ↓</h3>
+        <button onclick="navigator.clipboard.writeText(${JSON.stringify(todosCNJ)})" style="font-size:0.72rem;padding:5px 14px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">Copiar todos os CNJs</button>
+      </div>
+      <div style="overflow-y:auto;max-height:70vh">
+        <table style="width:100%;border-collapse:collapse;font-size:0.72rem">
+          <thead style="position:sticky;top:0;background:#1a1a2e">
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
+              <th style="padding:5px 8px;color:var(--text-muted);font-weight:600;text-align:left">Nº CNJ</th>
+              <th style="padding:5px 8px;color:var(--text-muted);font-weight:600;text-align:left">Expedido</th>
+              <th style="padding:5px 8px;color:var(--text-muted);font-weight:600;text-align:left">TRF</th>
+              <th style="padding:5px 8px;color:var(--text-muted);font-weight:600;text-align:left">Assunto</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+                <td style="padding:4px 8px;font-family:monospace;white-space:nowrap;color:var(--text)">${r.fmt}</td>
+                <td style="padding:4px 8px;white-space:nowrap;color:${r.exp ? '#50e3c2' : 'var(--text-muted)'}">${r.exp||'—'}</td>
+                <td style="padding:4px 8px;white-space:nowrap"><span style="background:rgba(99,102,241,0.18);color:#a5b4fc;border-radius:4px;padding:1px 5px;font-size:0.65rem;font-weight:600">${r.trf}</span></td>
+                <td style="padding:4px 8px;color:var(--text-muted)">${r.assuntoNome}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
   function selecionarTRF(trf, btnId) {
     document.getElementById('fed-trf').value = trf;
     document.querySelectorAll('[id^="btn-fed-"]').forEach(b => b.classList.remove('active'));
@@ -1304,9 +1393,11 @@
     let html = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <span class="result-count" style="margin:0">${total.toLocaleString('pt-BR')} processo(s) encontrados — exibindo ${sorted.length} nesta página</span>
-        <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">
-          Copiar página
-        </button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="abrirListaCompacta(500)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 500</button>
+          <button onclick="abrirListaCompacta(1000)" style="font-size:0.72rem;padding:5px 12px;background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:6px;cursor:pointer">📋 Lista 1000</button>
+          <button onclick="navigator.clipboard.writeText(${JSON.stringify(linhasCNJ)})" style="font-size:0.72rem;padding:5px 12px;background:rgba(80,227,194,0.12);color:#50e3c2;border:1px solid rgba(80,227,194,0.3);border-radius:6px;cursor:pointer">Copiar página</button>
+        </div>
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:0.75rem">
